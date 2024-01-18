@@ -9,32 +9,38 @@ from pydantic_schemas.ingredient_category import IngredientCategory, IngredientC
 
 router = APIRouter(tags=["Ingredient Categories"])
 
-@router.get("/ingredient_categories", response_model=List[IngredientCategory])
+@router.get("/ingredient_category_list", response_model=List[IngredientCategory])
 async def read_ingredient_categories(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
     ingredient_categories = get_ingredient_categories(db, skip=skip, limit=limit)
 
-    if ingredient_categories is None:
+    if not ingredient_categories:
         raise HTTPException(status_code=404, detail="Ingredient Categories is empty")
 
     return ingredient_categories
 
 
 @router.get("/ingredient_category_id/{ingredient_category_id}", response_model=IngredientCategory)
-async def read_ingredient_categories(*, db: Session = Depends(get_db), ingredient_category_id: int):
+async def read_ingredient_category_by_id(*, db: Session = Depends(get_db), ingredient_category_id: int):
     ingredient_category_by_id = get_ingredient_category_by_id(db, ingredient_category_id=ingredient_category_id)
 
     if ingredient_category_by_id is None:
-        raise HTTPException(status_code=404, detail="Ingredient Category is not found")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"{ingredient_category_id} as Ingredient Category is not found"
+        )
 
     return ingredient_category_by_id
 
 
 @router.get("/ingredient_category_name/{ingredient_category_name}", response_model=IngredientCategory)
-async def read_ingredient_categories(*, db: Session = Depends(get_db), ingredient_category_name: str):
+async def read_ingredient_category_by_name(*, db: Session = Depends(get_db), ingredient_category_name: str):
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category_name)
 
     if ingredient_category_by_name is None:
-        raise HTTPException(status_code=404, detail="Ingredient Category is not found")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"{ingredient_category_name} as Ingredient Category is not found"
+        )
 
     return ingredient_category_by_name
 
@@ -44,8 +50,9 @@ async def add_ingredient_category(*, db: Session = Depends(get_db), ingredient_c
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category.name)
     
     if ingredient_category_by_name:
-        raise HTTPException(status_code=400, 
-                            detail=f"{ingredient_category.name} as Ingredient Category is already registered"
+        raise HTTPException(
+            status_code=400, 
+            detail=f"{ingredient_category.name} as Ingredient Category is already registered"
         )
 
     ingredient_category_create = create_ingredient_category(db=db, ingredient_category=ingredient_category)
@@ -65,8 +72,9 @@ async def change_ingredient_category(
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category_name)
     
     if not ingredient_category_by_name:
-        raise HTTPException(status_code=404, 
-                            detail=f"{ingredient_category_name} as Ingredient Category is not registered"
+        raise HTTPException(
+            status_code=404, 
+            detail=f"{ingredient_category_name} as Ingredient Category is not registered"
         )
 
     ingredient_category_update = update_ingredient_category(db=db, ingredient_category_name=ingredient_category_name, ingredient_category=ingredient_category)
@@ -88,7 +96,10 @@ async def change_ingredient_category(
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category_name)
 
     if not ingredient_category_by_name:
-        raise HTTPException(status_code=404, detail=f"{ingredient_category_name} as Ingredient Category is not registered")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"{ingredient_category_name} as Ingredient Category is not registered"
+        )
 
     # Assuming you have a function that updates the ingredient category based on the new name
     ingredient_category_update = update_ingredient_category(
@@ -107,7 +118,7 @@ async def change_ingredient_category(
 
 
 @router.delete("/ingredient_category_delete/{ingredient_category_name}", status_code=200)
-async def delete_ingredient_category_endpoint(*, db: Session = Depends(get_db), ingredient_category_name: str):
+async def delete_ingredient_category(*, db: Session = Depends(get_db), ingredient_category_name: str):
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category_name)
 
     if ingredient_category_by_name is None:
