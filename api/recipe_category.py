@@ -92,7 +92,7 @@ async def change_recipe_category(
 
 
 @router.delete("/recipe_category_delete/{recipe_category_name}", status_code=200)
-async def delete_recipe_category(*, db: Session = Depends(get_db), recipe_category_name: str):
+async def remove_recipe_category(*, db: Session = Depends(get_db), recipe_category_name: str):
     recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category_name)
 
     if recipe_category_by_name is None:

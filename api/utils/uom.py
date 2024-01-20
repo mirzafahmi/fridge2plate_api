@@ -40,7 +40,8 @@ def update_uom(
         
         if uom:
             for key, value in uom.dict().items():
-                setattr(db_uom, key, value)
+                if value is not None:
+                    setattr(db_uom, key, value)
 
         if new_name:
             db_uom.name = new_name

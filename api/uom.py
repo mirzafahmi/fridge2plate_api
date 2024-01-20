@@ -102,7 +102,7 @@ async def change_uom(
 
 
 @router.delete("/uom_delete/{uom_name}", status_code=200)
-async def delete_uom(*, db: Session = Depends(get_db), uom_name: str):
+async def remove_uom(*, db: Session = Depends(get_db), uom_name: str):
     uom_by_name = get_uom_by_name(db, uom_name=uom_name)
 
     if uom_by_name is None:

@@ -89,7 +89,7 @@ async def change_recipe_tag(
 
 
 @router.delete("/recipe_tag_delete/{recipe_tag_name}", status_code=200)
-async def delete_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_name: str):
+async def remove_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_name: str):
     recipe_tag_by_name = get_recipe_tag_by_name(db, recipe_tag_name=recipe_tag_name)
 
     if recipe_tag_by_name is None:

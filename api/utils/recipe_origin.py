@@ -37,7 +37,8 @@ def update_recipe_origin(
         
         if recipe_origin:
             for key, value in recipe_origin.dict().items():
-                setattr(db_recipe_origin, key, value)
+                if value is not None:
+                    setattr(db_recipe_origin, key, value)
 
         db.commit()
         db.refresh(db_recipe_origin)
@@ -47,7 +48,7 @@ def update_recipe_origin(
         raise HTTPException(status_code=404, detail=f"Recipe Origin with name {recipe_origin_name} not found")
 
 
-def delete_recipe_Origin(db: Session, recipe_origin_name: str):
+def delete_recipe_origin(db: Session, recipe_origin_name: str):
     db_recipe_origin = get_recipe_origin_by_name(db, recipe_origin_name)
     
     if not db_recipe_origin:

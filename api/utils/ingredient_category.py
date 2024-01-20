@@ -38,7 +38,8 @@ def update_ingredient_category(
         # Update the properties of the existing ingredient category
         if ingredient_category:
             for key, value in ingredient_category.dict().items():
-                setattr(db_ingredient_category, key, value)
+                if value is not None:
+                    setattr(db_ingredient_category, key, value)
 
         if new_name:
             db_ingredient_category.name = new_name

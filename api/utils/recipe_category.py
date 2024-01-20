@@ -37,7 +37,8 @@ def update_recipe_category(
         
         if recipe_category:
             for key, value in recipe_category.dict().items():
-                setattr(db_recipe_category, key, value)
+                if value is not None:
+                    setattr(db_recipe_category, key, value)
 
         db.commit()
         db.refresh(db_recipe_category)

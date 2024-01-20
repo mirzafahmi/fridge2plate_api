@@ -89,7 +89,7 @@ async def change_recipe_origin(
 
 
 @router.delete("/recipe_origin_delete/{recipe_origin_name}", status_code=200)
-async def delete_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_name: str):
+async def remove_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_name: str):
     recipe_origin_by_name = get_recipe_origin_by_name(db, recipe_origin_name=recipe_origin_name)
 
     if recipe_origin_by_name is None:
