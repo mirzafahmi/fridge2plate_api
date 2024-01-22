@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, Text, Float
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, Text, Float, Table
 from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
@@ -20,13 +20,6 @@ class Ingredient(UtilsField, Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, index=True, nullable=False)
     brand = Column(String(100), index=True, nullable=False)
-    '''substitutes = relationship('Ingredient', 
-                               remote_side=[id], 
-                               back_populates='substitute_for', 
-                               uselist=True)  # Assuming one-to-many relationship                               
-    substitute_for = relationship('Ingredient', 
-                                  back_populates='substitutes',
-                                  uselist=True)'''
     is_essential = Column(Boolean, default=False)
 
     ingredient_category_id = Column(Integer, ForeignKey("ingredient_category.id"), nullable=False)
@@ -43,7 +36,6 @@ class UOM(UtilsField, Base):
     unit = Column(String(10), unique=True, index=True, nullable=False)
     weightage = Column(Float)
 
-    ingredient_recipe_association = relationship("IngredientRecipeAssociation", back_populates="uom")
 
 
 class RecipeCategory(UtilsField, Base):
@@ -73,17 +65,26 @@ class RecipeOrigin(UtilsField, Base):
     recipe = relationship("Recipe", back_populates="recipe_origin")
 
 
+# ingredient_recipe_association = Table(
+#     'ingredient_recipe',
+#     Base.metadata,
+#     Column('recipe_id', Integer, ForeignKey('recipe.id')),
+#     Column('ingredient_id', Integer, ForeignKey('ingredient.id')),
+#     Column('quantity', Integer),
+#     Column('uom_id', Integer, ForeignKey('uom.id'))
+# )
+
+
 class IngredientRecipeAssociation(Base):
     __tablename__ = "ingredient_recipe_association"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    
     ingredient_id = Column(Integer, ForeignKey("ingredient.id"), primary_key=True)
     recipe_id = Column(Integer, ForeignKey("recipe.id"), primary_key=True)
-
     quantity = Column(Integer)
-
     uom_id = Column(Integer, ForeignKey("uom.id"))
-    uom = relationship("UOM", back_populates="ingredient_recipe_association")
+
 
 
 class Recipe(UtilsField, Base):
@@ -94,7 +95,7 @@ class Recipe(UtilsField, Base):
     serving = Column(Integer, index=True, nullable=True)
     cooking_time = Column(String(100), index=True, nullable=False)
     author = Column(String(100), index=True, nullable=False)
-    instuctions = Column(Text, index=True, nullable=True)
+    instructions = Column(Text, index=True, nullable=True)
 
 
     recipe_category_id = Column(Integer, ForeignKey("recipe_category.id"), nullable=True)

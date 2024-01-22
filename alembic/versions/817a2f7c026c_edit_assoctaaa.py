@@ -1,8 +1,8 @@
-"""omit subsitute
+"""edit assoctaaa
 
-Revision ID: b078cb8bd845
-Revises: d608e7ca5925
-Create Date: 2024-01-17 04:47:22.003677
+Revision ID: 817a2f7c026c
+Revises: f4378c57260d
+Create Date: 2024-01-22 22:36:07.905085
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b078cb8bd845'
-down_revision: Union[str, None] = 'd608e7ca5925'
+revision: str = '817a2f7c026c'
+down_revision: Union[str, None] = 'f4378c57260d'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

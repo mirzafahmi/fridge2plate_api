@@ -1,8 +1,8 @@
-"""modify_ingredient_relationship
+"""edit assoctaa
 
-Revision ID: d608e7ca5925
-Revises: 86bd8c457ff7
-Create Date: 2024-01-17 04:35:17.791489
+Revision ID: f4378c57260d
+Revises: 5824a84f2f02
+Create Date: 2024-01-22 22:21:15.767550
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd608e7ca5925'
-down_revision: Union[str, None] = '86bd8c457ff7'
+revision: str = 'f4378c57260d'
+down_revision: Union[str, None] = '5824a84f2f02'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
