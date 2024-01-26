@@ -10,6 +10,7 @@ class IngredientCreate(LowercaseBaseModel):
     brand: str
     is_essential: bool
     ingredient_category: str
+    icon: str
 
 
 class IngredientUpdate(LowercaseBaseModel):
@@ -17,6 +18,7 @@ class IngredientUpdate(LowercaseBaseModel):
     brand: Optional[str] = None
     is_essential: Optional[bool] = None
     ingredient_category: Optional[str] = None
+    icon: Optional[str] = None
 
 
 class Ingredient(IngredientCreate):

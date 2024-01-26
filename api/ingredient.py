@@ -45,6 +45,18 @@ async def read_ingredient_by_name(*, db: Session = Depends(get_db), ingredient_n
 
     return ingredient_by_name
 
+@router.get("/ingredient_by_category/{ingredient_category}", response_model=List[Ingredient])
+async def read_ingredient_by_category(*, db: Session = Depends(get_db), ingredient_category: str):
+    ingredient_by_category = get_ingredient_by_category(db, ingredient_category=ingredient_category)
+
+    if ingredient_by_category is None:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"{ingredient_category} as Ingredient Category is not found"
+        )
+
+    return ingredient_by_category
+
 
 @router.post("/ingredient_create", status_code=201, response_model=Ingredient)
 async def add_ingredient(
@@ -93,7 +105,7 @@ async def change_ingredient(
     if not path_ingredient_name:
         raise HTTPException(
             status_code=400, 
-            detail=f"{ingredient_name} as Ingredient is not register"
+            detail=f"{ingredient_name} as Ingredient is not registered"
         )
 
     if ingredient.ingredient_category:

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from api import ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe,ingredient_recipe_association
 
 
@@ -23,4 +24,5 @@ app.include_router(recipe_category.router)
 app.include_router(recipe_tag.router)
 app.include_router(recipe_origin.router)
 app.include_router(recipe.router)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 #app.include_router(ingredient_recipe_association.router)

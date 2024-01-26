@@ -21,11 +21,13 @@ class Ingredient(UtilsField, Base):
     name = Column(String(100), unique=True, index=True, nullable=False)
     brand = Column(String(100), index=True, nullable=False)
     is_essential = Column(Boolean, default=False)
+    icon = Column(Text, nullable=True)
 
     ingredient_category_id = Column(Integer, ForeignKey("ingredient_category.id"), nullable=False)
     ingredient_category = relationship("IngredientCategory", back_populates="ingredient")
 
     recipe = relationship("Recipe", secondary="ingredient_recipe_association", back_populates="ingredients")
+    
 
 
 class UOM(UtilsField, Base):

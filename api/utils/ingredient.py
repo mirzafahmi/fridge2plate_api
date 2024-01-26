@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional
 
-from db.models.recipe import Ingredient
+from db.models.recipe import Ingredient, IngredientCategory
 from pydantic_schemas.ingredient import IngredientCreate, IngredientUpdate
 from api.utils.ingredient_category import get_ingredient_category_by_name
 
@@ -17,7 +17,11 @@ def get_ingredient_by_id(db: Session, ingredient_id: int):
 def get_ingredient_by_name(db: Session, ingredient_name: str):
     
     return db.query(Ingredient).filter(Ingredient.name == ingredient_name).first()
+    
+def get_ingredient_by_category(db: Session, ingredient_category: str):
+    ingredient_by_category = get_ingredient_category_by_name(db, ingredient_category)
 
+    return db.query(Ingredient).filter(Ingredient.ingredient_category_id == ingredient_by_category.id).all()
 
 def create_ingredient(db: Session, ingredient: IngredientCreate):
     db_ingredient = Ingredient(
@@ -40,7 +44,8 @@ def create_ingredient_by_name(db: Session, ingredient: IngredientCreate):
             name=ingredient.name, 
             brand=ingredient.brand,
             is_essential=ingredient.is_essential,
-            ingredient_category_id=ingredient_category.id
+            ingredient_category_id=ingredient_category.id,
+            icon=ingredient.icon
         )
         db.add(db_ingredient)
         db.commit()
