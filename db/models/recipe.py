@@ -83,10 +83,11 @@ class IngredientRecipeAssociation(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     
     ingredient_id = Column(Integer, ForeignKey("ingredient.id"), primary_key=True)
+    ingredient = relationship("Ingredient", overlaps="recipe")
     recipe_id = Column(Integer, ForeignKey("recipe.id"), primary_key=True)
     quantity = Column(Integer)
     uom_id = Column(Integer, ForeignKey("uom.id"))
-
+    uom = relationship("UOM")
 
 
 class Recipe(UtilsField, Base):
@@ -110,4 +111,5 @@ class Recipe(UtilsField, Base):
     recipe_origin = relationship("RecipeOrigin", back_populates="recipe")
     
     
-    ingredients = relationship("Ingredient", secondary="ingredient_recipe_association", back_populates="recipe")
+    ingredients = relationship("Ingredient", secondary="ingredient_recipe_association", back_populates="recipe", overlaps="ingredient")
+    ingredients_recipe_associations = relationship("IngredientRecipeAssociation", overlaps="ingredients,recipe")

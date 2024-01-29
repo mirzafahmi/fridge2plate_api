@@ -1,6 +1,7 @@
 from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Any
+
 
 from pydantic_schemas.recipe_category import RecipeCategory
 from pydantic_schemas.recipe_tag import RecipeTag
@@ -45,7 +46,7 @@ class Recipe(LowercaseBaseModel):
     recipe_category: Optional[RecipeCategory]
     recipe_tag: Optional[RecipeTag]
     recipe_origin: Optional[RecipeOrigin]
-    ingredients: Optional[List[IngredientRecipeAssociation]]
+    ingredients_recipe_associations: List[IngredientRecipeAssociation]
 
     id: int
     create_date: datetime

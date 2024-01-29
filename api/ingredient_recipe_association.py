@@ -14,6 +14,16 @@ async def read_ingredient_recipe_associations(db: Session = Depends(get_db), ski
     ingredient_recipe_associations = get_ingredient_recipe_associations(db, skip=skip, limit=limit)
 
     if not ingredient_recipe_associations:
-        raise HTTPException(status_code=404, detail="Ingredient Categories is empty")
+        raise HTTPException(status_code=404, detail="Ingredient Recipe Association List is empty")
+
+    return ingredient_recipe_associations
+
+
+@router.get("/ingredient_recipe_association_by_recipe_name", response_model=List[IngredientRecipeAssociation])
+async def read_ingredient_recipe_associations_by_recipe_name(*, db: Session = Depends(get_db), recipe_name: str):
+    ingredient_recipe_associations = get_ingredient_recipe_associations_by_recipe_name(db, recipe_name)
+
+    if not ingredient_recipe_associations:
+        raise HTTPException(status_code=404, detail="Ingredient Recipe Association List is empty")
 
     return ingredient_recipe_associations

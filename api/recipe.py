@@ -84,11 +84,18 @@ async def add_recipe(
             detail=f"{recipe.recipe_origin} as Recipe Origin is not found"
         )
 
-    recipe_create = create_recipe(db=db, recipe=recipe)
+    try:
+        recipe_create = create_recipe(db=db, recipe=recipe)
 
-    for ingredient in recipe.ingredients:
-        print(ingredient)
-        create_association(db=db, recipe_id=recipe_create.id, ingredient=ingredient)
+        for ingredient in recipe.ingredients:
+
+            create_association(db=db, recipe_id=recipe_create.id, ingredient=ingredient)
+
+    except:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error creating {recipe.name} as Recipe: {str(e)}"
+        )
 
     result_message = f"{recipe.name} as Recipe is successfully created"
     data = get_recipe_by_name(db, recipe_name=recipe.name)

@@ -12,10 +12,10 @@ class IngredientRecipeAssociationBase(LowercaseBaseModel):
     uom: str
 
 
-class IngredientRecipeAssociation(IngredientRecipeAssociationBase):
+class IngredientRecipeAssociation(LowercaseBaseModel):
     id: int
-    ingredient: Optional[Ingredient]
-    uom: Optional[UOM]
+    ingredient: Ingredient
+    uom: UOM
     quantity: int
     
     class Config:
