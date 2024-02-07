@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
 from typing import Optional
+from fastapi import HTTPException
 
 from db.models.recipe import IngredientRecipeAssociation
 from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssociationBase
 from api.utils.ingredient import get_ingredient_by_name
 from api.utils.uom import get_uom_by_name
-from api.utils.recipe import get_recipe_by_name
+from api.utils.recipe import get_recipe_by_name, get_recipe_by_id
 
 
 def get_ingredient_recipe_associations(db: Session, skip: int=0, limit: int = 100):
@@ -20,8 +21,18 @@ def get_ingredient_recipe_associations_by_id(db: Session, ingredient_recipe_asso
     return data
 
 
+def get_ingredient_recipe_associations_by_recipe_id(db: Session, recipe_id: id):
+
+    data = db.query(IngredientRecipeAssociation).filter(IngredientRecipeAssociation.recipe_id == recipe_id).all()
+
+    return data
+
+
 def get_ingredient_recipe_associations_by_recipe_name(db: Session, recipe_name: str):
     recipe = get_recipe_by_name(db, recipe_name)
+
+    if not recipe:
+        raise HTTPException(status_code=404, detail=f"Recipe with name {recipe_name} not found")
 
     data = db.query(IngredientRecipeAssociation).filter(IngredientRecipeAssociation.recipe_id == recipe.id).all()
 
@@ -54,24 +65,34 @@ def create_association(
 
 def update_association(
     db: Session, 
-    recipe_name: str, 
+    recipe_id: int, 
     ingredient: IngredientRecipeAssociation
 ):
-    db_recipe = get_recipe_by_name(db, recipe_name)
-    
+    db_recipe = get_recipe_by_id(db, recipe_id)
+    #update must same as create as we delete the current assoc
     if db_recipe:
         # Update the properties of the existing recipe category
-        if recipe:
-            for key, value in recipe.dict().items():
+        if ingredient:
+            for key, value in ingredient.dict().items():
                 if value is not None:
                     setattr(db_recipe, key, value)
-
-        if new_name:
-            db_recipe.name = new_name
 
         db.commit()
         db.refresh(db_recipe)
 
         return db_recipe
     else:
-        raise HTTPException(status_code=404, detail=f"recipe Category with name {recipe_name} not found")
+        raise HTTPException(status_code=404, detail=f"Recipe with name {db_recipe.name} not found")
+
+
+def delete_association(db: Session, recipe_id: int):
+    recipe_name = get_recipe_by_id(db, recipe_id).name
+    db_associations = get_ingredient_recipe_associations_by_recipe_id(db, recipe_id)
+    print(db_associations)
+    if not db_associations:
+        raise HTTPException(status_code=404, detail=f"Ingredient association with recipe {recipe_name} not found")
+
+    for db_association in db_associations:
+        db.delete(db_association)
+
+    db.commit()

@@ -20,7 +20,7 @@ class RecipeUpdate(LowercaseBaseModel):
     recipe_category_id: Optional[int] = None
     recipe_tag_id: Optional[int] = None
     recipe_origin_id: Optional[int] = None
-    Recipes: List[int]
+    ingredients: Optional[List[IngredientRecipeAssociationBase]]
 
 class RecipeBase(LowercaseBaseModel):
     ...
