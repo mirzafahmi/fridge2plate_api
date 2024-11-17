@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
-from decouple import config
+from dotenv import load_dotenv
 
-DATABASE_URL = os.environ.get("DATABASE_URL") or config("DATABASE_URL")
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL, future=True)
 

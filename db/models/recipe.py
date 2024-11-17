@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Bool
 from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
-from .mixins import UtilsField
+from .timestamp_mixin import TimestampMixin
 
 
-class IngredientCategory(UtilsField, Base):
+class IngredientCategory(TimestampMixin, Base):
     __tablename__ = "ingredient_category"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -14,7 +14,7 @@ class IngredientCategory(UtilsField, Base):
     ingredient = relationship("Ingredient", back_populates="ingredient_category")
 
 
-class Ingredient(UtilsField, Base):
+class Ingredient(TimestampMixin, Base):
     __tablename__ = "ingredient"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -30,7 +30,7 @@ class Ingredient(UtilsField, Base):
     
 
 
-class UOM(UtilsField, Base):
+class UOM(TimestampMixin, Base):
     __tablename__ = "uom"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -40,7 +40,7 @@ class UOM(UtilsField, Base):
 
 
 
-class RecipeCategory(UtilsField, Base):
+class RecipeCategory(TimestampMixin, Base):
     __tablename__ = "recipe_category"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -49,7 +49,7 @@ class RecipeCategory(UtilsField, Base):
     recipe = relationship("Recipe", back_populates="recipe_category")
 
 
-class RecipeTag(UtilsField, Base):
+class RecipeTag(TimestampMixin, Base):
     __tablename__ = "recipe_tag"
         
     id = Column(Integer, primary_key=True, index=True)
@@ -58,7 +58,7 @@ class RecipeTag(UtilsField, Base):
     recipe = relationship("Recipe", back_populates="recipe_tag")
 
 
-class RecipeOrigin(UtilsField, Base):
+class RecipeOrigin(TimestampMixin, Base):
     __tablename__ = "recipe_origin"
         
     id = Column(Integer, primary_key=True, index=True)
@@ -77,7 +77,7 @@ class RecipeOrigin(UtilsField, Base):
 # )
 
 
-class IngredientRecipeAssociation(Base):
+class IngredientRecipeAssociation(TimestampMixin, Base):
     __tablename__ = "ingredient_recipe_association"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -90,7 +90,7 @@ class IngredientRecipeAssociation(Base):
     uom = relationship("UOM")
 
 
-class Recipe(UtilsField, Base):
+class Recipe(TimestampMixin, Base):
     __tablename__ = "recipe"
     
     id = Column(Integer, primary_key=True, index=True)

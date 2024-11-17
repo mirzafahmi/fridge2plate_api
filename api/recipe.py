@@ -1,5 +1,5 @@
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, Query 
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from api.utils.recipe import *
@@ -12,45 +12,51 @@ from db.db_setup import get_db
 from pydantic_schemas.recipe import Recipe, RecipeCreate, RecipeCreatedResponse, RecipeUpdate
 
 
-router = APIRouter(tags=["Recipe List"])
+router = APIRouter(
+    prefix="/recipes",
+    tags=["Recipes"]
+)
 
-@router.get("/recipe_list", response_model=List[Recipe])
+@router.get("/", status_code=status.HTTP_200_OK, response_model=List[Recipe])
 async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
     recipes = get_recipes(db, skip=skip, limit=limit)
 
     if not recipes:
-        raise HTTPException(status_code=404, detail="Recipe list is empty")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Recipe list is empty"
+        )
 
     return recipes
 
 
-@router.get("/recipe_id/{recipe_id}", response_model=Recipe)
+@router.get("/{recipe_id}", status_code=status.HTTP_200_OK, response_model=Recipe)
 async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: int):
     recipe_by_id = get_recipe_by_id(db, recipe_id=recipe_id)
 
     if recipe_by_id is None:
         raise HTTPException(
-            status_code=404, 
+            status_code=status.HTTP_404_NOT_FOUND, 
             detail=f"Id {recipe_id} as Recipe is not found"
         )
 
     return recipe_by_id
 
 
-@router.get("/recipe_name/{recipe_name}", response_model=Recipe)
+@router.get("/by_name/{recipe_name}", status_code=status.HTTP_200_OK, response_model=Recipe)
 async def read_recipe_by_name(*, db: Session = Depends(get_db), recipe_name: str):
     recipe_by_name = get_recipe_by_name(db, recipe_name=recipe_name)
 
     if recipe_by_name is None:
         raise HTTPException(
-            status_code=404, 
+            status_code=status.HTTP_404_NOT_FOUND, 
             detail=f"{recipe_name} as Recipe is not found"
         )
 
     return recipe_by_name
 
 
-@router.post("/recipe_create", status_code=201, response_model=Recipe)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Recipe)
 async def add_recipe(
     *, db: Session = Depends(get_db), 
     recipe: RecipeCreate
@@ -62,25 +68,25 @@ async def add_recipe(
     
     if recipe_by_name:
         raise HTTPException(
-            status_code=400, 
+            status_code=status.HTTP_400_BAD_REQUEST, 
             detail=f"{recipe.name} as recipe is already registered"
         )
     
     if not recipe_category:
         raise HTTPException(
-            status_code=400, 
+            status_code=status.HTTP_404_NOT_FOUND, 
             detail=f"{recipe.recipe_category} as Recipe Category is not found"
         )
     
     if not recipe_tag:
         raise HTTPException(
-            status_code=400, 
+            status_code=status.HTTP_404_NOT_FOUND, 
             detail=f"{recipe.recipe_tag} as Recipe Tag is not found"
         )
     
     if not recipe_origin:
         raise HTTPException(
-            status_code=400, 
+            status_code=status.HTTP_404_NOT_FOUND, 
             detail=f"{recipe.recipe_origin} as Recipe Origin is not found"
         )
 
@@ -104,7 +110,7 @@ async def add_recipe(
     return data
 
 
-@router.put("/recipe_update/{recipe_name}", status_code=200, response_model=Recipe)
+@router.put("/{recipe_name}", status_code=status.HTTP_202_ACCEPTED, response_model=Recipe)
 async def change_recipe(
     *, db: Session = Depends(get_db), 
     recipe_name: str, 
@@ -115,7 +121,7 @@ async def change_recipe(
 
     if not recipe_by_name:
         raise HTTPException(
-            status_code=400, 
+            status_code=status.HTTP_404_NOT_FOUND, 
             detail=f"{recipe.name} as Recipe is not found"
         )
 
@@ -124,7 +130,7 @@ async def change_recipe(
 
         if not recipe_category:
             raise HTTPException(
-                status_code=400, 
+                status_code=status.HTTP_404_NOT_FOUND, 
                 detail=f"{recipe.recipe_category} as Recipe Category is not found"
             )
 
@@ -133,7 +139,7 @@ async def change_recipe(
 
         if not recipe_tag:
             raise HTTPException(
-                status_code=400, 
+                status_code=status.HTTP_404_NOT_FOUND, 
                 detail=f"{recipe.recipe_tag} as Recipe Tag is not found"
             )
 
@@ -142,7 +148,7 @@ async def change_recipe(
 
         if not recipe_origin:
             raise HTTPException(
-                status_code=400, 
+                status_code=status.HTTP_404_NOT_FOUND, 
                 detail=f"{recipe.recipe_origin} as Recipe Origin is not found"
             )
 
@@ -165,7 +171,7 @@ async def change_recipe(
         db.commit()
 
         raise HTTPException(
-            status_code=500, 
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail=f"Error creating {recipe.name} as Recipe: {str(e)}"
         )
 

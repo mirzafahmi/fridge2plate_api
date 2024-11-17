@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from api import ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe,ingredient_recipe_association
+from api import user, ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe,ingredient_recipe_association
 
 
 app = FastAPI(
@@ -25,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 # Include routers
+app.include_router(user.router)
 app.include_router(ingredient_category.router)
 app.include_router(ingredient.router)
 app.include_router(uom.router)
