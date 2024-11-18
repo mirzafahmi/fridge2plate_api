@@ -1,115 +1,137 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, Text, Float, Table
+import uuid
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, Text, Float
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+import os
+from dotenv import load_dotenv
 
 from ..db_setup import Base
 from .timestamp_mixin import TimestampMixin
+from db.models.user import User
 
+
+load_dotenv()
+ADMIN_ID = os.getenv("ADMIN_ID")
 
 class IngredientCategory(TimestampMixin, Base):
-    __tablename__ = "ingredient_category"
+    __tablename__ = "ingredient_categories"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, index=True, nullable=False)
 
-    ingredient = relationship("Ingredient", back_populates="ingredient_category")
+    ingredients = relationship("Ingredient", back_populates="ingredient_category")
+
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="ingredient_categories")
 
 
 class Ingredient(TimestampMixin, Base):
-    __tablename__ = "ingredient"
+    __tablename__ = "ingredients"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, index=True, nullable=False)
     brand = Column(String(100), index=True, nullable=False)
-    is_essential = Column(Boolean, default=False)
     icon = Column(Text, nullable=True)
 
-    ingredient_category_id = Column(Integer, ForeignKey("ingredient_category.id"), nullable=False)
-    ingredient_category = relationship("IngredientCategory", back_populates="ingredient")
+    ingredient_category_id = Column(UUID(as_uuid=True), ForeignKey("ingredient_categories.id"), nullable=False)
+    ingredient_category = relationship("IngredientCategory", back_populates="ingredients")
 
-    recipe = relationship("Recipe", secondary="ingredient_recipe_association", back_populates="ingredients")
+    recipe = relationship("Recipe", secondary="ingredient_recipe_associations", back_populates="ingredients", overlaps="ingredient")
     
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="ingredients")
 
 
 class UOM(TimestampMixin, Base):
-    __tablename__ = "uom"
+    __tablename__ = "uoms"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, index=True, nullable=False)
     unit = Column(String(10), unique=True, index=True, nullable=False)
     weightage = Column(Float)
 
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="uoms")
 
 
 class RecipeCategory(TimestampMixin, Base):
-    __tablename__ = "recipe_category"
+    __tablename__ = "recipe_categories"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, index=True, nullable=False)
 
-    recipe = relationship("Recipe", back_populates="recipe_category")
+    recipes = relationship("Recipe", back_populates="recipe_category")
+
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="recipe_categories")
 
 
 class RecipeTag(TimestampMixin, Base):
-    __tablename__ = "recipe_tag"
+    __tablename__ = "recipe_tags"
         
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, index=True, nullable=False)
 
-    recipe = relationship("Recipe", back_populates="recipe_tag")
+    recipes = relationship("Recipe", back_populates="recipe_tag")
+
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="recipe_tags")
 
 
 class RecipeOrigin(TimestampMixin, Base):
-    __tablename__ = "recipe_origin"
+    __tablename__ = "recipe_origins"
         
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, index=True, nullable=False)
 
-    recipe = relationship("Recipe", back_populates="recipe_origin")
+    recipes = relationship("Recipe", back_populates="recipe_origin")
 
-
-# ingredient_recipe_association = Table(
-#     'ingredient_recipe',
-#     Base.metadata,
-#     Column('recipe_id', Integer, ForeignKey('recipe.id')),
-#     Column('ingredient_id', Integer, ForeignKey('ingredient.id')),
-#     Column('quantity', Integer),
-#     Column('uom_id', Integer, ForeignKey('uom.id'))
-# )
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="recipe_origins")
 
 
 class IngredientRecipeAssociation(TimestampMixin, Base):
-    __tablename__ = "ingredient_recipe_association"
+    __tablename__ = "ingredient_recipe_associations"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    
-    ingredient_id = Column(Integer, ForeignKey("ingredient.id"), primary_key=True)
+    ingredient_id = Column(UUID(as_uuid=True), ForeignKey("ingredients.id"), primary_key=True)
     ingredient = relationship("Ingredient", overlaps="recipe")
-    recipe_id = Column(Integer, ForeignKey("recipe.id"), primary_key=True)
-    quantity = Column(Integer)
-    uom_id = Column(Integer, ForeignKey("uom.id"))
+
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), primary_key=True)
+    recipe = relationship("Recipe", overlaps="ingredient,recipe")
+
+    uom_id = Column(UUID(as_uuid=True), ForeignKey("uoms.id"), nullable=True)
     uom = relationship("UOM")
+
+    quantity = Column(Integer, default=1)
+    is_essential = Column(Boolean, default=False)
+
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="ingredient_recipe_associations")
 
 
 class Recipe(TimestampMixin, Base):
-    __tablename__ = "recipe"
+    __tablename__ = "recipes"
     
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), unique=True, index=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    name = Column(Text, unique=True, index=True, nullable=False)
     serving = Column(Integer, index=True, nullable=True)
-    cooking_time = Column(String(100), index=True, nullable=False)
-    author = Column(String(100), index=True, nullable=False)
+    cooking_time = Column(Text, index=True, nullable=False)
+    author = Column(Text, index=True, nullable=False)
     instructions = Column(Text, index=True, nullable=True)
 
 
-    recipe_category_id = Column(Integer, ForeignKey("recipe_category.id"), nullable=True)
-    recipe_category = relationship("RecipeCategory", back_populates="recipe")
+    recipe_category_id = Column(UUID(as_uuid=True), ForeignKey("recipe_categories.id"), nullable=True)
+    recipe_category = relationship("RecipeCategory", back_populates="recipes")
 
-    recipe_tag_id = Column(Integer, ForeignKey("recipe_tag.id"), nullable=True)
-    recipe_tag = relationship("RecipeTag", back_populates="recipe")
+    recipe_tag_id = Column(UUID(as_uuid=True), ForeignKey("recipe_tags.id"), nullable=True)
+    recipe_tag = relationship("RecipeTag", back_populates="recipes")
 
-    recipe_origin_id = Column(Integer, ForeignKey("recipe_origin.id"), nullable=True)
-    recipe_origin = relationship("RecipeOrigin", back_populates="recipe")
+    recipe_origin_id = Column(UUID(as_uuid=True), ForeignKey("recipe_origins.id"), nullable=True)
+    recipe_origin = relationship("RecipeOrigin", back_populates="recipes")
     
     
-    ingredients = relationship("Ingredient", secondary="ingredient_recipe_association", back_populates="recipe", overlaps="ingredient")
-    ingredients_recipe_associations = relationship("IngredientRecipeAssociation", overlaps="ingredients,recipe")
+    ingredients = relationship("Ingredient", secondary="ingredient_recipe_associations", back_populates="recipe", overlaps="ingredient,recipe")
+    ingredient_recipe_associations = relationship("IngredientRecipeAssociation", overlaps="ingredients,recipe")
+
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, default=ADMIN_ID)
+    creator = relationship("User", back_populates="recipes")

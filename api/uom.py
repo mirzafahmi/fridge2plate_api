@@ -2,7 +2,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from api.utils.uom import *
+from utils.uom import *
 from db.db_setup import get_db
 from pydantic_schemas.uom import UOM, UOMCreate, UOMCreatedResponse
 

@@ -1,5 +1,7 @@
 from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
+import uuid
+from typing import Optional
 
 
 class RecipeOriginBase(LowercaseBaseModel):
@@ -9,14 +11,16 @@ class RecipeOriginBase(LowercaseBaseModel):
 class RecipeOriginCreate(RecipeOriginBase):
     ...
 
+class RecipeOriginCreateSeeder(RecipeOriginCreate):
+    id: Optional[uuid.UUID] = None
 
 class RecipeOrigin(RecipeOriginBase):
-    id: int
-    create_date: datetime
-    update_date: datetime
+    id: uuid.UUID
+    created_date: datetime
+    updated_date: datetime
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True
 
 
 class RecipeOriginCreatedResponse(LowercaseBaseModel):

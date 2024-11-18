@@ -2,7 +2,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from api.utils.recipe_category import *
+from utils.recipe_category import *
 from db.db_setup import get_db
 from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryCreate, RecipeCategoryCreatedResponse
 
@@ -64,7 +64,7 @@ async def add_recipe_category(
             detail=f"{recipe_category.name} as recipe Category is already registered"
         )
 
-    recipe_category_create = create_recipe_category(db=db, recipe_category=recipe_category)
+    recipe_category_create = post_recipe_category(db=db, recipe_category=recipe_category)
 
     result_message = f"{recipe_category.name} as recipe Category is successfully created"
     data = get_recipe_category_by_name(db, recipe_category_name=recipe_category.name)

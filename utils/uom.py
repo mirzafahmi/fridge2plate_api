@@ -17,8 +17,10 @@ def get_uom_by_name(db: Session, uom_name: str):
     return db.query(UOM).filter(UOM.name == uom_name).first()
 
 
-def create_uom(db: Session, uom: UOMCreate):
-    db_uom = UOM(name=uom.name, unit=uom.unit, weightage=uom.weightage)
+def post_uom(db: Session, uom: UOMCreate):
+    uom_data = {key: value for key, value in uom.dict().items() if value is not None}
+    db_uom = UOM(**uom_data)
+
     db.add(db_uom)
     db.commit()
     db.refresh(db_uom)

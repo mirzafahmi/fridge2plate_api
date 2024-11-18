@@ -2,7 +2,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from api.utils.recipe_tag import *
+from utils.recipe_tag import *
 from db.db_setup import get_db
 from pydantic_schemas.recipe_tag import RecipeTag, RecipeTagCreate, RecipeTagCreatedResponse
 

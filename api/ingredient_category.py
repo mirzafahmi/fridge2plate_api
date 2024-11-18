@@ -2,7 +2,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from api.utils.ingredient_category import *
+from utils.ingredient_category import *
 from db.db_setup import get_db
 from pydantic_schemas.ingredient_category import IngredientCategory, IngredientCategoryCreate, IngredientCategoryCreatedResponse
 
@@ -58,7 +58,7 @@ async def add_ingredient_category(*, db: Session = Depends(get_db), ingredient_c
             detail=f"{ingredient_category.name} as Ingredient Category is already registered"
         )
 
-    ingredient_category_create = create_ingredient_category(db=db, ingredient_category=ingredient_category)
+    ingredient_category_create = post_ingredient_category(db=db, ingredient_category=ingredient_category)
 
     result_message = f"{ingredient_category.name} as Ingredient Category is successfully created"
     data = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category.name)

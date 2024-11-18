@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, constr, validator
+import uuid
 
 from .lowercase_base_model import LowercaseBaseModel
 
@@ -15,17 +16,20 @@ class UserCreate(LowercaseBaseModel):
         # Convert to lowercase and remove spaces
         return value.lower().replace(" ", "")
 
+class UserCreateSeeder(UserCreate):
+    id: Optional[uuid.UUID] = None
+
 class UserUpdate(LowercaseBaseModel):
     username: Optional[constr(strip_whitespace=True, min_length=5)] = None
     email: Optional[EmailStr] = None
     password: Optional[constr(strip_whitespace=True, min_length=5)] = None
 
 class UserResponse(LowercaseBaseModel):
-    id: str
+    id: uuid.UUID
     username: str
     email: str
-    create_date: datetime
-    update_date: datetime
+    created_date: datetime
+    updated_date: datetime
 
     class ConfigDict:
         from_attributes = True

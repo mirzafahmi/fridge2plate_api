@@ -3,9 +3,9 @@ from typing import Optional
 
 from db.models.recipe import Recipe
 from pydantic_schemas.recipe import RecipeCreate, RecipeUpdate
-from api.utils.recipe_category import get_recipe_category_by_name
-from api.utils.recipe_tag import get_recipe_tag_by_name
-from api.utils.recipe_origin import get_recipe_origin_by_name
+from utils.recipe_category import get_recipe_category_by_name
+from utils.recipe_tag import get_recipe_tag_by_name
+from utils.recipe_origin import get_recipe_origin_by_name
 
 
 def get_recipes(db: Session, skip: int=0, limit: int = 100):
@@ -38,7 +38,7 @@ def get_recipe_by_name(db: Session, recipe_name: str):
 #     return db.query(Recipe).filter(Recipe.recipe_origin_id == recipe_origin).all()
 
 
-def create_recipe(db: Session, recipe: RecipeCreate):
+def post_recipe(db: Session, recipe: RecipeCreate):
     recipe_category = get_recipe_category_by_name(db, recipe.recipe_category)
     recipe_tag = get_recipe_tag_by_name(db, recipe.recipe_tag)
     recipe_origin = get_recipe_origin_by_name(db, recipe.recipe_origin)

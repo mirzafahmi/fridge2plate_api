@@ -38,11 +38,19 @@ def get_user_by_email(db: Session, user_email: str):
     return db.query(User).filter(User.email == user_email).first()
 
 def post_user(db: Session, user: UserCreate):
-    db_user = User(
-        username=user.username,
-        email=user.email,
-        password=bcrypt_context.hash(user.password)
-    )
+    if user.dict().get('id') is not None:
+        db_user = User(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            password=bcrypt_context.hash(user.password)
+        )
+    else: 
+        db_user = User(
+            username=user.username,
+            email=user.email,
+            password=bcrypt_context.hash(user.password)
+        )
 
     db.add(db_user)
     db.commit()

@@ -2,11 +2,11 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from api.utils.recipe import *
-from api.utils.ingredient_recipe_association import *
-from api.utils.recipe_category import get_recipe_category_by_name
-from api.utils.recipe_tag import get_recipe_tag_by_name
-from api.utils.recipe_origin import get_recipe_origin_by_name
+from utils.recipe import *
+from utils.ingredient_recipe_association import *
+from utils.recipe_category import get_recipe_category_by_name
+from utils.recipe_tag import get_recipe_tag_by_name
+from utils.recipe_origin import get_recipe_origin_by_name
 
 from db.db_setup import get_db
 from pydantic_schemas.recipe import Recipe, RecipeCreate, RecipeCreatedResponse, RecipeUpdate

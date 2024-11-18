@@ -1,5 +1,7 @@
 from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
+import uuid
+from typing import Optional
 
 
 class RecipeTagBase(LowercaseBaseModel):
@@ -9,14 +11,16 @@ class RecipeTagBase(LowercaseBaseModel):
 class RecipeTagCreate(RecipeTagBase):
     ...
 
+class RecipeTagCreateSeeder(RecipeTagCreate):
+    id: Optional[uuid.UUID] = None
 
 class RecipeTag(RecipeTagBase):
-    id: int
-    create_date: datetime
-    update_date: datetime
+    id: uuid.UUID
+    created_date: datetime
+    updated_date: datetime
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True
 
 
 class RecipeTagCreatedResponse(LowercaseBaseModel):

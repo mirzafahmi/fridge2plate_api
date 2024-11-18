@@ -17,8 +17,15 @@ def get_recipe_category_by_name(db: Session, recipe_category_name: str):
     return db.query(RecipeCategory).filter(RecipeCategory.name == recipe_category_name).first()
 
 
-def create_recipe_category(db: Session, recipe_category: RecipeCategoryCreate):
-    db_recipe_category = RecipeCategory(name=recipe_category.name)
+def post_recipe_category(db: Session, recipe_category: RecipeCategoryCreate):
+    if recipe_category.dict().get('id') is not None:
+        db_recipe_category = RecipeCategory(
+            id=recipe_category.id,
+            name=recipe_category.name
+        )   
+    else:
+        db_recipe_category = RecipeCategory(name=recipe_category.name)
+
     db.add(db_recipe_category)
     db.commit()
     db.refresh(db_recipe_category)

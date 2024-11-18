@@ -4,9 +4,9 @@ from fastapi import HTTPException
 
 from db.models.recipe import IngredientRecipeAssociation
 from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssociationBase
-from api.utils.ingredient import get_ingredient_by_name
-from api.utils.uom import get_uom_by_name
-from api.utils.recipe import get_recipe_by_name, get_recipe_by_id
+from utils.ingredient import get_ingredient_by_name
+from utils.uom import get_uom_by_name
+from utils.recipe import get_recipe_by_name, get_recipe_by_id
 
 
 def get_ingredient_recipe_associations(db: Session, skip: int=0, limit: int = 100):
@@ -39,7 +39,7 @@ def get_ingredient_recipe_associations_by_recipe_name(db: Session, recipe_name: 
     return data
 
 
-def create_association(
+def post_association(
     db: Session, 
     recipe_id: int, 
     ingredient: IngredientRecipeAssociationBase

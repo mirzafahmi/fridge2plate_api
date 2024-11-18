@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.db_setup import get_db
 from pydantic_schemas.user import UserResponse, UserMessageResponse, UsersMessageResponse, UserCreate, UserUpdate, UserLogin, AuthResponse
 from db.models.user import User
-from api.utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, post_user, put_user, authenticate_user, create_jwt_token, decode_jwt_token
+from utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, post_user, put_user, authenticate_user, create_jwt_token, decode_jwt_token
 
 from datetime import timedelta, datetime
 from typing import Annotated
@@ -47,8 +47,8 @@ async def add_user(*, db: Session = Depends(get_db), user: UserCreate):
             id=user_create.id, 
             username=user_create.username, 
             email=user_create.email, 
-            create_date=user_create.create_date, 
-            update_date=user_create.update_date
+            created_date=user_create.created_date, 
+            updated_date=user_create.updated_date
         )
     }
 

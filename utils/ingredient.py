@@ -3,7 +3,7 @@ from typing import Optional
 
 from db.models.recipe import Ingredient, IngredientCategory
 from pydantic_schemas.ingredient import IngredientCreate, IngredientUpdate
-from api.utils.ingredient_category import get_ingredient_category_by_name
+from utils.ingredient_category import get_ingredient_category_by_name
 
 
 def get_ingredients(db: Session, skip: int=0, limit: int = 100):
@@ -23,13 +23,10 @@ def get_ingredient_by_category(db: Session, ingredient_category: str):
 
     return db.query(Ingredient).filter(Ingredient.ingredient_category_id == ingredient_by_category.id).all()
 
-def create_ingredient(db: Session, ingredient: IngredientCreate):
-    db_ingredient = Ingredient(
-        name=ingredient.name, 
-        brand=ingredient.brand,
-        is_essential=ingredient.is_essential,
-        ingredient_category_id=ingredient.ingredient_category_id
-    )
+def post_ingredient(db: Session, ingredient: IngredientCreate):
+    ingredient_data = {key: value for key, value in ingredient.dict().items() if value is not None}
+    db_ingredient = Ingredient(**ingredient_data)
+
     db.add(db_ingredient)
     db.commit()
     db.refresh(db_ingredient)

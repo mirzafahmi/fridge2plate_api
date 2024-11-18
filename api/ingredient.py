@@ -2,8 +2,8 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from api.utils.ingredient import *
-from api.utils.ingredient_category import get_ingredient_category_by_name
+from utils.ingredient import *
+from utils.ingredient_category import get_ingredient_category_by_name
 from db.db_setup import get_db
 from pydantic_schemas.ingredient import Ingredient, IngredientCreate, IngredientUpdate, IngredientCreatedResponse
 

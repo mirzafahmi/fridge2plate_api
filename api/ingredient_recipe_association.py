@@ -2,7 +2,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query 
 from sqlalchemy.orm import Session
 
-from api.utils.ingredient_recipe_association import *
+from utils.ingredient_recipe_association import *
 from db.db_setup import get_db
 from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssociation
 

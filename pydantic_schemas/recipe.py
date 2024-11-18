@@ -1,7 +1,7 @@
 from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
 from typing import List, Optional, Any
-
+import uuid
 
 from pydantic_schemas.recipe_category import RecipeCategory
 from pydantic_schemas.recipe_tag import RecipeTag
@@ -36,8 +36,11 @@ class RecipeCreate(LowercaseBaseModel):
     recipe_origin: str
     ingredients: List[IngredientRecipeAssociationBase]
 
+class RecipeCreateSeeder(RecipeCreate):
+    id: Optional[uuid.UUID] = None
 
 class Recipe(LowercaseBaseModel):
+    id: uuid.UUID
     name: str
     serving: int
     cooking_time: str
@@ -48,9 +51,8 @@ class Recipe(LowercaseBaseModel):
     recipe_origin: Optional[RecipeOrigin]
     ingredients_recipe_associations: List[IngredientRecipeAssociation]
 
-    id: int
-    create_date: datetime
-    update_date: datetime
+    created_date: datetime
+    updated_date: datetime
 
     class Config:
         orm_mode = True

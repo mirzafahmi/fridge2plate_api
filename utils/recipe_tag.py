@@ -17,8 +17,10 @@ def get_recipe_tag_by_name(db: Session, recipe_tag_name: str):
     return db.query(RecipeTag).filter(RecipeTag.name == recipe_tag_name).first()
 
 
-def create_recipe_tag(db: Session, recipe_tag: RecipeTagCreate):
-    db_recipe_tag = RecipeTag(name=recipe_tag.name)
+def post_recipe_tag(db: Session, recipe_tag: RecipeTagCreate):
+    recipe_tag_data = {key: value for key, value in recipe_tag.dict().items() if value is not None}
+    db_recipe_tag = RecipeTag(**recipe_tag_data)
+
     db.add(db_recipe_tag)
     db.commit()
     db.refresh(db_recipe_tag)

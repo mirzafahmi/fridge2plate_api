@@ -17,8 +17,10 @@ def get_recipe_origin_by_name(db: Session, recipe_origin_name: str):
     return db.query(RecipeOrigin).filter(RecipeOrigin.name == recipe_origin_name).first()
 
 
-def create_recipe_origin(db: Session, recipe_origin: RecipeOriginCreate):
-    db_recipe_origin = RecipeOrigin(name=recipe_origin.name)
+def post_recipe_origin(db: Session, recipe_origin: RecipeOriginCreate):
+    recipe_origin_data = {key: value for key, value in recipe_origin.dict().items() if value is not None}
+    db_recipe_origin = RecipeOrigin(**recipe_origin_data)
+    
     db.add(db_recipe_origin)
     db.commit()
     db.refresh(db_recipe_origin)
