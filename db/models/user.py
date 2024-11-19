@@ -11,7 +11,7 @@ from .timestamp_mixin import TimestampMixin
 class User(TimestampMixin, Base):
     __tablename__ = 'users'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     username = Column(String, unique=True)
     email = Column(String, unique=True, nullable=False)
     password = Column(String)

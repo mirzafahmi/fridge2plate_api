@@ -72,7 +72,7 @@ async def auth_user(*, db: Session = Depends(get_db), user: OAuth2PasswordReques
 async def retrieve_current_user(token: str = Depends(oauth_bearer), db: Session = Depends(get_db)):
     try:
         payload = decode_jwt_token(token)
-
+    
         if payload is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is invalid or expired")
         
@@ -87,16 +87,16 @@ async def retrieve_current_user(token: str = Depends(oauth_bearer), db: Session 
                 id=user.id, 
                 username=user.username, 
                 email=user.email, 
-                create_date=user.create_date, 
-                update_date=user.update_date
+                created_date=user.created_date, 
+                updated_date=user.updated_date
             )
         }
 
     except HTTPException as e:
-        # Catch any HTTPException (e.g., token errors or user not found) and pass it through
+        
         raise e
     except Exception as e:
-        # Handle unexpected errors
+        print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
 
 @router.patch("/profile/update", response_model=UserMessageResponse)
@@ -120,8 +120,8 @@ async def update_profile(user_update: UserUpdate, token: str = Depends(oauth_bea
                 id=user_create.id, 
                 username=user_create.username, 
                 email=user_create.email, 
-                create_date=user_create.create_date, 
-                update_date=user_create.update_date
+                created_date=user_create.created_date, 
+                updated_date=user_create.updated_date
             )
         }
 
@@ -141,8 +141,8 @@ async def retrieve_user_by_email(email: str, db: Session = Depends(get_db)):
                 id=user.id, 
                 username=user.username, 
                 email=user.email, 
-                create_date=user.create_date, 
-                update_date=user.update_date
+                created_date=user.created_date, 
+                updated_date=user.updated_date
             )
         }
 
@@ -160,8 +160,8 @@ async def retrieve_user(db: Session = Depends(get_db)):
                     id=user.id,
                     username=user.username,
                     email=user.email,
-                    create_date=user.create_date,
-                    update_date=user.update_date
+                    created_date=user.created_date,
+                    updated_date=user.updated_date
                 ) for user in users
             ]
         }

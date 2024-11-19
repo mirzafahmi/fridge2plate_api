@@ -16,7 +16,7 @@ ADMIN_ID = os.getenv("ADMIN_ID")
 class IngredientCategory(TimestampMixin, Base):
     __tablename__ = "ingredient_categories"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, index=True, nullable=False)
 
     ingredients = relationship("Ingredient", back_populates="ingredient_category")
@@ -28,7 +28,7 @@ class IngredientCategory(TimestampMixin, Base):
 class Ingredient(TimestampMixin, Base):
     __tablename__ = "ingredients"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, index=True, nullable=False)
     brand = Column(String(100), index=True, nullable=False)
     icon = Column(Text, nullable=True)
@@ -45,7 +45,7 @@ class Ingredient(TimestampMixin, Base):
 class UOM(TimestampMixin, Base):
     __tablename__ = "uoms"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, index=True, nullable=False)
     unit = Column(String(10), unique=True, index=True, nullable=False)
     weightage = Column(Float)
@@ -57,7 +57,7 @@ class UOM(TimestampMixin, Base):
 class RecipeCategory(TimestampMixin, Base):
     __tablename__ = "recipe_categories"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, index=True, nullable=False)
 
     recipes = relationship("Recipe", back_populates="recipe_category")
@@ -69,7 +69,7 @@ class RecipeCategory(TimestampMixin, Base):
 class RecipeTag(TimestampMixin, Base):
     __tablename__ = "recipe_tags"
         
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, index=True, nullable=False)
 
     recipes = relationship("Recipe", back_populates="recipe_tag")
@@ -81,7 +81,7 @@ class RecipeTag(TimestampMixin, Base):
 class RecipeOrigin(TimestampMixin, Base):
     __tablename__ = "recipe_origins"
         
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, index=True, nullable=False)
 
     recipes = relationship("Recipe", back_populates="recipe_origin")
@@ -112,7 +112,7 @@ class IngredientRecipeAssociation(TimestampMixin, Base):
 class Recipe(TimestampMixin, Base):
     __tablename__ = "recipes"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(Text, unique=True, index=True, nullable=False)
     serving = Column(Integer, index=True, nullable=True)
     cooking_time = Column(Text, index=True, nullable=False)

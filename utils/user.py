@@ -3,6 +3,7 @@ from typing import Annotated
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
+from fastapi import HTTPException, status
 
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
@@ -10,6 +11,7 @@ from typing import Optional
 from dotenv import load_dotenv
 import os
 import base64
+from uuid import UUID
 
 from db.models.user import User
 from pydantic_schemas.user import UserCreate, UserUpdate, UserLogin
@@ -29,7 +31,8 @@ def get_user(db: Session):
     return db.query(User).all()
 
 def get_user_by_id(db: Session, user_id: str):
-    return db.query(User).filter(User.id == user_id).first()
+    user_uuid = UUID(user_id)
+    return db.query(User).filter(User.id == user_uuid).first()
 
 def get_user_by_username(db: Session, user_username: str):
     return db.query(User).filter(func.lower(User.username) == user_username).first()
@@ -60,6 +63,7 @@ def post_user(db: Session, user: UserCreate):
     return db_user
 
 def put_user(db: Session, user: User, user_update: UserUpdate):
+    #TODO! check duplicate
     if user_update.username is not None:
         user.username = user_update.username
     if user_update.email is not None:
@@ -83,7 +87,10 @@ def authenticate_user(db: Session, user: UserLogin):
     return user_db
 
 def create_jwt_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
+    to_encode = {
+        key: str(value) if isinstance(value, UUID) else value
+        for key, value in data.items()
+    }
 
     if expires_delta:
         expire = datetime.now() + expires_delta
@@ -97,6 +104,9 @@ def create_jwt_token(data: dict, expires_delta: timedelta = None):
 def decode_jwt_token(token: str):
     try:
         payload = jwt.decode(token, PUBLIC_KEY, algorithms=[JWT_ALGORITHM])
+        if "sub" not in payload:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token payload missing 'sub' claim")
+
         return payload
 
     except jwt.ExpiredSignatureError:

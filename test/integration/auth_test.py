@@ -1,8 +1,6 @@
-import pytest
 from fastapi.testclient import TestClient
 from dotenv import load_dotenv
 import os
-from jose import jwt, JWTError
 
 
 load_dotenv()
@@ -12,7 +10,7 @@ def test_index(client: TestClient):
     response = client.get("/")
     
     assert response.status_code == 200
-    assert response.json() == "Auth server is running"
+    assert response.json() == "Fridge2plate API server is running"
 
 def test_register_user(client: TestClient):
     response = client.post("/auth/register", json={
@@ -30,8 +28,8 @@ def test_register_user(client: TestClient):
     assert user['username'] == "testuser2"
     assert user['email'] == "test2@example.com"
 
-    assert "create_date" in user
-    assert "update_date" in user
+    assert "created_date" in user
+    assert "updated_date" in user
 
 def test_register_existed_email(client: TestClient):
     test_email = "test@example.com"
@@ -165,12 +163,12 @@ def test_get_user(client: TestClient):
     assert response.status_code == 200
     assert response.json()["message"] == "Users data retrieved successfully"
 
-    assert users[0]['id'] == "12345678-1234-5678-1234-567812345678"
+    assert users[0]['id'] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert users[0]['username'] == "testuser"
     assert users[0]['email'] == "test@example.com"
 
-    assert "create_date" in users[0]
-    assert "update_date" in users[0]
+    assert "created_date" in users[0]
+    assert "updated_date" in users[0]
 
 def test_get_user_by_email(client: TestClient):
     email_to_test = "test@example.com"
@@ -181,12 +179,12 @@ def test_get_user_by_email(client: TestClient):
     assert response.status_code == 200
     assert response.json()["message"] == f"{email_to_test} user data retrieved successfully"
 
-    assert user['id'] == "12345678-1234-5678-1234-567812345678"
+    assert user['id'] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert user['username'] == "testuser"
     assert user['email'] == email_to_test
 
-    assert "create_date" in user
-    assert "update_date" in user
+    assert "created_date" in user
+    assert "updated_date" in user
 
 def test_get_user_by_wrong_email(client: TestClient):
     email_to_test = "wrongtest@example.com"
@@ -222,29 +220,39 @@ def test_login_wrong_password(client: TestClient):
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid credentials"}
 
-def test_profile_with_valid_token(client: TestClient):
+def test_validate_with_valid_token(client: TestClient):
     login_response = client.post("/auth/login", data={
         "username": "test@example.com",
         "password": "test123"
     })
+    assert login_response.status_code == 200
+
+    assert "access_token" in login_response.json()
 
     token = login_response.json()["access_token"]
 
-    profile_response = client.get("/auth/profile", headers={"Authorization": f"Bearer {token}"})
-    profile_data = profile_response.json()["user"]
-
+    profile_response = client.get(
+        "/auth/validate", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
     assert profile_response.status_code == 200
     assert profile_response.json()["message"] == "User data retrieved successfully"
-    
-    assert profile_data["id"] == "12345678-1234-5678-1234-567812345678"
+
+    profile_data = profile_response.json()["user"]
+
+    assert profile_data["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert profile_data["email"] == "test@example.com"
     assert profile_data["username"] == "testuser"
 
-    assert "create_date" in profile_data
-    assert "update_date" in profile_data
+    assert "created_date" in profile_data
+    assert "updated_date" in profile_data
     
-def test_profile_with_invalid_token(client: TestClient):
-    response = client.get("/auth/profile", headers={"Authorization": "Bearer invalid_token"})
-    
+def test_validate_with_invalid_token(client: TestClient):
+    response = client.get(
+        "/auth/validate", 
+        headers={"Authorization": "Bearer invalid_token"}
+    )
+
     assert response.status_code == 401
-    assert response.json() == {"detail": "Token is invalid or expired"}
+    assert response.json() == {"detail": "Invalid token"}

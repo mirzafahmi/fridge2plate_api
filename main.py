@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from api import user, ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe,ingredient_recipe_association
@@ -35,3 +35,7 @@ app.include_router(recipe_origin.router)
 app.include_router(recipe.router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(ingredient_recipe_association.router)
+
+@app.router.get("/", status_code=status.HTTP_200_OK, tags=["Health Check"])
+async def server_check():
+    return "Fridge2plate API server is running"
