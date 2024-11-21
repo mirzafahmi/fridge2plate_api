@@ -23,5 +23,5 @@ class IngredientRecipeAssociation(LowercaseBaseModel):
     quantity: int
     is_essential: bool
     
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True

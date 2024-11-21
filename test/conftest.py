@@ -38,17 +38,24 @@ def setup_and_teardown():
 
     test_admin_id = uuid.UUID("db67b3f4-0e04-47bb-bc46-94826847ee4f")
     normalized_username = "Test user".lower().replace(" ", "")
-    dummy_user = User(
-        id=test_admin_id, 
-        username=normalized_username, 
-        email="test@example.com", 
-        password=bcrypt_context.hash("test123")
-    )
-
+    dummy_users = [
+        User(
+            id=test_admin_id, 
+            username=normalized_username, 
+            email="test@example.com", 
+            password=bcrypt_context.hash("test123")
+        ),
+        User(
+            id=uuid.UUID("0c619092-817e-4f73-b25f-8e187e69dded"), 
+            username="second_user", 
+            email="test1@example.com", 
+            password=bcrypt_context.hash("test123")
+        )
+    ]
     dummy_ingredient_categories = [
         IngredientCategory(
             id=uuid.UUID("b4b165f6-a4f2-45f6-bda6-0a49092d3f03"),
-            name="protein",
+            name="proteins",
             created_by=test_admin_id
         ),
         IngredientCategory(
@@ -62,13 +69,17 @@ def setup_and_teardown():
         Ingredient(
             id=uuid.UUID("423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"),
             name="chicken",
-            ingredient_category_id="b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            brand="chicken",
+            icon="/test1",
+            ingredient_category_id=uuid.UUID("b4b165f6-a4f2-45f6-bda6-0a49092d3f03"),
             created_by=test_admin_id
         ),
         Ingredient(
             id=uuid.UUID("b3cceb34-9465-4020-9066-f7b5ce3c372c"),
             name="carrot",
-            ingredient_category_id="6722eb62-884a-4208-8596-ed82d310e832",
+            brand="carrot",
+            icon="/test1",
+            ingredient_category_id=uuid.UUID("6722eb62-884a-4208-8596-ed82d310e832"),
             created_by=test_admin_id
         ),
     ]
@@ -87,12 +98,12 @@ def setup_and_teardown():
     ]
 
     dummy_recipe_origins = [
-        RecipeOrigins(
+        RecipeOrigin(
             id=uuid.UUID("92e80174-c259-480a-80b5-f5b0d32ca005"),
             name="malay",
             created_by=test_admin_id
         ),
-        RecipeOrigins(
+        RecipeOrigin(
             id=uuid.UUID("c7048030-10ff-486c-9e78-7417212dd728"),
             name="italian",
             created_by=test_admin_id
@@ -112,8 +123,7 @@ def setup_and_teardown():
         ),
     ]
 
-    session.add(dummy_user)
-    session.add_all(dummy_ingredient_categories + dummy_ingredient_categories + dummy_recipe_categories)
+    session.add_all(dummy_users + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories)
     session.commit()
     session.close()
 
@@ -124,3 +134,15 @@ def setup_and_teardown():
 @pytest.fixture
 def client():
     return TestClient(app)
+
+@pytest.fixture
+def token(client):
+    response = client.post("/auth/login", 
+        data={
+            "username": "test@example.com", 
+            "password": "test123"
+        }
+    )
+    
+    assert response.status_code == 200
+    return response.json()["access_token"]

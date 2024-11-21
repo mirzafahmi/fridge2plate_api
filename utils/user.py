@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 from typing import Annotated
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi import Depends
 from jose import jwt, JWTError
 from fastapi import HTTPException, status
 
@@ -32,14 +33,21 @@ def get_user(db: Session):
     return db.query(User).all()
 
 def get_user_by_id(db: Session, user_id: str):
-    user_uuid = UUID(user_id)
-    return db.query(User).filter(User.id == user_uuid).first()
+    return db.query(User).filter(User.id == user_id).first()
 
 def get_user_by_username(db: Session, user_username: str):
     return db.query(User).filter(func.lower(User.username) == user_username).first()
 
 def get_user_by_email(db: Session, user_email: str):
     return db.query(User).filter(User.email == user_email).first()
+
+def check_valid_user(db: Session, data):
+    if data.dict().get('created_by') is not None:
+        if not get_user_by_id(db, data.created_by):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=f"Id {data.created_by} as User is not found"
+            )
 
 def post_user(db: Session, user: UserCreate):
     if user.dict().get('id') is not None:

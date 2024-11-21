@@ -13,7 +13,6 @@ class UserCreate(LowercaseBaseModel):
 
     @validator("username")
     def normalize_username(cls, value):
-        # Convert to lowercase and remove spaces
         return value.lower().replace(" ", "")
 
 class UserCreateSeeder(UserCreate):
@@ -31,15 +30,15 @@ class UserResponse(LowercaseBaseModel):
     created_date: datetime
     updated_date: datetime
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class UserMessageResponse(LowercaseBaseModel):
-    message: str
+    detail: str
     user: UserResponse
 
 class UsersMessageResponse(LowercaseBaseModel):
-    message: str
+    detail: str
     users: List[UserResponse]
 
 class UserLogin(LowercaseBaseModel):
@@ -47,6 +46,6 @@ class UserLogin(LowercaseBaseModel):
     password: constr(strip_whitespace=True, min_length=5)
 
 class AuthResponse(LowercaseBaseModel):
-    message: str
+    detail: str
     token_type: str
     access_token: str

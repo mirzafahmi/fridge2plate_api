@@ -1,30 +1,28 @@
 from sqlalchemy.orm import Session
 from typing import Optional
+from sqlalchemy import func, asc
+from uuid import UUID
+from fastapi import HTTPException, status
 
 from db.models.recipe import RecipeCategory
 from pydantic_schemas.recipe_category import RecipeCategoryCreate
 
 
 def get_recipe_categories(db: Session, skip: int=0, limit: int = 100):
-    return db.query(RecipeCategory).offset(skip).limit(limit).all()
+    return db.query(RecipeCategory).order_by(asc(RecipeCategory.name)).offset(skip).limit(limit).all()
 
-
-def get_recipe_category_by_id(db: Session, recipe_category_id: int):
+def get_recipe_category_by_id(db: Session, recipe_category_id: UUID):
     return db.query(RecipeCategory).filter(RecipeCategory.id == recipe_category_id).first()
-
 
 def get_recipe_category_by_name(db: Session, recipe_category_name: str):
     return db.query(RecipeCategory).filter(RecipeCategory.name == recipe_category_name).first()
 
+def check_unique_recipe_category_name(db: Session, recipe_category_name: str):
+    return db.query(RecipeCategory).filter(func.lower(RecipeCategory.name) == func.lower(recipe_category_name)).first()
 
 def post_recipe_category(db: Session, recipe_category: RecipeCategoryCreate):
-    if recipe_category.dict().get('id') is not None:
-        db_recipe_category = RecipeCategory(
-            id=recipe_category.id,
-            name=recipe_category.name
-        )   
-    else:
-        db_recipe_category = RecipeCategory(name=recipe_category.name)
+    recipe_category_data = {key: value for key, value in recipe_category.dict().items() if value is not None}
+    db_recipe_category = RecipeCategory(**recipe_category_data)
 
     db.add(db_recipe_category)
     db.commit()
@@ -32,13 +30,12 @@ def post_recipe_category(db: Session, recipe_category: RecipeCategoryCreate):
 
     return db_recipe_category
 
-
 def update_recipe_category(
     db: Session, 
-    recipe_category_name: str, 
+    recipe_category_id: UUID, 
     recipe_category: RecipeCategoryCreate
 ):
-    db_recipe_category = get_recipe_category_by_name(db, recipe_category_name)
+    db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
     
     if db_recipe_category:
         
@@ -54,12 +51,14 @@ def update_recipe_category(
     else:
         raise HTTPException(status_code=404, detail=f"Recipe Category with name {recipe_category_name} not found")
 
-
 def delete_recipe_category(db: Session, recipe_category_name: str):
     db_recipe_category = get_recipe_category_by_name(db, recipe_category_name)
     
-    if not db_recipe_category:
-        raise HTTPException(status_code=404, detail=f"Recipe Category with name {recipe_category_name} not found")
+    db.query(Recipe).filter(Recipe.recipe_category_id == db_recipe_category.id).update({
+        Recipe.recipe_category_id: None
+    })
+
+    db.commit()
 
     db.delete(db_recipe_category)
     db.commit()

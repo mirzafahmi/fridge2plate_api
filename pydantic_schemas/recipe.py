@@ -54,8 +54,8 @@ class Recipe(LowercaseBaseModel):
     created_date: datetime
     updated_date: datetime
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True
 
 
 class RecipeCreatedResponse(LowercaseBaseModel):

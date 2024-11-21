@@ -1,6 +1,7 @@
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from db.db_setup import get_db
 from pydantic_schemas.user import UserResponse, UserMessageResponse, UsersMessageResponse, UserCreate, UserUpdate, UserLogin, AuthResponse
@@ -42,7 +43,7 @@ async def add_user(*, db: Session = Depends(get_db), user: UserCreate):
     user_create = post_user(db, user)
 
     return {
-        "message": "User created successfully", 
+        "detail": "User created successfully", 
         "user": UserResponse(
             id=user_create.id, 
             username=user_create.username, 
@@ -63,7 +64,7 @@ async def auth_user(*, db: Session = Depends(get_db), user: OAuth2PasswordReques
     jwt_token = create_jwt_token(data={"sub": user_login.id, "email": user_login.email})
 
     return {
-        "message": "Login successful", 
+        "detail": "Login successful", 
         "token_type": "bearer", 
         "access_token": jwt_token
     }
@@ -73,7 +74,7 @@ async def retrieve_current_user(
     current_user: dict = Depends(get_current_user), 
     db: Session = Depends(get_db)):
 
-    user = get_user_by_id(db, current_user["sub"])
+    user = get_user_by_id(db, UUID(current_user["sub"]))
 
     if user is None:
         raise HTTPException(
@@ -82,7 +83,7 @@ async def retrieve_current_user(
         )
 
     return {
-        "message": "User data retrieved successfully", 
+        "detail": "User data retrieved successfully", 
         "user": UserResponse(
             id=user.id, 
             username=user.username, 
@@ -110,7 +111,7 @@ async def update_profile(
     updated_user = put_user(db, user, user_update)
 
     return {
-        "message": "User updated successfully", 
+        "detail": "User updated successfully", 
         "user": UserResponse(
             id=user_create.id, 
             username=user_create.username, 
@@ -121,14 +122,14 @@ async def update_profile(
     }
 
 @router.get("/users/{email}", response_model=UserMessageResponse)
-async def retrieve_user_by_email(email: str, db: Session = Depends(get_db)):
+async def retrieve_user_by_email(email: str, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     user = get_user_by_email(db, email)
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return {
-            "message": f"{email} user data retrieved successfully", 
+            "detail": f"{email} user data retrieved successfully", 
             "user": UserResponse(
                 id=user.id, 
                 username=user.username, 
@@ -139,14 +140,14 @@ async def retrieve_user_by_email(email: str, db: Session = Depends(get_db)):
         }
 
 @router.get("/users", response_model=UsersMessageResponse)
-async def retrieve_user(db: Session = Depends(get_db)):
+async def retrieve_user(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     users = get_user(db)
 
     if not users:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Users list are empty")
 
     return {
-            "message": f"Users data retrieved successfully", 
+            "detail": f"Users data retrieved successfully", 
             "users": [
                 UserResponse(
                     id=user.id,

@@ -22,7 +22,7 @@ def test_register_user(client: TestClient):
     user = response.json()["user"]
 
     assert response.status_code == 201
-    assert response.json()["message"] == "User created successfully"
+    assert response.json()["detail"] == "User created successfully"
 
     assert "id" in user
     assert user['username'] == "testuser2"
@@ -155,13 +155,15 @@ def test_register_empty_password(client: TestClient):
     assert response_json["detail"][0]["msg"] == "String should have at least 5 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
 
-def test_get_user(client: TestClient):
-    response = client.get("/auth/users")
+def test_get_user(client: TestClient, token: str):
+    response = client.get("/auth/users", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     users = response.json()["users"]
 
     assert response.status_code == 200
-    assert response.json()["message"] == "Users data retrieved successfully"
+    assert response.json()["detail"] == "Users data retrieved successfully"
 
     assert users[0]['id'] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert users[0]['username'] == "testuser"
@@ -170,14 +172,25 @@ def test_get_user(client: TestClient):
     assert "created_date" in users[0]
     assert "updated_date" in users[0]
 
-def test_get_user_by_email(client: TestClient):
+def test_get_user_with_invalid_token(client: TestClient):
     email_to_test = "test@example.com"
-    response = client.get(f"/auth/users/{email_to_test}")
+    response = client.get(f"/auth/users",
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Invalid token"}
+
+def test_get_user_by_email(client: TestClient, token: str):
+    email_to_test = "test@example.com"
+    response = client.get(f"/auth/users/{email_to_test}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     user = response.json()["user"]
     
     assert response.status_code == 200
-    assert response.json()["message"] == f"{email_to_test} user data retrieved successfully"
+    assert response.json()["detail"] == f"{email_to_test} user data retrieved successfully"
 
     assert user['id'] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert user['username'] == "testuser"
@@ -186,9 +199,20 @@ def test_get_user_by_email(client: TestClient):
     assert "created_date" in user
     assert "updated_date" in user
 
-def test_get_user_by_wrong_email(client: TestClient):
+def test_get_user_by_email_with_invalid_token(client: TestClient):
+    email_to_test = "test@example.com"
+    response = client.get(f"/auth/users/{email_to_test}",
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Invalid token"}
+
+def test_get_user_by_wrong_email(client: TestClient, token: str):
     email_to_test = "wrongtest@example.com"
-    response = client.get(f"/auth/users/{email_to_test}")
+    response = client.get(f"/auth/users/{email_to_test}", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 404
     assert response.json() == {"detail": "User not found"}
@@ -237,7 +261,7 @@ def test_validate_with_valid_token(client: TestClient):
     )
     
     assert profile_response.status_code == 200
-    assert profile_response.json()["message"] == "User data retrieved successfully"
+    assert profile_response.json()["detail"] == "User data retrieved successfully"
 
     profile_data = profile_response.json()["user"]
 

@@ -1,10 +1,12 @@
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from utils.recipe_category import *
+from utils.user import check_valid_user
 from db.db_setup import get_db
-from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryCreate, RecipeCategoryCreatedResponse
+from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryCreate, RecipeCategoryResponse, RecipeCategoriesResponse
 
 
 router = APIRouter(
@@ -12,7 +14,7 @@ router = APIRouter(
     tags=["Recipe Categories"]
 )
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=List[RecipeCategory])
+@router.get("/", status_code=status.HTTP_200_OK, response_model=RecipeCategoriesResponse)
 async def read_recipe_categories(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
     recipe_categories = get_recipe_categories(db, skip=skip, limit=limit)
 
@@ -22,76 +24,65 @@ async def read_recipe_categories(db: Session = Depends(get_db), skip: int=0, lim
             detail="Recipe Category list is empty"
         )
 
-    return recipe_categories
+    return {
+        "detail": "Recipe Category list is retrieved successfully",
+        "recipe_categories": recipe_categories
+    }
 
 
-@router.get("/{recipe_category_id}", status_code=status.HTTP_200_OK, response_model=RecipeCategory)
-async def read_recipe_category_by_id(*, db: Session = Depends(get_db), recipe_category_id: int):
-    recipe_category_by_id = get_recipe_category_by_id(db, recipe_category_id=recipe_category_id)
+@router.get("/{recipe_category_id}", status_code=status.HTTP_200_OK, response_model=RecipeCategoryResponse)
+async def read_recipe_category_by_id(*, db: Session = Depends(get_db), recipe_category_id: UUID):
+    recipe_category_by_id = get_recipe_category_by_id(db, recipe_category_id)
 
     if recipe_category_by_id is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"{recipe_category_id} id for Recipe Category is not found"
+            detail=f"Id {recipe_category_id} as Recipe Category is not found"
         )
 
-    return recipe_category_by_id
+    return {
+        "detail": f"Id {recipe_category_id} as Recipe Category is retrieved successfully",
+        "recipe_category": recipe_category_by_id
+    }
 
 
-@router.get("/by_name/{recipe_category_name}", status_code=status.HTTP_200_OK, response_model=RecipeCategory)
-async def read_recipe_category_by_name(*, db: Session = Depends(get_db), recipe_category_name: str):
-    recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category_name)
-
-    if recipe_category_by_name is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"{recipe_category_name} name for Recipe Category is not found"
-        )
-
-    return recipe_category_by_name
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def add_recipe_category(
-    *, db: Session = Depends(get_db), 
-    recipe_category: RecipeCategoryCreate
-):
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeCategoryResponse)
+async def add_recipe_category(*, db: Session = Depends(get_db), recipe_category: RecipeCategoryCreate):
     recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category.name)
     
     if recipe_category_by_name:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=f"{recipe_category.name} as recipe Category is already registered"
+            detail=f"{recipe_category.name} as Recipe Category is already registered"
         )
 
-    recipe_category_create = post_recipe_category(db=db, recipe_category=recipe_category)
+    check_valid_user(db, recipe_category)
 
-    result_message = f"{recipe_category.name} as recipe Category is successfully created"
-    data = get_recipe_category_by_name(db, recipe_category_name=recipe_category.name)
+    recipe_category_create = post_recipe_category(db, recipe_category)
 
-    return {"result": result_message, "data": data}
+    result_message = f"{recipe_category.name} as Recipe Category is successfully created"
 
+    return {"detail": result_message, "recipe_category": recipe_category_create}
 
 @router.put("/{recipe_category_name}", status_code=status.HTTP_202_ACCEPTED)
 async def change_recipe_category(
     *, db: Session = Depends(get_db), 
-    recipe_category_name: str, 
+    recipe_category_id: UUID, 
     recipe_category: RecipeCategoryCreate
 ):
-    recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category_name)
+    db_recipe_category = get_recipe_category_by_id(db, recipe_category_name)
     
-    if not recipe_category_by_name:
+    if not db_recipe_category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"{recipe_category_name} as Recipe Category is not registered"
+            detail=f"Id {recipe_category_id} as Recipe Category is not found"
         )
 
-    recipe_category_update = update_recipe_category(db=db, recipe_category_name=recipe_category_name, recipe_category=recipe_category)
+    recipe_category_update = update_recipe_category(db, recipe_category_id, recipe_category)
 
-    result_message = f"{recipe_category.name} as Recipe Category is successfully updated from {recipe_category_name}"
-    data = get_recipe_category_by_name(db, recipe_category_name=recipe_category.name)
+    result_message = f"Id {recipe_category_id} as Recipe Category is successfully updated"
 
-    return {"result": result_message, "data": data}
+    return {"detail": result_message, "recipe_category": recipe_category_update}
 
 
 @router.delete("/{recipe_category_name}", status_code=status.HTTP_200_OK)
@@ -107,4 +98,20 @@ async def remove_recipe_category(*, db: Session = Depends(get_db), recipe_catego
     delete_recipe_category(db=db, recipe_category_name=recipe_category_name)
     result_message = f"{recipe_category_name} as Recipe Category is successfully deleted"
 
-    return {"result": result_message}
+    return {"detail": result_message}
+
+
+
+
+
+@router.get("/by_name/{recipe_category_name}", status_code=status.HTTP_200_OK, response_model=RecipeCategory, deprecated=True)
+async def read_recipe_category_by_name(*, db: Session = Depends(get_db), recipe_category_name: str):
+    recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category_name)
+
+    if recipe_category_by_name is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"{recipe_category_name} name for Recipe Category is not found"
+        )
+
+    return recipe_category_by_name

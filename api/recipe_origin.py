@@ -1,6 +1,7 @@
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from utils.recipe_origin import *
 from db.db_setup import get_db
@@ -26,13 +27,13 @@ async def read_recipe_origin(db: Session = Depends(get_db), skip: int=0, limit: 
 
 
 @router.get("/{recipe_origin_id}", status_code=status.HTTP_200_OK, response_model=RecipeOrigin)
-async def read_recipe_origin_by_id(*, db: Session = Depends(get_db), recipe_origin_id: int):
+async def read_recipe_origin_by_id(*, db: Session = Depends(get_db), recipe_origin_id: UUID):
     recipe_origin_by_id = get_recipe_origin_by_id(db, recipe_origin_id=recipe_origin_id)
 
     if recipe_origin_by_id is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"{recipe_origin_id} as Recipe Origin is not found"
+            detail=f"Id {recipe_origin_id} as Recipe Origin is not found"
         )
 
     return recipe_origin_by_id
@@ -61,14 +62,13 @@ async def add_recipe_origin(
     if recipe_origin_by_name:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=f"{recipe_origin.name} as Recipe Tag is already registered"
+            detail=f"{recipe_origin.name} as Recipe Origin is already registered"
         )
 
     recipe_origin_create = create_recipe_origin(db=db, recipe_origin=recipe_origin)
 
     result_message = f"{recipe_origin.name} as Recipe Tag is successfully created"
     data = get_recipe_origin_by_name(db, recipe_origin_name=recipe_origin.name)
-
     return {"result": result_message, "data": data}
 
 

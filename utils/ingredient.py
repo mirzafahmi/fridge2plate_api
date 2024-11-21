@@ -1,5 +1,8 @@
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional
+from sqlalchemy import func, asc
+from uuid import UUID
+from fastapi import HTTPException
 
 from db.models.recipe import Ingredient, IngredientCategory
 from pydantic_schemas.ingredient import IngredientCreate, IngredientUpdate
@@ -7,21 +10,21 @@ from utils.ingredient_category import get_ingredient_category_by_name
 
 
 def get_ingredients(db: Session, skip: int=0, limit: int = 100):
-    return db.query(Ingredient).offset(skip).limit(limit).all()
+    return db.query(Ingredient).order_by(asc(Ingredient.name)).offset(skip).limit(limit).all()
 
-
-def get_ingredient_by_id(db: Session, ingredient_id: int):
+def get_ingredient_by_id(db: Session, ingredient_id: UUID):
     return db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
 
-
 def get_ingredient_by_name(db: Session, ingredient_name: str):
-    
     return db.query(Ingredient).filter(Ingredient.name == ingredient_name).first()
     
 def get_ingredient_by_category(db: Session, ingredient_category: str):
     ingredient_by_category = get_ingredient_category_by_name(db, ingredient_category)
 
     return db.query(Ingredient).filter(Ingredient.ingredient_category_id == ingredient_by_category.id).all()
+
+def check_unique_ingedient_name(db: Session, ingredient_name: str):
+    return db.query(Ingredient).filter(func.lower(Ingredient.name) == func.lower(ingredient_name)).first()
 
 def post_ingredient(db: Session, ingredient: IngredientCreate):
     ingredient_data = {key: value for key, value in ingredient.dict().items() if value is not None}
@@ -33,6 +36,7 @@ def post_ingredient(db: Session, ingredient: IngredientCreate):
 
     return db_ingredient
 
+#TODO! remove this dead code
 def create_ingredient_by_name(db: Session, ingredient: IngredientCreate):
     ingredient_category = get_ingredient_category_by_name(db, ingredient.ingredient_category)
 
@@ -50,16 +54,21 @@ def create_ingredient_by_name(db: Session, ingredient: IngredientCreate):
 
         return db_ingredient
 
-
-
-def update_ingredient(
+def put_ingredient(
     db: Session, 
-    ingredient_name: str, 
+    ingredient_id: UUID, 
     ingredient: IngredientUpdate
 ):
-    db_ingredient = get_ingredient_by_name(db, ingredient_name=ingredient_name)
+    db_ingredient = get_ingredient_by_id(db, ingredient_id)
     
     if db_ingredient:
+        if ingredient:
+            if ingredient.name and ingredient.name != db_ingredient.name:
+                if check_unique_ingedient_name(db, ingredient.name):
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"'{ingredient.name}' as Ingredient is already exists"
+                    )
         for key, value in ingredient.dict().items():
             if key == 'ingredient_category' and value is not None:
                 ingredient_category = get_ingredient_category_by_name(db, value)
@@ -76,7 +85,7 @@ def update_ingredient(
 
 
 
-def delete_ingredient(db: Session, ingredient_name: str):
-    db_ingredient = get_ingredient_by_name(db, ingredient_name)
+def delete_ingredient(db: Session, ingredient_id: UUID):
+    db_ingredient = get_ingredient_by_id(db, ingredient_id)
     db.delete(db_ingredient)
     db.commit()
