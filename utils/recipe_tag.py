@@ -27,12 +27,12 @@ def post_recipe_tag(db: Session, recipe_tag: RecipeTagCreate):
 
     return db_recipe_tag
 
-
+#TODO: modify all update utils to exclude from auto assign id in update and must user id same as creator id to be able modify
 def update_recipe_tag(
     db: Session, 
     recipe_tag_name: str, 
-    recipe_tag: RecipeTagCreate
-):
+    recipe_tag: RecipeTagCreate):
+
     db_recipe_tag = get_recipe_tag_by_name(db, recipe_tag_name)
     
     if db_recipe_tag:
@@ -47,14 +47,20 @@ def update_recipe_tag(
 
         return db_recipe_tag
     else:
-        raise HTTPException(status_code=404, detail=f"Recipe Tag with name {recipe_tag_name} not found")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Recipe Tag with name {recipe_tag_name} not found"
+        )
 
 
 def delete_recipe_tag(db: Session, recipe_tag_name: str):
     db_recipe_tag = get_recipe_tag_by_name(db, recipe_tag_name)
     
     if not db_recipe_tag:
-        raise HTTPException(status_code=404, detail=f"Recipe Tag with name {recipe_tag_name} not found")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Recipe Tag with name {recipe_tag_name} not found"
+        )
 
     db.delete(db_recipe_tag)
     db.commit()

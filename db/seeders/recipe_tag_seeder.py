@@ -6,7 +6,7 @@ from db.db_setup import get_db
 from utils.recipe_tag import post_recipe_tag
 from pydantic_schemas.recipe_tag import RecipeTagCreateSeeder
 
-
+#TODO! redefine tags meaning
 recipe_tags = [
     {
         'id': '4431d379-fe77-4a6c-9ede-d52de9d939de',

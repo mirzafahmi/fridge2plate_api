@@ -26,6 +26,7 @@ JWT_TOKEN_EXPIRE_MINUTES = 30
 PRIVATE_KEY = base64.b64decode(os.getenv("PRIVATE_KEY")).decode("utf-8")
 PUBLIC_KEY = base64.b64decode(os.getenv("PUBLIC_KEY")).decode("utf-8")
 
+oauth_bearer = OAuth2PasswordBearer(tokenUrl='auth/login')
 
 def get_user(db: Session):
     return db.query(User).all()
@@ -105,12 +106,24 @@ def decode_jwt_token(token: str):
     try:
         payload = jwt.decode(token, PUBLIC_KEY, algorithms=[JWT_ALGORITHM])
         if "sub" not in payload:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token payload missing 'sub' claim")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="Token payload missing 'sub' claim"
+            )
 
         return payload
 
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Token has expired"
+        )
 
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid token"
+        )
+
+def get_current_user(token: str = Depends(oauth_bearer)):
+    return decode_jwt_token(token)

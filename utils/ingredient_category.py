@@ -32,8 +32,37 @@ def post_ingredient_category(db: Session, ingredient_category: IngredientCategor
 
     return db_ingredient_category
 
-
 def update_ingredient_category(
+    db: Session, 
+    ingredient_category_id: str, 
+    ingredient_category: Optional[IngredientCategoryCreate]
+):
+    db_ingredient_category = get_ingredient_category_by_id(db, ingredient_category_id)
+    
+    if db_ingredient_category:
+        if ingredient_category:
+            for key, value in ingredient_category.dict().items():
+                if value is not None:
+                    setattr(db_ingredient_category, key, value)
+
+        db.commit()
+        db.refresh(db_ingredient_category)
+
+        return db_ingredient_category
+    else:
+        raise HTTPException(status_code=404, detail=f"Ingredient Category with id {ingredient_category_id} not found")
+
+
+def delete_ingredient_category(db: Session, ingredient_category_id: str):
+    db_ingredient_category = get_ingredient_category_by_id(db, ingredient_category_id)
+    
+    if not db_ingredient_category:
+        raise HTTPException(status_code=404, detail=f"Ingredient Category with id {ingredient_category_id} not found")
+
+    db.delete(db_ingredient_category)
+    db.commit()
+
+def update_ingredient_category_by_name(
     db: Session, 
     ingredient_category_name: str, 
     ingredient_category: Optional[IngredientCategoryCreate],
@@ -58,7 +87,7 @@ def update_ingredient_category(
         raise HTTPException(status_code=404, detail=f"Ingredient Category with name {ingredient_category_name} not found")
 
 
-def delete_ingredient_category(db: Session, ingredient_category_name: str):
+def delete_ingredient_category_by_name(db: Session, ingredient_category_name: str):
     db_ingredient_category = get_ingredient_category_by_name(db, ingredient_category_name)
     
     if not db_ingredient_category:

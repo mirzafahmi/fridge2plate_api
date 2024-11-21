@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.db_setup import get_db
 from pydantic_schemas.user import UserResponse, UserMessageResponse, UsersMessageResponse, UserCreate, UserUpdate, UserLogin, AuthResponse
 from db.models.user import User
-from utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, post_user, put_user, authenticate_user, create_jwt_token, decode_jwt_token
+from utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, get_current_user, post_user, put_user, authenticate_user, create_jwt_token, decode_jwt_token
 
 from datetime import timedelta, datetime
 from typing import Annotated
@@ -69,64 +69,56 @@ async def auth_user(*, db: Session = Depends(get_db), user: OAuth2PasswordReques
     }
 
 @router.get("/validate", response_model=UserMessageResponse)
-async def retrieve_current_user(token: str = Depends(oauth_bearer), db: Session = Depends(get_db)):
-    try:
-        payload = decode_jwt_token(token)
-    
-        if payload is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is invalid or expired")
-        
-        user = get_user_by_id(db, payload["sub"])
+async def retrieve_current_user(
+    current_user: dict = Depends(get_current_user), 
+    db: Session = Depends(get_db)):
 
-        if user is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    user = get_user_by_id(db, current_user["sub"])
 
-        return {
-            "message": "User data retrieved successfully", 
-            "user": UserResponse(
-                id=user.id, 
-                username=user.username, 
-                email=user.email, 
-                created_date=user.created_date, 
-                updated_date=user.updated_date
-            )
-        }
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not found"
+        )
 
-    except HTTPException as e:
-        
-        raise e
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+    return {
+        "message": "User data retrieved successfully", 
+        "user": UserResponse(
+            id=user.id, 
+            username=user.username, 
+            email=user.email, 
+            created_date=user.created_date, 
+            updated_date=user.updated_date
+        )
+    }
+
 
 @router.patch("/profile/update", response_model=UserMessageResponse)
-async def update_profile(user_update: UserUpdate, token: str = Depends(oauth_bearer), db: Session = Depends(get_db)):
-    try:
-        payload = decode_jwt_token(token)
+async def update_profile(
+    user_update: UserUpdate, 
+    current_user: dict = Depends(get_current_user), 
+    db: Session = Depends(get_db)):
 
-        if payload is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is invalid or expired")
-        
-        user = get_user_by_id(db, payload["sub"])
+    user = get_user_by_id(db, payload["sub"])
 
-        if user is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not found"
+        )
 
-        updated_user = put_user(db, user, user_update)
+    updated_user = put_user(db, user, user_update)
 
-        return {
-            "message": "User updated successfully", 
-            "user": UserResponse(
-                id=user_create.id, 
-                username=user_create.username, 
-                email=user_create.email, 
-                created_date=user_create.created_date, 
-                updated_date=user_create.updated_date
-            )
-        }
-
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    return {
+        "message": "User updated successfully", 
+        "user": UserResponse(
+            id=user_create.id, 
+            username=user_create.username, 
+            email=user_create.email, 
+            created_date=user_create.created_date, 
+            updated_date=user_create.updated_date
+        )
+    }
 
 @router.get("/users/{email}", response_model=UserMessageResponse)
 async def retrieve_user_by_email(email: str, db: Session = Depends(get_db)):
