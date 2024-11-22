@@ -6,7 +6,7 @@ from uuid import UUID
 from utils.recipe_category import *
 from utils.user import check_valid_user
 from db.db_setup import get_db
-from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryCreate, RecipeCategoryResponse, RecipeCategoriesResponse
+from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryCreate, RecipeCategoryUpdate, RecipeCategoryResponse, RecipeCategoriesResponse
 
 
 router = APIRouter(
@@ -29,7 +29,6 @@ async def read_recipe_categories(db: Session = Depends(get_db), skip: int=0, lim
         "recipe_categories": recipe_categories
     }
 
-
 @router.get("/{recipe_category_id}", status_code=status.HTTP_200_OK, response_model=RecipeCategoryResponse)
 async def read_recipe_category_by_id(*, db: Session = Depends(get_db), recipe_category_id: UUID):
     recipe_category_by_id = get_recipe_category_by_id(db, recipe_category_id)
@@ -44,7 +43,6 @@ async def read_recipe_category_by_id(*, db: Session = Depends(get_db), recipe_ca
         "detail": f"Id {recipe_category_id} as Recipe Category is retrieved successfully",
         "recipe_category": recipe_category_by_id
     }
-
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeCategoryResponse)
 async def add_recipe_category(*, db: Session = Depends(get_db), recipe_category: RecipeCategoryCreate):
@@ -64,13 +62,9 @@ async def add_recipe_category(*, db: Session = Depends(get_db), recipe_category:
 
     return {"detail": result_message, "recipe_category": recipe_category_create}
 
-@router.put("/{recipe_category_name}", status_code=status.HTTP_202_ACCEPTED)
-async def change_recipe_category(
-    *, db: Session = Depends(get_db), 
-    recipe_category_id: UUID, 
-    recipe_category: RecipeCategoryCreate
-):
-    db_recipe_category = get_recipe_category_by_id(db, recipe_category_name)
+@router.put("/{recipe_category_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeCategoryResponse)
+async def change_recipe_category(*, db: Session = Depends(get_db), recipe_category_id: UUID, recipe_category: RecipeCategoryUpdate):
+    db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
     
     if not db_recipe_category:
         raise HTTPException(
@@ -78,25 +72,25 @@ async def change_recipe_category(
             detail=f"Id {recipe_category_id} as Recipe Category is not found"
         )
 
-    recipe_category_update = update_recipe_category(db, recipe_category_id, recipe_category)
+    check_valid_user(db, recipe_category)
 
+    recipe_category_update = update_recipe_category(db, recipe_category_id, recipe_category)
     result_message = f"Id {recipe_category_id} as Recipe Category is successfully updated"
 
     return {"detail": result_message, "recipe_category": recipe_category_update}
 
+@router.delete("/{recipe_category_id}", status_code=status.HTTP_200_OK)
+async def remove_recipe_category(*, db: Session = Depends(get_db), recipe_category_id: UUID):
+    db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
 
-@router.delete("/{recipe_category_name}", status_code=status.HTTP_200_OK)
-async def remove_recipe_category(*, db: Session = Depends(get_db), recipe_category_name: str):
-    recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category_name)
-
-    if recipe_category_by_name is None:
+    if not db_recipe_category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"{recipe_category_name} as Recipe Category is not found"
+            detail=f"Id {recipe_category_id} as Recipe Category is not found"
         )
 
-    delete_recipe_category(db=db, recipe_category_name=recipe_category_name)
-    result_message = f"{recipe_category_name} as Recipe Category is successfully deleted"
+    delete_recipe_category(db, recipe_category_id)
+    result_message = f"Id {recipe_category_id} as Recipe Category is successfully deleted"
 
     return {"detail": result_message}
 

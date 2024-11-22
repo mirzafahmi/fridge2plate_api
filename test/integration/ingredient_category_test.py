@@ -72,7 +72,7 @@ def test_post_ingredient_category_with_duplicate_name(client: TestClient):
     assert response.status_code == 400
     assert response.json()["detail"] == f"proteins as Ingredient Category is already registered"
 
-def test_post_ingredient_category_without_name(client: TestClient):
+def test_post_ingredient_category_with_empty_name(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "name": "",
         "created_by": ADMIN_ID
@@ -88,6 +88,22 @@ def test_post_ingredient_category_without_name(client: TestClient):
     assert response_json["detail"][0]["loc"] == ["body", "name"]
     assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
+    
+def test_post_ingredient_category_without_name(client: TestClient):
+    response = client.post(f"{url_prefix}/", json={
+        "created_by": ADMIN_ID
+    })
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "name"]
+    assert response_json["detail"][0]["msg"] == "Field required"
+    assert response_json["detail"][0]["type"] == "missing"
 
 def test_post_ingredient_category_with_not_available_creator_id(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
@@ -214,12 +230,12 @@ def test_put_ingredient_category_with_empty_creator_id(client: TestClient):
 
 def test_delete_ingredient_category(client: TestClient):
     response = client.delete(f"{url_prefix}/b4b165f6-a4f2-45f6-bda6-0a49092d3f03")
-
+    
     assert response.status_code == 200
-    assert response.json()['detail'] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is successfully deleted"
+    assert response.json()["detail"] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is successfully deleted"
 
 def test_delete_ingredient_category_by_wrong_id(client: TestClient):
     response = client.delete(f"{url_prefix}/db67b3f4-0e04-47bb-bc46-94826847ee4f")
 
     assert response.status_code == 404
-    assert response.json()['detail'] == "Id db67b3f4-0e04-47bb-bc46-94826847ee4f as Ingredient Category is not found"
+    assert response.json()["detail"] == "Id db67b3f4-0e04-47bb-bc46-94826847ee4f as Ingredient Category is not found"

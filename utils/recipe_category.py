@@ -4,7 +4,7 @@ from sqlalchemy import func, asc
 from uuid import UUID
 from fastapi import HTTPException, status
 
-from db.models.recipe import RecipeCategory
+from db.models.recipe import RecipeCategory, Recipe
 from pydantic_schemas.recipe_category import RecipeCategoryCreate
 
 
@@ -30,16 +30,17 @@ def post_recipe_category(db: Session, recipe_category: RecipeCategoryCreate):
 
     return db_recipe_category
 
-def update_recipe_category(
-    db: Session, 
-    recipe_category_id: UUID, 
-    recipe_category: RecipeCategoryCreate
-):
+def update_recipe_category(db: Session, recipe_category_id: UUID, recipe_category: RecipeCategoryCreate):
     db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
     
     if db_recipe_category:
-        
         if recipe_category:
+            if recipe_category.name and recipe_category.name != db_recipe_category.name:
+                if check_unique_recipe_category_name(db, recipe_category.name):
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"'{recipe_category.name}' as Recipe Category is already exists"
+                    )
             for key, value in recipe_category.dict().items():
                 if value is not None:
                     setattr(db_recipe_category, key, value)
@@ -51,8 +52,8 @@ def update_recipe_category(
     else:
         raise HTTPException(status_code=404, detail=f"Recipe Category with name {recipe_category_name} not found")
 
-def delete_recipe_category(db: Session, recipe_category_name: str):
-    db_recipe_category = get_recipe_category_by_name(db, recipe_category_name)
+def delete_recipe_category(db: Session, recipe_category_id: UUID):
+    db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
     
     db.query(Recipe).filter(Recipe.recipe_category_id == db_recipe_category.id).update({
         Recipe.recipe_category_id: None
