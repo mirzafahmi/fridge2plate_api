@@ -171,7 +171,7 @@ def test_put_recipe_category_with_duplicate_name(client: TestClient):
     })
 
     assert response.status_code == 400
-    assert response.json()["detail"] == f"'lunch' as Recipe Category is already exists"
+    assert response.json()["detail"] == f"'lunch' as Recipe Category is already registered"
 
 def test_put_recipe_category_with_empty_name(client: TestClient):
     response = client.put(f"{url_prefix}/4053a7e8-9ae5-415d-9bed-e4d0a235f481", json={
@@ -179,6 +179,7 @@ def test_put_recipe_category_with_empty_name(client: TestClient):
     })
 
     assert response.status_code == 422
+
     response_json = response.json()
 
     assert response_json["detail"] is not None
@@ -230,12 +231,12 @@ def test_put_recipe_category_with_empty_creator_id(client: TestClient):
 
 def test_delete_recipe_category(client: TestClient):
     response = client.delete(f"{url_prefix}/4053a7e8-9ae5-415d-9bed-e4d0a235f481")
-    print(response.json())
+    
     assert response.status_code == 200
     assert response.json()["detail"] == "Id 4053a7e8-9ae5-415d-9bed-e4d0a235f481 as Recipe Category is successfully deleted"
 
 def test_delete_recipe_category_by_wrong_id(client: TestClient):
     response = client.delete(f"{url_prefix}/db67b3f4-0e04-47bb-bc46-94826847ee4f")
-    print(response.json())
+    
     assert response.status_code == 404
     assert response.json()["detail"] == "Id db67b3f4-0e04-47bb-bc46-94826847ee4f as Recipe Category is not found"

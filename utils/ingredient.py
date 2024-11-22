@@ -54,11 +54,7 @@ def create_ingredient_by_name(db: Session, ingredient: IngredientCreate):
 
         return db_ingredient
 
-def put_ingredient(
-    db: Session, 
-    ingredient_id: UUID, 
-    ingredient: IngredientUpdate
-):
+def put_ingredient(db: Session, ingredient_id: UUID, ingredient: IngredientUpdate):
     db_ingredient = get_ingredient_by_id(db, ingredient_id)
     
     if db_ingredient:
@@ -67,7 +63,7 @@ def put_ingredient(
                 if check_unique_ingedient_name(db, ingredient.name):
                     raise HTTPException(
                         status_code=400, 
-                        detail=f"'{ingredient.name}' as Ingredient is already exists"
+                        detail=f"'{ingredient.name}' as Ingredient is already registered"
                     )
         for key, value in ingredient.dict().items():
             if key == 'ingredient_category' and value is not None:

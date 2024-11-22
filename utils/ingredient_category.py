@@ -43,7 +43,7 @@ def update_ingredient_category(
                 if check_unique_ingedient_category_name(db, ingredient_category.name):
                     raise HTTPException(
                         status_code=400, 
-                        detail=f"'{ingredient_category.name}' as Ingredient Category is already exists"
+                        detail=f"'{ingredient_category.name}' as Ingredient Category is already registered"
                     )
             for key, value in ingredient_category.dict().items():
                 if value is not None:

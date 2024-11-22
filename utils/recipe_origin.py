@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 
 from db.models.recipe import RecipeOrigin, Recipe
-from pydantic_schemas.recipe_origin import RecipeOriginCreate
+from pydantic_schemas.recipe_origin import RecipeOriginCreate, RecipeOriginUpdate
 
 
 def get_recipe_origins(db: Session, skip: int=0, limit: int = 100):
@@ -30,16 +30,17 @@ def post_recipe_origin(db: Session, recipe_origin: RecipeOriginCreate):
 
     return db_recipe_origin
 
-def update_recipe_origin(db: Session, recipe_origin_id: UUID, recipe_origin: RecipeOriginCreate):
+def put_recipe_origin(db: Session, recipe_origin_id: UUID, recipe_origin: RecipeOriginUpdate):
     db_recipe_origin = get_recipe_origin_by_id(db, recipe_origin_id)
     
     if db_recipe_origin:
-        if recipe_origin.name and recipe.name != db_recipe_origin.name:
-            check_unique_recipe_origin_name(db, recipe.name):
-                raise HTTPException(
-                        status_code=400, 
-                        detail=f"'{recipe_origin.name}' as Recipe Origin is already exists"
-                    )
+        if recipe_origin:
+            if recipe_origin.name and recipe_origin.name != db_recipe_origin.name:
+                if check_unique_recipe_origin_name(db, recipe_origin.name):
+                    raise HTTPException(
+                            status_code=400, 
+                            detail=f"{recipe_origin.name} as Recipe Origin is already registered"
+                        )
             for key, value in recipe_origin.dict().items():
                 if value is not None:
                     setattr(db_recipe_origin, key, value)
@@ -49,12 +50,12 @@ def update_recipe_origin(db: Session, recipe_origin_id: UUID, recipe_origin: Rec
 
         return db_recipe_origin
     else:
-        raise HTTPException(status_code=404, detail=f"'{recipe_origin_name}' as Recipe Origin is not found")
+        raise HTTPException(status_code=404, detail=f"{recipe_origin_name} as Recipe Origin is not found")
 
 def delete_recipe_origin(db: Session, recipe_origin_id: UUID):
     db_recipe_origin = get_recipe_origin_by_id(db, recipe_origin_id)
     
-    db.query(Recipe).filter(Recipe.recipe_origin_id == db_recipe_corigin.id).update({
+    db.query(Recipe).filter(Recipe.recipe_origin_id == db_recipe_origin.id).update({
         Recipe.recipe_origin_id: None
     })
 

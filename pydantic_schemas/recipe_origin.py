@@ -28,12 +28,12 @@ class RecipeOrigin(LowercaseBaseModel):
     created_date: datetime
     updated_date: datetime
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class RecipeOriginResponse(LowercaseBaseModel):
     detail: str
-    recipe_origins: RecipeOrigin
+    recipe_origin: RecipeOrigin
 
 class RecipeOriginsResponse(LowercaseBaseModel):
     detail: str

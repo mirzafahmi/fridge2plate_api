@@ -4,7 +4,8 @@ from fastapi.testclient import TestClient
 url_prefix = "/ingredients"
 ADMIN_ID = "db67b3f4-0e04-47bb-bc46-94826847ee4f"
 
-def test_get_list(client: TestClient):
+#TODO!: test with unique constraint error like name field
+def test_get_ingredient_list(client: TestClient):
     response = client.get(f"{url_prefix}/")
     print(response.json())
     assert response.status_code == 200

@@ -170,7 +170,7 @@ def test_put_ingredient_category_with_duplicate_name(client: TestClient):
     })
 
     assert response.status_code == 400
-    assert response.json()["detail"] == f"'vegetables' as Ingredient Category is already exists"
+    assert response.json()["detail"] == f"'vegetables' as Ingredient Category is already registered"
 
 def test_put_ingredient_category_with_empty_name(client: TestClient):
     response = client.put(f"{url_prefix}/b4b165f6-a4f2-45f6-bda6-0a49092d3f03", json={

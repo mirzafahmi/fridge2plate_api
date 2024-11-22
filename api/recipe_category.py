@@ -74,7 +74,7 @@ async def change_recipe_category(*, db: Session = Depends(get_db), recipe_catego
 
     check_valid_user(db, recipe_category)
 
-    recipe_category_update = update_recipe_category(db, recipe_category_id, recipe_category)
+    recipe_category_update = put_recipe_category(db, recipe_category_id, recipe_category)
     result_message = f"Id {recipe_category_id} as Recipe Category is successfully updated"
 
     return {"detail": result_message, "recipe_category": recipe_category_update}

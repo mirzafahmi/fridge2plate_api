@@ -6,7 +6,7 @@ from uuid import UUID
 from utils.recipe_origin import *
 from utils.user import check_valid_user
 from db.db_setup import get_db
-from pydantic_schemas.recipe_origin import RecipeOrigin, RecipeOriginCreate, RecipeOriginUpdate RecipeOriginResponse, RecipeOriginsResponse
+from pydantic_schemas.recipe_origin import RecipeOrigin, RecipeOriginCreate, RecipeOriginUpdate, RecipeOriginResponse, RecipeOriginsResponse
 
 
 router = APIRouter(
@@ -56,14 +56,14 @@ async def add_recipe_origin(*, db: Session = Depends(get_db), recipe_origin: Rec
 
     check_valid_user(db, recipe_origin)
 
-    recipe_origin_create = create_recipe_origin(db, recipe_origin)
+    recipe_origin_create = post_recipe_origin(db, recipe_origin)
 
     result_message = f"{recipe_origin.name} as Recipe Origin is successfully created"
 
     return {"detail": result_message, "recipe_origin": recipe_origin_create}
 
 @router.put("/{recipe_origin_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeOriginResponse)
-async def change_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_id: UUID, recipe_origin: RecipeOriginCreate):
+async def change_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_id: UUID, recipe_origin: RecipeOriginUpdate):
     recipe_origin_by_id = get_recipe_origin_by_id(db, recipe_origin_id)
     
     if not recipe_origin_by_id:
@@ -72,7 +72,9 @@ async def change_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_i
             detail=f"Id {recipe_origin_id} as Recipe Origin is not found"
         )
 
-    recipe_origin_update = update_recipe_origin(db, recipe_origin_id, recipe_origin)
+    check_valid_user(db, recipe_origin)
+    
+    recipe_origin_update = put_recipe_origin(db, recipe_origin_id, recipe_origin)
     result_message = f"Id {recipe_origin_id} as Recipe Origin is successfully updated"
 
     return {"detail": result_message, "recipe_origin": recipe_origin_update}
@@ -92,7 +94,6 @@ async def remove_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_i
     result_message = f"Id {recipe_origin_id} as Recipe Origin is successfully deleted"
 
     return {"detail": result_message}
-
 
 
 

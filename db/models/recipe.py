@@ -48,7 +48,7 @@ class UOM(TimestampMixin, Base):
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, nullable=False)
     unit = Column(String(10), unique=True, nullable=False)
-    weightage = Column(Float)
+    weightage = Column(Float, default=1)
 
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="uoms")

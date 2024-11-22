@@ -11,7 +11,7 @@ from passlib.context import CryptContext
 from main import app
 from db.db_setup import get_db  
 from db.models.user import User
-from db.models.recipe import IngredientCategory, Ingredient, RecipeCategory, RecipeOrigin, RecipeTag
+from db.models.recipe import IngredientCategory, Ingredient, UOM, RecipeCategory, RecipeOrigin, RecipeTag
 from db.db_setup import Base
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -84,6 +84,23 @@ def setup_and_teardown():
         ),
     ]
 
+    dummy_uoms = [
+        UOM(
+            id=uuid.UUID("8c935f60-2f3a-410a-9860-09bb2c270a38"),
+            name="clove",
+            unit="clove",
+            weightage=1,
+            created_by=test_admin_id
+        ),
+        UOM(
+            id=uuid.UUID("13444244-43b2-4d63-a080-604dd5088452"),
+            name="piece",
+            unit="piece",
+            weightage="1",
+            created_by=test_admin_id
+        ),
+    ]
+
     dummy_recipe_categories = [
         RecipeCategory(
             id=uuid.UUID("4053a7e8-9ae5-415d-9bed-e4d0a235f481"),
@@ -123,7 +140,7 @@ def setup_and_teardown():
         ),
     ]
 
-    session.add_all(dummy_users + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories)
+    session.add_all(dummy_users + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms)
     session.commit()
     session.close()
 

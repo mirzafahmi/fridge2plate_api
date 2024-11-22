@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 
 from db.models.recipe import RecipeCategory, Recipe
-from pydantic_schemas.recipe_category import RecipeCategoryCreate
+from pydantic_schemas.recipe_category import RecipeCategoryCreate, RecipeCategoryUpdate
 
 
 def get_recipe_categories(db: Session, skip: int=0, limit: int = 100):
@@ -30,7 +30,7 @@ def post_recipe_category(db: Session, recipe_category: RecipeCategoryCreate):
 
     return db_recipe_category
 
-def update_recipe_category(db: Session, recipe_category_id: UUID, recipe_category: RecipeCategoryCreate):
+def put_recipe_category(db: Session, recipe_category_id: UUID, recipe_category: RecipeCategoryUpdate):
     db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
     
     if db_recipe_category:
@@ -39,7 +39,7 @@ def update_recipe_category(db: Session, recipe_category_id: UUID, recipe_categor
                 if check_unique_recipe_category_name(db, recipe_category.name):
                     raise HTTPException(
                         status_code=400, 
-                        detail=f"'{recipe_category.name}' as Recipe Category is already exists"
+                        detail=f"'{recipe_category.name}' as Recipe Category is already registered"
                     )
             for key, value in recipe_category.dict().items():
                 if value is not None:
