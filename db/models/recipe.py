@@ -31,7 +31,6 @@ class Ingredient(TimestampMixin, Base):
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(String(100), unique=True, nullable=False)
     brand = Column(String(100), nullable=False)
-    icon = Column(Text, nullable=True)
 
     ingredient_category_id = Column(UUID(as_uuid=True), ForeignKey("ingredient_categories.id"), nullable=True)
     ingredient_category = relationship("IngredientCategory", back_populates="ingredients")
@@ -98,28 +97,30 @@ class RecipeOrigin(TimestampMixin, Base):
 
 class IngredientRecipeAssociation(TimestampMixin, Base):
     __tablename__ = "ingredient_recipe_associations"
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
 
-    ingredient_id = Column(UUID(as_uuid=True), ForeignKey("ingredients.id"), primary_key=True)
+    ingredient_id = Column(UUID(as_uuid=True), ForeignKey("ingredients.id"))
     ingredient = relationship("Ingredient", overlaps="recipes")
 
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), primary_key=True)
-    recipe = relationship("Recipe", back_populates="ingredient_recipe_associations", overlaps="ingredient,recipes")
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id", ondelete="CASCADE"))
+    recipe = relationship("Recipe", back_populates="ingredient_recipe_associations", overlaps="ingredient,recipes", single_parent=True)
 
     uom_id = Column(UUID(as_uuid=True), ForeignKey("uoms.id"), nullable=True)
     uom = relationship("UOM")
 
-    quantity = Column(Integer, default=1)
+    quantity = Column(Float, default=1)
     is_essential = Column(Boolean, default=False)
 
 
 class RecipeTagRecipeAssociation(TimestampMixin, Base):
     __tablename__ = "recipe_tag_recipe_associations"
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
 
-    recipe_tag_id = Column(UUID(as_uuid=True), ForeignKey("recipe_tags.id"), primary_key=True, index=True)
+    recipe_tag_id = Column(UUID(as_uuid=True), ForeignKey("recipe_tags.id"))
     recipe_tag = relationship("RecipeTag", back_populates="recipe_tag_recipe_associations", overlaps="recipes")
 
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), primary_key=True, index=True)
-    recipe = relationship("Recipe", back_populates="recipe_tag_recipe_associations", overlaps="recipe_tags,recipes")
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id", ondelete="CASCADE"))
+    recipe = relationship("Recipe", back_populates="recipe_tag_recipe_associations", overlaps="recipe_tags,recipes", single_parent=True)
 
     
 class Recipe(TimestampMixin, Base):
@@ -127,10 +128,11 @@ class Recipe(TimestampMixin, Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
     name = Column(Text, unique=True, nullable=False)
-    serving = Column(Integer, nullable=True)
+    serving = Column(String, nullable=True)
     cooking_time = Column(Text, nullable=False)
 
     steps = relationship("Instruction", back_populates="recipe", cascade="all, delete")
+    images = relationship("RecipeImage", back_populates="recipe", cascade="all, delete")
 
     recipe_category_id = Column(UUID(as_uuid=True), ForeignKey("recipe_categories.id"), nullable=True)
     recipe_category = relationship("RecipeCategory", back_populates="recipes")
@@ -142,10 +144,19 @@ class Recipe(TimestampMixin, Base):
     recipe_tag_recipe_associations = relationship("RecipeTagRecipeAssociation", back_populates="recipe", cascade="all, delete", overlaps="recipe_tags,recipes")
     
     ingredients = relationship("Ingredient", secondary="ingredient_recipe_associations", back_populates="recipes", overlaps="ingredient,recipe")
-    ingredient_recipe_associations = relationship("IngredientRecipeAssociation", overlaps="ingredients,recipe")
+    ingredient_recipe_associations = relationship("IngredientRecipeAssociation", back_populates="recipe", cascade="all, delete", overlaps="ingredients,recipe") #if any error with seeding
 
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="recipes")
+
+class RecipeImage(TimestampMixin, Base):
+    __tablename__ = "recipe_images"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
+    image = Column(Text, nullable=False)
+
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
+    recipe = relationship("Recipe", back_populates="images")
 
 class Instruction(Base):
     __tablename__ = "instructions"
@@ -154,5 +165,5 @@ class Instruction(Base):
     step_number = Column(Integer, nullable=False)
     description = Column(Text, nullable=False)
 
-    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=False)
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
     recipe = relationship("Recipe", back_populates="steps")

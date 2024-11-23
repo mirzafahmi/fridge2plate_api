@@ -14,19 +14,16 @@ def get_ingredient_recipe_associations(db: Session, skip: int=0, limit: int = 10
 
     return data
 
-
 def get_ingredient_recipe_associations_by_id(db: Session, ingredient_recipe_associations_id: int):
     data = db.query(IngredientRecipeAssociation).filter(IngredientRecipeAssociation.id == ingredient_recipe_associations_id).first()
 
     return data
-
 
 def get_ingredient_recipe_associations_by_recipe_id(db: Session, recipe_id: id):
 
     data = db.query(IngredientRecipeAssociation).filter(IngredientRecipeAssociation.recipe_id == recipe_id).all()
 
     return data
-
 
 def get_ingredient_recipe_associations_by_recipe_name(db: Session, recipe_name: str):
     recipe = get_recipe_by_name(db, recipe_name)
@@ -38,13 +35,7 @@ def get_ingredient_recipe_associations_by_recipe_name(db: Session, recipe_name: 
 
     return data
 
-
-def post_association(
-    db: Session, 
-    recipe_id: int, 
-    ingredient: IngredientRecipeAssociationBase
-):
-
+def post_association(db: Session, recipe_id: int, ingredient: IngredientRecipeAssociationBase):
     ingredient_db = get_ingredient_by_name(db, ingredient.ingredient)
     uom_db = get_uom_by_name(db, ingredient.uom)
 
@@ -55,7 +46,6 @@ def post_association(
         uom_id=uom_db.id
     )
 
-
     db.add(db_association)
     db.commit()
     db.refresh(db_association)
@@ -63,11 +53,7 @@ def post_association(
     return db_association
 
 
-def update_association(
-    db: Session, 
-    recipe_id: int, 
-    ingredient: IngredientRecipeAssociation
-):
+def update_association(db: Session, recipe_id: int, ingredient: IngredientRecipeAssociation):
     db_recipe = get_recipe_by_id(db, recipe_id)
     #update must same as create as we delete the current assoc
     if db_recipe:

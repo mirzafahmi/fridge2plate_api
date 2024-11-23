@@ -12,7 +12,6 @@ class IngredientCreate(LowercaseBaseModel):
     name: constr(strip_whitespace=True, min_length=3)
     brand: constr(strip_whitespace=True, min_length=3)
     ingredient_category_id: UUID
-    icon: Optional[str] = None
     created_by: Optional[UUID] = None
 
     model_config = {
@@ -26,7 +25,6 @@ class IngredientUpdate(LowercaseBaseModel):
     name: Optional[constr(strip_whitespace=True, min_length=3)] = None
     brand: Optional[constr(strip_whitespace=True, min_length=3)] = None
     ingredient_category_id: Optional[UUID] = None
-    icon: Optional[str] = None
     created_by: Optional[UUID] = None
 
     model_config = {
@@ -37,7 +35,6 @@ class Ingredient(LowercaseBaseModel):
     id: UUID
     name: str
     brand: str
-    icon: Optional[str] = None
     ingredient_category: IngredientCategory
     creator: UserResponse
     created_date: datetime
