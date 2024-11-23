@@ -1,13 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Any
 
 class LowercaseBaseModel(BaseModel):
     class Config:
-        # This config setting makes Pydantic case-insensitive
-        case_sensitive = False
+        transform_fields = set() 
 
-    def __init__(self, **data: Any) -> None:
-        # Convert all keys in data to lowercase
-        data_lower = {key.lower(): value for key, value in data.items()}
-        super().__init__(**data_lower)
+    @field_validator("*", mode="before")
+    def convert_to_lowercase(cls, value, info):
+        transform_fields = cls.model_config.get("transform_fields", [])
+
+        if isinstance(value, str) and info.field_name in transform_fields:
+            return value.lower()
+        return value
 

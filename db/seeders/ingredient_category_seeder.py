@@ -10,7 +10,7 @@ from pydantic_schemas.ingredient_category import IngredientCategoryCreateSeeder
 ingredient_categories = [
     {
         'id': 'b4b165f6-a4f2-45f6-bda6-0a49092d3f03',
-        'name': 'proteins'
+        'name': 'proteins & meat'
     },
     {
         'id': '6722eb62-884a-4208-8596-ed82d310e832',
@@ -18,7 +18,7 @@ ingredient_categories = [
     },
     {
         'id': '5592db88-7059-4c97-8a6e-82817144bb31',
-        'name': 'grains and starches'
+        'name': 'grains & starches'
     },
     {
         'id': '5c56349b-a5fb-4d10-ba77-a6362a8c6b88',
@@ -26,8 +26,32 @@ ingredient_categories = [
     },
     {
         'id': '2ad5eb58-5753-4de3-b090-1c44baf671eb',
-        'name': 'condiments'
+        'name': 'condiments & sauces'
     },
+    {
+        "name": "fruits"
+    },
+    {
+        "name": "legumes & beans"
+    },
+    {
+        "name": "nuts & seeds"
+    },
+    {
+        "name": "herb & spices"
+    },
+    {
+        "name": "oil & fats"
+    },
+    {
+        "name": "sweeteners & sugars"
+    },
+    {
+        "name": "canned & preserved goods"
+    },
+    {
+        "name": "miscellaneous"
+    }
 ]
 
 def seed_ingredient_category_data():

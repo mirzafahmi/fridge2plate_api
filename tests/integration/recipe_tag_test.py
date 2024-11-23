@@ -63,6 +63,22 @@ def test_post_recipe_tag(client: TestClient):
     assert "updated_date" in recipe_tag
     assert "created_date" in recipe_tag
 
+def test_post_recipe_tag_with_various_letter_case(client: TestClient):
+    response = client.post(f"{url_prefix}/", json={
+        "name": "tESt rECIpe TAG",
+        "created_by": ADMIN_ID
+    })
+
+    assert response.status_code == 201
+    assert response.json()["detail"] == f"test recipe tag as Recipe Tag is successfully created"
+
+    recipe_tag = response.json()["recipe_tag"]
+
+    assert recipe_tag["name"] == "test recipe tag"
+    assert recipe_tag["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in recipe_tag
+    assert "created_date" in recipe_tag
+
 def test_post_recipe_tag_with_duplicate_name(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "name": "eid",
@@ -148,7 +164,7 @@ def test_post_recipe_tag_with_empty_creator_id(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_recipe_tag(client: TestClient):
+def test_put_recipe_tag_by_changing_name(client: TestClient):
     response = client.put(f"{url_prefix}/13444244-43b2-4d63-a080-604dd5088452", json={
         "name": "updated ingredient tag",
     })
@@ -164,7 +180,23 @@ def test_put_recipe_tag(client: TestClient):
     assert "updated_date" in recipe_tag
     assert "created_date" in recipe_tag
 
-def test_put_recipe_tag_with_duplicate_name(client: TestClient):
+def test_put_recipe_tag_by_changing_name_with_various_letter_case(client: TestClient):
+    response = client.put(f"{url_prefix}/13444244-43b2-4d63-a080-604dd5088452", json={
+        "name": "upDATed inGREdient TAG",
+    })
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == "Id 13444244-43b2-4d63-a080-604dd5088452 as Recipe Tag is successfully updated"
+
+    recipe_tag = response.json()["recipe_tag"]
+
+    assert recipe_tag['id'] == "13444244-43b2-4d63-a080-604dd5088452"
+    assert recipe_tag['name'] == "updated ingredient tag"
+    assert recipe_tag["creator"]["id"]== "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in recipe_tag
+    assert "created_date" in recipe_tag
+
+def test_put_recipe_tag_by_changing_name_with_duplicate_name(client: TestClient):
     response = client.put(f"{url_prefix}/13444244-43b2-4d63-a080-604dd5088452", json={
         "name": "eid",
     })
@@ -172,7 +204,7 @@ def test_put_recipe_tag_with_duplicate_name(client: TestClient):
     assert response.status_code == 400
     assert response.json()["detail"] == f"eid as Recipe Tag is already registered"
 
-def test_put_recipe_tag_with_empty_name(client: TestClient):
+def test_put_recipe_tag_by_changing_name_with_empty_name(client: TestClient):
     response = client.put(f"{url_prefix}/13444244-43b2-4d63-a080-604dd5088452", json={
         "name": "",
     })

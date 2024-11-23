@@ -4,7 +4,7 @@ import uuid
 
 from db.db_setup import get_db
 from utils.user import post_user
-from pydantic_schemas.user import UserCreate
+from pydantic_schemas.user import UserCreateSeeder
 
 
 load_dotenv()
@@ -29,7 +29,7 @@ def seed_user_data():
 
     for user in users:
         try:
-            user_data = UserCreate(**user)
+            user_data = UserCreateSeeder(**user)
             created_user = post_user(db, user_data)
 
             print(f'user data of {created_user.username} has been added to the database.')

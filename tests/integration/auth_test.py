@@ -31,6 +31,25 @@ def test_register_user(client: TestClient):
     assert "created_date" in user
     assert "updated_date" in user
 
+def test_register_user_by_various_letter_case(client: TestClient):
+    response = client.post("/auth/register", json={
+        "username": "tEsT UseR 2",
+        "email": "tESt2@example.com",
+        "password": "test123"
+    })
+
+    user = response.json()["user"]
+
+    assert response.status_code == 201
+    assert response.json()["detail"] == "User created successfully"
+
+    assert "id" in user
+    assert user['username'] == "testuser2"
+    assert user['email'] == "tESt2@example.com"
+
+    assert "created_date" in user
+    assert "updated_date" in user
+
 def test_register_existed_email(client: TestClient):
     test_email = "test@example.com"
     

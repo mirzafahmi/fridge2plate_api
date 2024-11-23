@@ -15,6 +15,10 @@ class UserCreate(LowercaseBaseModel):
     def normalize_username(cls, value):
         return value.lower().replace(" ", "")
 
+    model_config = {
+        "transform_fields": ["username"]
+    }
+
 class UserCreateSeeder(UserCreate):
     id: Optional[uuid.UUID] = None
 

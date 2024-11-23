@@ -85,6 +85,29 @@ def test_post_ingredient(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
+def test_post_ingredient_with_various_letter_case(client: TestClient):
+    response = client.post(f"{url_prefix}/", json={
+        "name": "teST inGREdient",
+        "brand": "tESt INgredient bRAnd",
+        "icon": "/test_ingredient",
+        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+        "created_by": ADMIN_ID
+    })
+
+    assert response.status_code == 201
+    assert response.json()["detail"] == f"test ingredient as Ingredient is successfully created"
+
+    ingredient = response.json()["ingredient"]
+
+    assert ingredient["name"] == "test ingredient"
+    assert ingredient["brand"] == "test ingredient brand"
+    assert ingredient["icon"] == "/test_ingredient"
+    assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
+    assert ingredient["ingredient_category"]["name"] == "proteins"
+    assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in ingredient
+    assert "created_date" in ingredient
+
 def test_post_ingredient_without_name(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
@@ -262,7 +285,28 @@ def test_put_ingredient_by_changing_name(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_put_ingredient_without_name(client: TestClient):
+def test_put_ingredient_by_changing_name_with_various_letter_case(client: TestClient):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.put(f"{url_prefix}/{ingredient_id}", json={
+        "name": "upDAted inGREdient",
+    })
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+
+    ingredient = response.json()["ingredient"]
+
+    assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    assert ingredient["name"] == "updated ingredient"
+    assert ingredient["brand"] == "chicken"
+    assert ingredient["icon"] == "/test1"
+    assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
+    assert ingredient["ingredient_category"]["name"] == "proteins"
+    assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in ingredient
+    assert "created_date" in ingredient
+
+def test_put_ingredient_by_changing_name_with_empty_name(client: TestClient):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     response = client.put(f"{url_prefix}/{ingredient_id}", json={
         "name": "",
@@ -278,6 +322,48 @@ def test_put_ingredient_without_name(client: TestClient):
     assert response_json["detail"][0]["loc"] == ["body", "name"]
     assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
+
+def test_put_ingredient_by_changing_brand(client: TestClient):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.put(f"{url_prefix}/{ingredient_id}", json={
+        "brand": "updated ingredient brand",
+    })
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+
+    ingredient = response.json()["ingredient"]
+
+    assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    assert ingredient["name"] == "chicken"
+    assert ingredient["brand"] == "updated ingredient brand"
+    assert ingredient["icon"] == "/test1"
+    assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
+    assert ingredient["ingredient_category"]["name"] == "proteins"
+    assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in ingredient
+    assert "created_date" in ingredient
+
+def test_put_ingredient_by_changing_brand_with_various_letter_case(client: TestClient):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.put(f"{url_prefix}/{ingredient_id}", json={
+        "brand": "upDAted ingREDient bRAnd",
+    })
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+
+    ingredient = response.json()["ingredient"]
+
+    assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    assert ingredient["name"] == "chicken"
+    assert ingredient["brand"] == "updated ingredient brand"
+    assert ingredient["icon"] == "/test1"
+    assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
+    assert ingredient["ingredient_category"]["name"] == "proteins"
+    assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in ingredient
+    assert "created_date" in ingredient
 
 def test_put_ingredient_with_empty_brand(client: TestClient):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"

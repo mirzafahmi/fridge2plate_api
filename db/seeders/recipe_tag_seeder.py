@@ -10,27 +10,30 @@ from pydantic_schemas.recipe_tag import RecipeTagCreateSeeder
 recipe_tags = [
     {
         'id': '4431d379-fe77-4a6c-9ede-d52de9d939de',
-        'name': 'breakfast',
+        'name': 'quick & easy',
     },
     {
         'id': 'af9228b3-aa8a-4e2b-82eb-2782e59603ee',
-        'name': 'lunch',
+        'name': '20-minute meals',
     },
     {
         'id': 'ef91c1a0-753f-4db1-a04d-3fe3b5496f7a',
-        'name': 'brunch',
+        'name': 'slow cooker',
     },
     {
         'id': 'cb38e39d-251c-47a3-93e1-f21850d8904c',
-        'name': 'dinner',
+        'name': 'one-pot meals',
     },
     {
         'id': '7cb716fd-f2b5-4c98-b2b2-6f8b0a596998',
-        'name': 'supper',
+        'name': 'meal prep',
     },
     {
         'id': '592cfc6d-6c47-4ebb-84b0-ea43ffd19635',
         'name': 'eid',
+    },
+    {
+        'name': 'fasting month'
     },
 ]
 

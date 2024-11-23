@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.ingredient_category import *
-from utils.user import check_valid_user
+from utils.user import check_valid_user, get_current_user
 from db.db_setup import get_db
 from pydantic_schemas.ingredient_category import IngredientCategory, IngredientCategoryCreate, IngredientCategoryUpdate, IngredientCategoryResponse, IngredientCategoriesResponse
 
@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=IngredientCategoriesResponse)
-async def read_ingredient_categories(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_ingredient_categories(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     ingredient_categories = get_ingredient_categories(db, skip=skip, limit=limit)
 
     if not ingredient_categories:
@@ -29,9 +29,8 @@ async def read_ingredient_categories(db: Session = Depends(get_db), skip: int=0,
         "ingredient_categories": ingredient_categories
     }
 
-
 @router.get("/{ingredient_category_id}", status_code=status.HTTP_200_OK, response_model=IngredientCategoryResponse)
-async def read_ingredient_category_by_id(*, db: Session = Depends(get_db), ingredient_category_id: UUID):
+async def read_ingredient_category_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category_id: UUID):
     ingredient_category_by_id = get_ingredient_category_by_id(db, ingredient_category_id=ingredient_category_id)
 
     if ingredient_category_by_id is None:
@@ -46,7 +45,7 @@ async def read_ingredient_category_by_id(*, db: Session = Depends(get_db), ingre
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=IngredientCategoryResponse)
-async def add_ingredient_category(*, db: Session = Depends(get_db), ingredient_category: IngredientCategoryCreate):
+async def add_ingredient_category(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category: IngredientCategoryCreate):
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category.name)
 
     if ingredient_category_by_name:
@@ -64,11 +63,7 @@ async def add_ingredient_category(*, db: Session = Depends(get_db), ingredient_c
     return {"detail": result_message, "ingredient_category": ingredient_category_create}
 
 @router.put("/{ingredient_category_id}", status_code=status.HTTP_202_ACCEPTED, response_model=IngredientCategoryResponse)
-async def change_ingredient_category_by_id(
-    *, db: Session = Depends(get_db), 
-    ingredient_category_id: UUID, 
-    ingredient_category: IngredientCategoryUpdate
-):
+async def change_ingredient_category_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category_id: UUID, ingredient_category: IngredientCategoryUpdate):
     db_ingredient_category = get_ingredient_category_by_id(db, ingredient_category_id=ingredient_category_id)
     
     if not db_ingredient_category:
@@ -86,7 +81,7 @@ async def change_ingredient_category_by_id(
 
 
 @router.delete("/{ingredient_category_id}", status_code=status.HTTP_200_OK)
-async def remove_ingredient_category_by_id(*, db: Session = Depends(get_db), ingredient_category_id: UUID):
+async def remove_ingredient_category_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category_id: UUID):
     db_ingredient_category = get_ingredient_category_by_id(db, ingredient_category_id)
 
     if not db_ingredient_category:
@@ -102,7 +97,7 @@ async def remove_ingredient_category_by_id(*, db: Session = Depends(get_db), ing
 
 #TODO! convert all end point using name into using id
 @router.get("/by_name/{ingredient_category_name}", status_code=status.HTTP_200_OK, response_model=IngredientCategory, deprecated=True)
-async def read_ingredient_category_by_name(*, db: Session = Depends(get_db), ingredient_category_name: str):
+async def read_ingredient_category_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category_name: str):
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category_name)
 
     if ingredient_category_by_name is None:
@@ -114,11 +109,7 @@ async def read_ingredient_category_by_name(*, db: Session = Depends(get_db), ing
     return ingredient_category_by_name
 
 @router.put("/by_name/{ingredient_category_name}", status_code=status.HTTP_202_ACCEPTED, deprecated=True)
-async def change_ingredient_category_by_name(
-    *, db: Session = Depends(get_db), 
-    ingredient_category_name: str, 
-    ingredient_category: IngredientCategoryCreate
-):
+async def change_ingredient_category_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category_name: str, ingredient_category: IngredientCategoryCreate):
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category_name)
     
     if not ingredient_category_by_name:
@@ -136,7 +127,7 @@ async def change_ingredient_category_by_name(
 
 
 @router.delete("/by_name/{ingredient_category_name}", status_code=status.HTTP_200_OK, deprecated=True)
-async def remove_ingredient_category_by_name(*, db: Session = Depends(get_db), ingredient_category_name: str):
+async def remove_ingredient_category_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category_name: str):
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category_name=ingredient_category_name)
 
     if ingredient_category_by_name is None:

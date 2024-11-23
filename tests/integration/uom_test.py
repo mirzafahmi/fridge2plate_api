@@ -63,11 +63,31 @@ def test_post_uom(client: TestClient):
     })
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test UOM as UOM is successfully created"
+    assert response.json()["detail"] == f"test uom as UOM is successfully created"
 
     uom = response.json()["uom"]
 
-    assert uom["name"] == "test UOM"
+    assert uom["name"] == "test uom"
+    assert uom["unit"] == "test UOM"
+    assert uom["weightage"] == 1.0
+    assert uom["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in uom
+    assert "created_date" in uom
+
+def test_post_uom_with_various_letter_case(client: TestClient):
+    response = client.post(f"{url_prefix}/", json={
+        "name": "tESt UOM",
+        "unit": "test UOM",
+        "weightage": 1,
+        "created_by": ADMIN_ID
+    })
+
+    assert response.status_code == 201
+    assert response.json()["detail"] == f"test uom as UOM is successfully created"
+
+    uom = response.json()["uom"]
+
+    assert uom["name"] == "test uom"
     assert uom["unit"] == "test UOM"
     assert uom["weightage"] == 1.0
     assert uom["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -254,7 +274,7 @@ def test_post_uom_with_empty_creator_id(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_uom_name(client: TestClient):
+def test_put_uom_by_changing_name(client: TestClient):
     response = client.put(f"{url_prefix}/8c935f60-2f3a-410a-9860-09bb2c270a38", json={
         "name": "updated uom",
     })
@@ -272,7 +292,25 @@ def test_put_uom_name(client: TestClient):
     assert "updated_date" in uom
     assert "created_date" in uom
 
-def test_put_uom_with_duplicate_name(client: TestClient):
+def test_put_uom_by_changing_name_with_various_letter_case(client: TestClient):
+    response = client.put(f"{url_prefix}/8c935f60-2f3a-410a-9860-09bb2c270a38", json={
+        "name": "updated UOM",
+    })
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == "Id 8c935f60-2f3a-410a-9860-09bb2c270a38 as UOM is successfully updated"
+
+    uom = response.json()["uom"]
+
+    assert uom['id'] == "8c935f60-2f3a-410a-9860-09bb2c270a38"
+    assert uom['name'] == "updated uom"
+    assert uom["unit"] == "clove"
+    assert uom["weightage"] == 1.0
+    assert uom["creator"]["id"]== "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in uom
+    assert "created_date" in uom
+
+def test_put_uom_by_changing_name_with_duplicate_name(client: TestClient):
     response = client.put(f"{url_prefix}/8c935f60-2f3a-410a-9860-09bb2c270a38", json={
         "name": "piece",
     })
@@ -296,7 +334,7 @@ def test_put_uom_with_empty_name(client: TestClient):
     assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
 
-def test_put_uom_unit(client: TestClient):
+def test_put_uom_by_changing_unit(client: TestClient):
     response = client.put(f"{url_prefix}/8c935f60-2f3a-410a-9860-09bb2c270a38", json={
         "unit": "updated uom unit",
     })
@@ -314,7 +352,25 @@ def test_put_uom_unit(client: TestClient):
     assert "updated_date" in uom
     assert "created_date" in uom
 
-def test_put_uom_with_duplicate_unit(client: TestClient):
+def test_put_uom_by_changing_unit_with_various_letter_case(client: TestClient):
+    response = client.put(f"{url_prefix}/8c935f60-2f3a-410a-9860-09bb2c270a38", json={
+        "unit": "updated UOM UNIT",
+    })
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == "Id 8c935f60-2f3a-410a-9860-09bb2c270a38 as UOM is successfully updated"
+
+    uom = response.json()["uom"]
+
+    assert uom['id'] == "8c935f60-2f3a-410a-9860-09bb2c270a38"
+    assert uom['name'] == "clove"
+    assert uom["unit"] == "updated UOM UNIT"
+    assert uom["weightage"] == 1.0
+    assert uom["creator"]["id"]== "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in uom
+    assert "created_date" in uom
+
+def test_put_uom_by_changing_unit_with_duplicate_unit(client: TestClient):
     response = client.put(f"{url_prefix}/8c935f60-2f3a-410a-9860-09bb2c270a38", json={
         "unit": "piece",
     })
@@ -322,7 +378,7 @@ def test_put_uom_with_duplicate_unit(client: TestClient):
     assert response.status_code == 400
     assert response.json()["detail"] == f"piece as UOM unit is already registered"
 
-def test_put_uom_with_empty_unit(client: TestClient):
+def test_put_uom_by_changing_unit_with_empty_unit(client: TestClient):
     response = client.put(f"{url_prefix}/8c935f60-2f3a-410a-9860-09bb2c270a38", json={
         "unit": "",
     })

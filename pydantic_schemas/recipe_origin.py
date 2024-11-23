@@ -11,12 +11,20 @@ class RecipeOriginBase(LowercaseBaseModel):
     name: constr(strip_whitespace=True, min_length=3)
     created_by: Optional[uuid.UUID] = None
 
+    model_config = {
+        "transform_fields": ["name"]
+    }
+
 class RecipeOriginCreate(RecipeOriginBase):
     ...
 
 class RecipeOriginUpdate(RecipeOriginBase):
     name: Optional[constr(strip_whitespace=True, min_length=3)] = None
     created_by: Optional[uuid.UUID] = None
+
+    model_config = {
+        "transform_fields": ["name"]
+    }
     
 class RecipeOriginCreateSeeder(RecipeOriginCreate):
     id: Optional[uuid.UUID] = None

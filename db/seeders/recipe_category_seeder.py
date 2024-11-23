@@ -20,6 +20,15 @@ recipe_categories = [
         'id': '813bd870-eadc-4566-b390-a92c202d262d',
         'name': 'dinner'
     },
+    {
+        "name": "snacks"
+    },
+     {
+        "name": "appetizers"
+    },
+    {
+        "name": "supper"
+    },
 ]
 
 def seed_recipe_category_data():
@@ -41,4 +50,4 @@ def seed_recipe_category_data():
     print('Seeding process for recipe category db is completed')
 
 if __name__ == "__main__":
-    seed_data()
+    seed_recipe_category_data()

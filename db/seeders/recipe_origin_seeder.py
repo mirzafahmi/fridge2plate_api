@@ -10,7 +10,7 @@ from pydantic_schemas.recipe_origin import RecipeOriginCreateSeeder
 recipe_origins = [
     {
         'id': 'c9212804-4208-4464-9c18-225bc465e957',
-        'name': 'malayian',
+        'name': 'malay',
     },
     {
         'id': 'f5ab1ae4-0849-4b70-b2f9-00eb3710a370',
@@ -35,6 +35,21 @@ recipe_origins = [
     {
         'id': 'a500a5eb-f390-47e6-a0b4-5f95d7754031',
         'name': 'vietnamese',
+    },
+    {
+        'name': 'asian'
+    },
+    {
+        'name': 'middle eastern'
+    },
+    {
+        'name': 'european'
+    },
+    {
+        'name': 'latin american'
+    },
+    {
+        'name': 'african'
     },
 ]
 

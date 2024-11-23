@@ -13,6 +13,9 @@ class UOMBase(LowercaseBaseModel):
     weightage: float = Field(..., gt=0)
     created_by: Optional[uuid.UUID] = None
 
+    model_config = {
+        "transform_fields": ["name"]
+    }
 class UOMCreate(UOMBase):
     ...
 
@@ -21,6 +24,10 @@ class UOMUpdate(LowercaseBaseModel):
     unit: Optional[constr(strip_whitespace=True, min_length=1)] = None
     weightage: Optional[float] = None
     created_by: Optional[uuid.UUID] = None
+
+    model_config = {
+        "transform_fields": ["name"]
+    }
 
 class UOMCreateSeeder(UOMCreate):
     id: Optional[uuid.UUID] = None

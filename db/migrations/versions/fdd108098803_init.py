@@ -1,8 +1,8 @@
-"""Description of the changes
+"""init
 
-Revision ID: 2a546047b68a
+Revision ID: fdd108098803
 Revises: 
-Create Date: 2024-11-18 14:30:54.224445
+Create Date: 2024-11-23 08:51:24.670277
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '2a546047b68a'
+revision: str = 'fdd108098803'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -35,61 +35,61 @@ def upgrade() -> None:
     op.create_table('ingredient_categories',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('created_by', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_index(op.f('ix_ingredient_categories_id'), 'ingredient_categories', ['id'], unique=False)
-    op.create_index(op.f('ix_ingredient_categories_name'), 'ingredient_categories', ['name'], unique=True)
     op.create_table('recipe_categories',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('created_by', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_index(op.f('ix_recipe_categories_id'), 'recipe_categories', ['id'], unique=False)
-    op.create_index(op.f('ix_recipe_categories_name'), 'recipe_categories', ['name'], unique=True)
     op.create_table('recipe_origins',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('created_by', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_index(op.f('ix_recipe_origins_id'), 'recipe_origins', ['id'], unique=False)
-    op.create_index(op.f('ix_recipe_origins_name'), 'recipe_origins', ['name'], unique=True)
     op.create_table('recipe_tags',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('created_by', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_index(op.f('ix_recipe_tags_id'), 'recipe_tags', ['id'], unique=False)
-    op.create_index(op.f('ix_recipe_tags_name'), 'recipe_tags', ['name'], unique=True)
     op.create_table('uoms',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('unit', sa.String(length=10), nullable=False),
     sa.Column('weightage', sa.Float(), nullable=True),
-    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('created_by', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name'),
+    sa.UniqueConstraint('unit')
     )
     op.create_index(op.f('ix_uoms_id'), 'uoms', ['id'], unique=False)
-    op.create_index(op.f('ix_uoms_name'), 'uoms', ['name'], unique=True)
-    op.create_index(op.f('ix_uoms_unit'), 'uoms', ['unit'], unique=True)
     op.create_table('user_providers',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=True),
@@ -108,90 +108,91 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('brand', sa.String(length=100), nullable=False),
     sa.Column('icon', sa.Text(), nullable=True),
-    sa.Column('ingredient_category_id', sa.UUID(), nullable=False),
-    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('ingredient_category_id', sa.UUID(), nullable=True),
+    sa.Column('created_by', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
     sa.ForeignKeyConstraint(['ingredient_category_id'], ['ingredient_categories.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
-    op.create_index(op.f('ix_ingredients_brand'), 'ingredients', ['brand'], unique=False)
     op.create_index(op.f('ix_ingredients_id'), 'ingredients', ['id'], unique=False)
-    op.create_index(op.f('ix_ingredients_name'), 'ingredients', ['name'], unique=True)
     op.create_table('recipes',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('name', sa.Text(), nullable=False),
     sa.Column('serving', sa.Integer(), nullable=True),
     sa.Column('cooking_time', sa.Text(), nullable=False),
-    sa.Column('author', sa.Text(), nullable=False),
-    sa.Column('instructions', sa.Text(), nullable=True),
     sa.Column('recipe_category_id', sa.UUID(), nullable=True),
-    sa.Column('recipe_tag_id', sa.UUID(), nullable=True),
     sa.Column('recipe_origin_id', sa.UUID(), nullable=True),
-    sa.Column('created_by', sa.UUID(), nullable=False),
+    sa.Column('created_by', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
     sa.ForeignKeyConstraint(['recipe_category_id'], ['recipe_categories.id'], ),
     sa.ForeignKeyConstraint(['recipe_origin_id'], ['recipe_origins.id'], ),
-    sa.ForeignKeyConstraint(['recipe_tag_id'], ['recipe_tags.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
-    op.create_index(op.f('ix_recipes_author'), 'recipes', ['author'], unique=False)
-    op.create_index(op.f('ix_recipes_cooking_time'), 'recipes', ['cooking_time'], unique=False)
     op.create_index(op.f('ix_recipes_id'), 'recipes', ['id'], unique=False)
-    op.create_index(op.f('ix_recipes_instructions'), 'recipes', ['instructions'], unique=False)
-    op.create_index(op.f('ix_recipes_name'), 'recipes', ['name'], unique=True)
-    op.create_index(op.f('ix_recipes_serving'), 'recipes', ['serving'], unique=False)
     op.create_table('ingredient_recipe_associations',
     sa.Column('ingredient_id', sa.UUID(), nullable=False),
     sa.Column('recipe_id', sa.UUID(), nullable=False),
     sa.Column('uom_id', sa.UUID(), nullable=True),
     sa.Column('quantity', sa.Integer(), nullable=True),
     sa.Column('is_essential', sa.Boolean(), nullable=True),
-    sa.Column('created_by', sa.UUID(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
     sa.ForeignKeyConstraint(['ingredient_id'], ['ingredients.id'], ),
     sa.ForeignKeyConstraint(['recipe_id'], ['recipes.id'], ),
     sa.ForeignKeyConstraint(['uom_id'], ['uoms.id'], ),
     sa.PrimaryKeyConstraint('ingredient_id', 'recipe_id')
     )
+    op.create_table('instructions',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('step_number', sa.Integer(), nullable=False),
+    sa.Column('description', sa.Text(), nullable=False),
+    sa.Column('recipe_id', sa.UUID(), nullable=False),
+    sa.ForeignKeyConstraint(['recipe_id'], ['recipes.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_instructions_id'), 'instructions', ['id'], unique=False)
+    op.create_table('recipe_tag_recipe_associations',
+    sa.Column('recipe_tag_id', sa.UUID(), nullable=False),
+    sa.Column('recipe_id', sa.UUID(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['recipe_id'], ['recipes.id'], ),
+    sa.ForeignKeyConstraint(['recipe_tag_id'], ['recipe_tags.id'], ),
+    sa.PrimaryKeyConstraint('recipe_tag_id', 'recipe_id')
+    )
+    op.create_index(op.f('ix_recipe_tag_recipe_associations_recipe_id'), 'recipe_tag_recipe_associations', ['recipe_id'], unique=False)
+    op.create_index(op.f('ix_recipe_tag_recipe_associations_recipe_tag_id'), 'recipe_tag_recipe_associations', ['recipe_tag_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_recipe_tag_recipe_associations_recipe_tag_id'), table_name='recipe_tag_recipe_associations')
+    op.drop_index(op.f('ix_recipe_tag_recipe_associations_recipe_id'), table_name='recipe_tag_recipe_associations')
+    op.drop_table('recipe_tag_recipe_associations')
+    op.drop_index(op.f('ix_instructions_id'), table_name='instructions')
+    op.drop_table('instructions')
     op.drop_table('ingredient_recipe_associations')
-    op.drop_index(op.f('ix_recipes_serving'), table_name='recipes')
-    op.drop_index(op.f('ix_recipes_name'), table_name='recipes')
-    op.drop_index(op.f('ix_recipes_instructions'), table_name='recipes')
     op.drop_index(op.f('ix_recipes_id'), table_name='recipes')
-    op.drop_index(op.f('ix_recipes_cooking_time'), table_name='recipes')
-    op.drop_index(op.f('ix_recipes_author'), table_name='recipes')
     op.drop_table('recipes')
-    op.drop_index(op.f('ix_ingredients_name'), table_name='ingredients')
     op.drop_index(op.f('ix_ingredients_id'), table_name='ingredients')
-    op.drop_index(op.f('ix_ingredients_brand'), table_name='ingredients')
     op.drop_table('ingredients')
     op.drop_index(op.f('ix_user_providers_id'), table_name='user_providers')
     op.drop_table('user_providers')
-    op.drop_index(op.f('ix_uoms_unit'), table_name='uoms')
-    op.drop_index(op.f('ix_uoms_name'), table_name='uoms')
     op.drop_index(op.f('ix_uoms_id'), table_name='uoms')
     op.drop_table('uoms')
-    op.drop_index(op.f('ix_recipe_tags_name'), table_name='recipe_tags')
     op.drop_index(op.f('ix_recipe_tags_id'), table_name='recipe_tags')
     op.drop_table('recipe_tags')
-    op.drop_index(op.f('ix_recipe_origins_name'), table_name='recipe_origins')
     op.drop_index(op.f('ix_recipe_origins_id'), table_name='recipe_origins')
     op.drop_table('recipe_origins')
-    op.drop_index(op.f('ix_recipe_categories_name'), table_name='recipe_categories')
     op.drop_index(op.f('ix_recipe_categories_id'), table_name='recipe_categories')
     op.drop_table('recipe_categories')
-    op.drop_index(op.f('ix_ingredient_categories_name'), table_name='ingredient_categories')
     op.drop_index(op.f('ix_ingredient_categories_id'), table_name='ingredient_categories')
     op.drop_table('ingredient_categories')
     op.drop_index(op.f('ix_users_id'), table_name='users')

@@ -58,9 +58,10 @@ def put_recipe_tag(db: Session, recipe_tag_id: UUID, recipe_tag: RecipeTagUpdate
 def delete_recipe_tag(db: Session, recipe_tag_id: UUID):
     db_recipe_tag = get_recipe_tag_by_id(db, recipe_tag_id)
 
-    db.query(Recipe).filter(Recipe.recipe_tag_id == db_recipe_tag.id).update({
-        Recipe.recipe_tag_id: None
-    })
+    #CHECK ASSOC
+    # db.query(Recipe).filter(Recipe.recipe_tag_id == db_recipe_tag.id).update({
+    #     Recipe.recipe_tag_id: None
+    # })
 
     db.commit()
 

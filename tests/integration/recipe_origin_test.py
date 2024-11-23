@@ -63,6 +63,22 @@ def test_post_recipe_origin(client: TestClient):
     assert "updated_date" in recipe_origin
     assert "created_date" in recipe_origin
 
+def test_post_recipe_origin_with_various_letter_case(client: TestClient):
+    response = client.post(f"{url_prefix}/", json={
+        "name": "tESt reCIPe orIGIn",
+        "created_by": ADMIN_ID
+    })
+
+    assert response.status_code == 201
+    assert response.json()["detail"] == f"test recipe origin as Recipe Origin is successfully created"
+
+    recipe_origin = response.json()["recipe_origin"]
+
+    assert recipe_origin["name"] == "test recipe origin"
+    assert recipe_origin["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in recipe_origin
+    assert "created_date" in recipe_origin
+
 def test_post_recipe_origin_with_duplicate_name(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "name": "malay",
@@ -148,7 +164,7 @@ def test_post_recipe_origin_with_empty_creator_id(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_recipe_origin(client: TestClient):
+def test_put_recipe_origin_by_changing_name(client: TestClient):
     response = client.put(f"{url_prefix}/92e80174-c259-480a-80b5-f5b0d32ca005", json={
         "name": "updated ingredient origin",
     })
@@ -164,7 +180,23 @@ def test_put_recipe_origin(client: TestClient):
     assert "updated_date" in recipe_origin
     assert "created_date" in recipe_origin
 
-def test_put_recipe_origin_with_duplicate_name(client: TestClient):
+def test_put_recipe_origin_by_changing_name_with_various_letter_case(client: TestClient):
+    response = client.put(f"{url_prefix}/92e80174-c259-480a-80b5-f5b0d32ca005", json={
+        "name": "upDATed ingREDient orIGIn",
+    })
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == "Id 92e80174-c259-480a-80b5-f5b0d32ca005 as Recipe Origin is successfully updated"
+
+    recipe_origin = response.json()["recipe_origin"]
+
+    assert recipe_origin['id'] == "92e80174-c259-480a-80b5-f5b0d32ca005"
+    assert recipe_origin['name'] == "updated ingredient origin"
+    assert recipe_origin["creator"]["id"]== "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert "updated_date" in recipe_origin
+    assert "created_date" in recipe_origin
+
+def test_put_recipe_origin_by_changing_name_with_duplicate_name(client: TestClient):
     response = client.put(f"{url_prefix}/92e80174-c259-480a-80b5-f5b0d32ca005", json={
         "name": "italian",
     })
@@ -172,7 +204,7 @@ def test_put_recipe_origin_with_duplicate_name(client: TestClient):
     assert response.status_code == 400
     assert response.json()["detail"] == f"italian as Recipe Origin is already registered"
 
-def test_put_recipe_origin_with_empty_name(client: TestClient):
+def test_put_recipe_origin_by_changing_name_with_empty_name(client: TestClient):
     response = client.put(f"{url_prefix}/92e80174-c259-480a-80b5-f5b0d32ca005", json={
         "name": "",
     })

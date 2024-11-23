@@ -70,9 +70,7 @@ async def auth_user(*, db: Session = Depends(get_db), user: OAuth2PasswordReques
     }
 
 @router.get("/validate", response_model=UserMessageResponse)
-async def retrieve_current_user(
-    current_user: dict = Depends(get_current_user), 
-    db: Session = Depends(get_db)):
+async def retrieve_current_user(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
 
     user = get_user_by_id(db, UUID(current_user["sub"]))
 
@@ -81,7 +79,6 @@ async def retrieve_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="User not found"
         )
-
     return {
         "detail": "User data retrieved successfully", 
         "user": UserResponse(
@@ -93,12 +90,8 @@ async def retrieve_current_user(
         )
     }
 
-
 @router.patch("/profile/update", response_model=UserMessageResponse)
-async def update_profile(
-    user_update: UserUpdate, 
-    current_user: dict = Depends(get_current_user), 
-    db: Session = Depends(get_db)):
+async def update_profile(user_update: UserUpdate, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
 
     user = get_user_by_id(db, payload["sub"])
 

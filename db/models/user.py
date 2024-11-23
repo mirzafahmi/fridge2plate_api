@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 
 from ..db_setup import Base
 from .timestamp_mixin import TimestampMixin
-
+#from .recipe import Recipe, RecipeTagRecipeAssociation
 
 class User(TimestampMixin, Base):
     __tablename__ = 'users'
@@ -24,7 +24,6 @@ class User(TimestampMixin, Base):
     recipe_categories = relationship("RecipeCategory", back_populates="creator")
     recipe_tags = relationship("RecipeTag", back_populates="creator")
     recipe_origins = relationship("RecipeOrigin", back_populates="creator")
-    ingredient_recipe_associations = relationship("IngredientRecipeAssociation", back_populates="creator")
 
     def set_email(self, email):
         try:
@@ -32,7 +31,6 @@ class User(TimestampMixin, Base):
             self.email = valid_email['email']  # store the normalized form
         except EmailNotValidError as e:
             raise ValueError(f"Invalid email: {e}")
-
 
 class UserProvider(TimestampMixin, Base):
     __tablename__ = 'user_providers'

@@ -15,6 +15,10 @@ class IngredientCreate(LowercaseBaseModel):
     icon: Optional[str] = None
     created_by: Optional[UUID] = None
 
+    model_config = {
+        "transform_fields": ["name", "brand"]
+    }
+
 class IngredientCreateSeeder(IngredientCreate):
     id: Optional[UUID] = None
     
@@ -24,6 +28,10 @@ class IngredientUpdate(LowercaseBaseModel):
     ingredient_category_id: Optional[UUID] = None
     icon: Optional[str] = None
     created_by: Optional[UUID] = None
+
+    model_config = {
+        "transform_fields": ["name", "brand"]
+    }
 
 class Ingredient(LowercaseBaseModel):
     id: UUID
