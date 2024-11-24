@@ -39,6 +39,12 @@ class RecipeCategory(LowercaseBaseModel):
     class Config:
         from_attributes = True
 
+class RecipeCategoryLite(LowercaseBaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True
+
 class RecipeCategoryResponse(LowercaseBaseModel):
     detail: str
     recipe_category: RecipeCategory

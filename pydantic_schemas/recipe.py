@@ -2,16 +2,16 @@ from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
 from typing import List, Optional, Any
 from uuid import UUID
-from pydantic import constr, validator
+from pydantic import constr, validator, Field, root_validator
 import re
 
-from pydantic_schemas.recipe_category import RecipeCategory
-from pydantic_schemas.recipe_tag import RecipeTag
-from pydantic_schemas.recipe_origin import RecipeOrigin
+from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryLite
+from pydantic_schemas.recipe_tag import RecipeTag, RecipeTagLite
+from pydantic_schemas.recipe_origin import RecipeOrigin, RecipeOriginLite
 from pydantic_schemas.ingredient import Ingredient
 from pydantic_schemas.ingredient_recipe_association import *
-from .user import UserResponse
-from .instruction import InstructionCreate, Instruction
+from .user import UserResponse, UserResponseLite
+from .instruction import InstructionCreate, Instruction, InstructionLite
 from .recipe_image import RecipeImageCreate, RecipeImage
 
 
@@ -27,15 +27,16 @@ class RecipeBase(LowercaseBaseModel):
     images: Optional[List[RecipeImageCreate]] = None
     created_by: Optional[UUID] = None
 
+    model_config = {
+        "transform_fields": ["name", "serving", "cooking_time"]
+    }
+
     @validator('serving')
     def validate_serving(cls, value):
-        # Check if the value is a number
         if re.match(r'^\d+$', value):
             return value
-        # Check if the value is a range in the form 'number-number'
         elif re.match(r'^\d+-\d+$', value):
             return value
-        # Raise an error if neither a single number nor a valid range
         raise ValueError('Serving must be a number or a valid range (e.g., "1-3")')
 
 class RecipeCreate(RecipeBase):
@@ -65,19 +66,58 @@ class Recipe(LowercaseBaseModel):
     recipe_category: RecipeCategory
     recipe_origin: RecipeOrigin
     recipe_tags: List[RecipeTag]
-    ingredients: List[Ingredient]
+    ingredient_data: List[IngredientRecipeAssociation]  
     
-    creator: UserResponse
+    creator: Optional[UserResponse]
     created_date: datetime
     updated_date: datetime
+
     class Config:
         from_attributes = True
 
+    #to sort steps list
+    def model_post_init(self, __context: Any) -> None:
+        self.steps = sorted(self.steps, key=lambda step: step.step_number)
+        self.recipe_tags = sorted(self.recipe_tags, key=lambda recipe_tag: recipe_tag.name)
+        self.ingredient_data = sorted(self.ingredient_data, key=lambda ingredient: ingredient.ingredient.name)
+
+class RecipeLite(LowercaseBaseModel):
+    id: UUID
+    name: str
+    serving: str
+    cooking_time: str
+    steps: List[InstructionLite] 
+    images: List[RecipeImage] 
+    recipe_category: RecipeCategoryLite
+    recipe_origin: RecipeOriginLite
+    recipe_tags: List[RecipeTagLite]
+    ingredient_data: List[IngredientRecipeAssociationLite]  
+
+    creator: Optional[UserResponseLite]
+    created_date: datetime
+    updated_date: datetime
+
+    class Config:
+        from_attributes = True
+
+    def model_post_init(self, __context: Any) -> None:
+        self.steps = sorted(self.steps, key=lambda step: step.step_number)
+        self.recipe_tags = sorted(self.recipe_tags, key=lambda recipe_tag: recipe_tag.name)
+        self.ingredient_data = sorted(self.ingredient_data, key=lambda ingredient: ingredient.ingredient.name)
 
 class RecipeResponse(LowercaseBaseModel):
     detail: str
     recipe: Recipe
 
+class RecipeLiteResponse(LowercaseBaseModel):
+    detail: str
+    recipe: RecipeLite
+
 class RecipesResponse(LowercaseBaseModel):
     detail: str
     recipes: List[Recipe]
+
+class RecipesLiteResponse(LowercaseBaseModel):
+    detail: str
+    recipes: List[RecipeLite]
+    

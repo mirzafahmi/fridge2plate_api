@@ -44,6 +44,12 @@ class UOM(LowercaseBaseModel):
     class Config:
         from_attributes = True
 
+class UOMLite(LowercaseBaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True
+
 class UOMResponse(LowercaseBaseModel):
     detail: str
     uom: UOM

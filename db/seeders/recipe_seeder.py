@@ -4,11 +4,12 @@ import uuid
 
 from db.db_setup import get_db
 from utils.recipe import post_recipe
-from pydantic_schemas.recipe import RecipeCreate
+from pydantic_schemas.recipe import RecipeCreateSeeder
 
 recipes = [
     {
-        "name": "Ayam masak lemak cili padi",
+        "id": "2cdd1a37-9c45-4202-a38c-026686b0ff71",
+        "name": "ayam masak lemak cili padi",
         "serving": "4-5",
         "cooking_time": "30 minutes",
         "recipe_category_id": "949defd8-d47b-4b0e-b846-163f9936f8e7",
@@ -47,6 +48,7 @@ recipes = [
         ],
     },
     {
+        "id": "6b86885b-a613-4ca6-a9b7-584c3d376337",
         "name": "test",
         "serving": "1-2",
         "cooking_time": "45 minutes",
@@ -88,7 +90,7 @@ def seed_recipe_data():
 
     for recipe in recipes:
         try:
-            recipe_data = RecipeCreate(**recipe)
+            recipe_data = RecipeCreateSeeder(**recipe)
             created_recipe = post_recipe(db, recipe_data)
 
             print(f'recipe data of {created_recipe.name} has been added to the database.')

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from sqlalchemy import func, asc
-from uuid import UUID
+from uuid import UUID, uuid4
 from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
@@ -28,12 +28,13 @@ def get_recipe_by_name(db: Session, recipe_name: str):
 def post_recipe(db: Session, recipe_data):
     try:
         db_recipe = Recipe(
+            id=recipe_data.id if hasattr(recipe_data, 'id') and recipe_data.id is not None else uuid4(),
             name=recipe_data.name,
             serving=recipe_data.serving,
             cooking_time=recipe_data.cooking_time,
             recipe_category_id=recipe_data.recipe_category_id,
             recipe_origin_id=recipe_data.recipe_origin_id,
-            created_by=recipe_data.created_by if recipe_data.created_by else ADMIN_ID #if error related to uuid
+            created_by=recipe_data.created_by if recipe_data.created_by else UUID(ADMIN_ID) #if error related to uuid
         )
         db.add(db_recipe)
         db.flush() 
@@ -62,16 +63,18 @@ def post_recipe(db: Session, recipe_data):
                 recipe_id=db_recipe.id
             )
             db.add(instruction_model)
+
         #issue with images test with seeder too
         if recipe_data.images:
             for image in recipe_data.images:
                 recipe_image_model = RecipeImage(
-                    image=image,
+                    image=image.image,
                     recipe_id=db_recipe.id
                 )
                 db.add(recipe_image_model)
         db.commit()
         db.refresh(db_recipe)
+        
         return db_recipe
 
     except Exception as e:

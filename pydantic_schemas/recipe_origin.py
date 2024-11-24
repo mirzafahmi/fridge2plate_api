@@ -38,6 +38,12 @@ class RecipeOrigin(LowercaseBaseModel):
 
     class Config:
         from_attributes = True
+    
+class RecipeOriginLite(LowercaseBaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True
 
 class RecipeOriginResponse(LowercaseBaseModel):
     detail: str

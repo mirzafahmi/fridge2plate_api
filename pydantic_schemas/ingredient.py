@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 from pydantic import constr
 
-from pydantic_schemas.ingredient_category import IngredientCategory
+from pydantic_schemas.ingredient_category import IngredientCategory, IngredientCategoryLite
 from .user import UserResponse
 
 
@@ -39,6 +39,14 @@ class Ingredient(LowercaseBaseModel):
     creator: UserResponse
     created_date: datetime
     updated_date: datetime
+    
+    class Config:
+        from_attributes = True
+
+class IngredientLite(LowercaseBaseModel):
+    name: str
+    brand: str
+    ingredient_category: IngredientCategoryLite
     
     class Config:
         from_attributes = True

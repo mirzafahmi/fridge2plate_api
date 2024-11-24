@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from fastapi import HTTPException
+from uuid import UUID
 
 from db.models.recipe import IngredientRecipeAssociation
 from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssociationBase
@@ -14,13 +15,12 @@ def get_ingredient_recipe_associations(db: Session, skip: int=0, limit: int = 10
 
     return data
 
-def get_ingredient_recipe_associations_by_id(db: Session, ingredient_recipe_associations_id: int):
+def get_ingredient_recipe_associations_by_id(db: Session, ingredient_recipe_associations_id: UUID):
     data = db.query(IngredientRecipeAssociation).filter(IngredientRecipeAssociation.id == ingredient_recipe_associations_id).first()
 
     return data
 
-def get_ingredient_recipe_associations_by_recipe_id(db: Session, recipe_id: id):
-
+def get_ingredient_recipe_associations_by_recipe_id(db: Session, recipe_id: UUID):
     data = db.query(IngredientRecipeAssociation).filter(IngredientRecipeAssociation.recipe_id == recipe_id).all()
 
     return data

@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List, Optional, Any
 import uuid 
 
-from pydantic_schemas.ingredient import Ingredient
-from pydantic_schemas.uom import UOM
+from pydantic_schemas.ingredient import Ingredient, IngredientLite
+from pydantic_schemas.uom import UOM, UOMLite
 
 
 class IngredientRecipeAssociationBase(LowercaseBaseModel):
@@ -18,10 +18,40 @@ class IngredientRecipeAssociationCreateSeeder(IngredientRecipeAssociationBase):
 
 class IngredientRecipeAssociation(LowercaseBaseModel):
     id: uuid.UUID
+    recipe_id: uuid.UUID
     ingredient: Ingredient
     quantity: float
     uom: UOM
     is_essential: bool
+
+    created_date: datetime
+    updated_date: datetime
     
-    class ConfigDict:
+    class Config:
         from_attributes = True
+
+class IngredientRecipeAssociationLite(LowercaseBaseModel):
+    recipe_id: uuid.UUID
+    ingredient: IngredientLite
+    quantity: float
+    uom: UOMLite
+    is_essential: bool
+    
+    class Config:
+        from_attributes = True
+
+class IngredientRecipeAssociationResponse(LowercaseBaseModel):
+    detail: str
+    ingredient_recipe_association: IngredientRecipeAssociation
+
+class IngredientRecipeAssociationsResponse(LowercaseBaseModel):
+    detail: str
+    ingredient_recipe_associations: List[IngredientRecipeAssociation]
+
+class IngredientRecipeAssociationResponseLite(LowercaseBaseModel):
+    detail: str
+    ingredient_recipe_association: IngredientRecipeAssociationLite
+
+class IngredientRecipeAssociationsResponseLite(LowercaseBaseModel):
+    detail: str
+    ingredient_recipe_associations: List[IngredientRecipeAssociationLite]

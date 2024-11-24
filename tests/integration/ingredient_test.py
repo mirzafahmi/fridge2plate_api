@@ -19,7 +19,6 @@ def test_get_ingredient_list(client: TestClient):
     assert ingredients[0]["id"] == "b3cceb34-9465-4020-9066-f7b5ce3c372c"
     assert ingredients[0]["name"] == "carrot"
     assert ingredients[0]["brand"] == "carrot"
-    assert ingredients[0]["icon"] == "/test1"
     assert ingredients[0]["ingredient_category"]["id"] == "6722eb62-884a-4208-8596-ed82d310e832"
     assert ingredients[0]["ingredient_category"]["name"] == "vegetables"
     assert ingredients[0]["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -29,7 +28,6 @@ def test_get_ingredient_list(client: TestClient):
     assert ingredients[1]["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredients[1]["name"] == "chicken"
     assert ingredients[1]["brand"] == "chicken"
-    assert ingredients[1]["icon"] == "/test1"
     assert ingredients[1]["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredients[1]["ingredient_category"]["name"] == "proteins"
     assert ingredients[1]["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -48,7 +46,6 @@ def test_get_ingredient_by_id(client: TestClient):
     assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredient["name"] == "chicken"
     assert ingredient["brand"] == "chicken"
-    assert ingredient["icon"] == "/test1"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -66,7 +63,6 @@ def test_post_ingredient(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "name": "test ingredient",
         "brand": "test ingredient brand",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "created_by": ADMIN_ID
     })
@@ -78,7 +74,6 @@ def test_post_ingredient(client: TestClient):
 
     assert ingredient["name"] == "test ingredient"
     assert ingredient["brand"] == "test ingredient brand"
-    assert ingredient["icon"] == "/test_ingredient"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -89,7 +84,6 @@ def test_post_ingredient_with_various_letter_case(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "name": "teST inGREdient",
         "brand": "tESt INgredient bRAnd",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "created_by": ADMIN_ID
     })
@@ -101,7 +95,6 @@ def test_post_ingredient_with_various_letter_case(client: TestClient):
 
     assert ingredient["name"] == "test ingredient"
     assert ingredient["brand"] == "test ingredient brand"
-    assert ingredient["icon"] == "/test_ingredient"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -112,7 +105,6 @@ def test_post_ingredient_without_name(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "brand": "test ingredient brand",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "created_by_id": ADMIN_ID
     })
@@ -133,7 +125,6 @@ def test_post_ingredient_with_empty_name(client: TestClient):
         "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "name": "",
         "brand": "test ingredient brand",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "created_by_id": ADMIN_ID
     })
@@ -153,7 +144,6 @@ def test_post_ingredient_without_brand(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "name": "test ingredient",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "created_by_id": ADMIN_ID
     })
@@ -174,7 +164,6 @@ def test_post_ingredient_with_empty_brand(client: TestClient):
         "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "name": "test ingredient",
         "brand": "",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "created_by_id": ADMIN_ID
     })
@@ -195,7 +184,6 @@ def test_post_ingredient_with_wrong_ingredient_category_id(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "name": "test ingredient",
         "brand": "test ingredient brand",
-        "icon": "/test_ingredient",
         "ingredient_category_id": f"{ingredient_category_id}",
         "created_by": ADMIN_ID
     })
@@ -207,7 +195,6 @@ def test_post_ingredient_with_invalid_category_id(client: TestClient):
     response = client.post(f"{url_prefix}/", json={
         "name": "test ingredient",
         "brand": "test ingredient brand",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f0z",
         "created_by": ADMIN_ID
     })
@@ -228,7 +215,6 @@ def test_post_ingredient_with_empty_ingredient_category_id(client: TestClient):
         "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "name": "test ingredient",
         "brand": "test ingredient brand",
-        "icon": "/test_ingredient",
         "ingredient_category_id": "", 
         "created_by_id": ADMIN_ID
     })
@@ -249,7 +235,6 @@ def test_post_ingredient_without_ingredient_category_id(client: TestClient):
         "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
         "name": "test ingredient",
         "brand": "test ingredient brand",
-        "icon": "/test_ingredient",
         "created_by_id": ADMIN_ID
     })
 
@@ -278,7 +263,6 @@ def test_put_ingredient_by_changing_name(client: TestClient):
     assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredient["name"] == "updated ingredient"
     assert ingredient["brand"] == "chicken"
-    assert ingredient["icon"] == "/test1"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -299,7 +283,6 @@ def test_put_ingredient_by_changing_name_with_various_letter_case(client: TestCl
     assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredient["name"] == "updated ingredient"
     assert ingredient["brand"] == "chicken"
-    assert ingredient["icon"] == "/test1"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -337,7 +320,6 @@ def test_put_ingredient_by_changing_brand(client: TestClient):
     assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredient["name"] == "chicken"
     assert ingredient["brand"] == "updated ingredient brand"
-    assert ingredient["icon"] == "/test1"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -358,7 +340,6 @@ def test_put_ingredient_by_changing_brand_with_various_letter_case(client: TestC
     assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredient["name"] == "chicken"
     assert ingredient["brand"] == "updated ingredient brand"
-    assert ingredient["icon"] == "/test1"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -396,7 +377,6 @@ def test_put_ingredient_by_changing_ingredient_category_id(client: TestClient):
     assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredient["name"] == "chicken"
     assert ingredient["brand"] == "chicken"
-    assert ingredient["icon"] == "/test1"
     assert ingredient["ingredient_category"]["id"] == "6722eb62-884a-4208-8596-ed82d310e832"
     assert ingredient["ingredient_category"]["name"] == "vegetables"
     assert ingredient["creator"]["id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
@@ -460,7 +440,6 @@ def test_put_ingredient_by_changing_created_by_id(client: TestClient):
     assert ingredient["id"] == "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     assert ingredient["name"] == "chicken"
     assert ingredient["brand"] == "chicken"
-    assert ingredient["icon"] == "/test1"
     assert ingredient["ingredient_category"]["id"] == "b4b165f6-a4f2-45f6-bda6-0a49092d3f03"
     assert ingredient["ingredient_category"]["name"] == "proteins"
     assert ingredient["creator"]["id"] == "0c619092-817e-4f73-b25f-8e187e69dded"

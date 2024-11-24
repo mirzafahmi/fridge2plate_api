@@ -9,7 +9,7 @@ class InstructionBase(LowercaseBaseModel):
     description: Text
 
     model_config = {
-        "transform_fields": ["name", "brand"]
+        "transform_fields": ["description"]
     }
 
 class InstructionCreate(InstructionBase):
@@ -25,7 +25,14 @@ class Instruction(LowercaseBaseModel):
     recipe_id: UUID
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+class InstructionLite(LowercaseBaseModel):
+    step_number: int
+    description: Text
+
+    class Config:
+        from_attributes = True
 
 class InstructionUpdate(InstructionBase):
     step_number: Optional[int] = None
@@ -34,4 +41,8 @@ class InstructionUpdate(InstructionBase):
 
 class InstructionsByRecipe(LowercaseBaseModel):
     recipe_id: UUID
+    instructions: List[Instruction]
+
+class InstructionResponse(LowercaseBaseModel):
+    detail: str
     instructions: List[Instruction]

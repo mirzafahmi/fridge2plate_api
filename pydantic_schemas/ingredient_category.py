@@ -39,6 +39,12 @@ class IngredientCategory(LowercaseBaseModel):
     class Config:
         from_attributes=True
 
+class IngredientCategoryLite(LowercaseBaseModel):
+    name: str
+
+    class Config:
+        from_attributes=True
+
 class IngredientCategoryResponse(LowercaseBaseModel):
     detail: str
     ingredient_category: IngredientCategory

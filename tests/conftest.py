@@ -13,6 +13,9 @@ from db.db_setup import get_db
 from db.models.user import User
 from db.models.recipe import IngredientCategory, Ingredient, UOM, RecipeCategory, RecipeOrigin, RecipeTag
 from db.db_setup import Base
+from utils.recipe import post_recipe
+from tests.integration.recipe_data import recipes
+from pydantic_schemas.recipe import RecipeCreateSeeder
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -70,7 +73,6 @@ def setup_and_teardown():
             id=uuid.UUID("423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"),
             name="chicken",
             brand="chicken",
-            icon="/test1",
             ingredient_category_id=uuid.UUID("b4b165f6-a4f2-45f6-bda6-0a49092d3f03"),
             created_by=test_admin_id
         ),
@@ -78,7 +80,6 @@ def setup_and_teardown():
             id=uuid.UUID("b3cceb34-9465-4020-9066-f7b5ce3c372c"),
             name="carrot",
             brand="carrot",
-            icon="/test1",
             ingredient_category_id=uuid.UUID("6722eb62-884a-4208-8596-ed82d310e832"),
             created_by=test_admin_id
         ),
@@ -139,6 +140,11 @@ def setup_and_teardown():
             created_by=test_admin_id
         ),
     ]
+    
+    for recipe in recipes:
+        recipe_data = RecipeCreateSeeder(**recipe)
+        
+        post_recipe(session, recipe_data)
 
     session.add_all(dummy_users + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms)
     session.commit()

@@ -10,7 +10,7 @@ from utils.recipe_tag import get_recipe_tag_by_id
 from utils.recipe_origin import get_recipe_origin_by_id
 
 from db.db_setup import get_db
-from pydantic_schemas.recipe import Recipe, RecipeCreate, RecipeUpdate, RecipeResponse, RecipesResponse
+from pydantic_schemas.recipe import Recipe, RecipeCreate, RecipeUpdate, RecipeResponse, RecipesResponse, RecipeLiteResponse, RecipesLiteResponse
 
 
 router = APIRouter(
@@ -33,6 +33,21 @@ async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 
         "recipes": recipes
     }
 
+@router.get("/lite", status_code=status.HTTP_200_OK, response_model=RecipesLiteResponse)
+async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+    recipes = get_recipes(db, skip=skip, limit=limit)
+
+    if not recipes:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Recipe list is empty"
+        )
+
+    return {
+        "detail": "Recipe list Lite is retrieved successfully",
+        "recipes": recipes
+    }
+
 @router.get("/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipeResponse)
 async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
     recipe_by_id = get_recipe_by_id(db, recipe_id)
@@ -47,8 +62,24 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
         "detail": f"Id {recipe_id} as Recipe is retrieved successfully",
         "recipe": recipe_by_id
     }
+
+@router.get("/{recipe_id}/lite", status_code=status.HTTP_200_OK, response_model=RecipeLiteResponse)
+async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+    recipe_by_id = get_recipe_by_id(db, recipe_id)
+
+    if recipe_by_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Id {recipe_id} as Recipe is not found"
+        )
+
+    return {
+        "detail": f"Id {recipe_id} as Recipe Lite is retrieved successfully",
+        "recipe": recipe_by_id
+    }
+
 #remove unique name
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeResponse)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeLiteResponse)
 async def add_recipe(*, db: Session = Depends(get_db), recipe: RecipeCreate):
     recipe_category = get_recipe_category_by_id(db, recipe.recipe_category_id)
     
@@ -73,6 +104,7 @@ async def add_recipe(*, db: Session = Depends(get_db), recipe: RecipeCreate):
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail=f"Id {recipe_tag} as Recipe Tag is not found"
             )
+            
     recipe_create = post_recipe(db, recipe)
 
     result_message = f"{recipe.name} as Recipe is successfully created"

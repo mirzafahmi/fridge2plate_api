@@ -38,6 +38,12 @@ class RecipeTag(LowercaseBaseModel):
 
     class Config:
         from_attributes = True
+    
+class RecipeTagLite(LowercaseBaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True
 
 class RecipeTagResponse(LowercaseBaseModel):
     detail: str

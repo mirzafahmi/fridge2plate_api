@@ -37,6 +37,12 @@ class UserResponse(LowercaseBaseModel):
     class Config:
         from_attributes = True
 
+class UserResponseLite(LowercaseBaseModel):
+    username: str
+
+    class Config:
+        from_attributes = True
+
 class UserMessageResponse(LowercaseBaseModel):
     detail: str
     user: UserResponse
