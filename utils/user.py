@@ -49,6 +49,15 @@ def check_valid_user(db: Session, data):
                 detail=f"Id {data.created_by} as User is not found"
             )
 
+def check_creator(db: Session, current_user: dict, data):
+    user_id = current_user.get("sub")
+
+    if user_id != data.created_by:
+        raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail=f"Id {user_id} as User is not an creator"
+            )
+
 def post_user(db: Session, user: UserCreate):
     if user.dict().get('id') is not None:
         db_user = User(

@@ -2,6 +2,7 @@ from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
 from typing import List, Optional, Any
 import uuid 
+from pydantic import confloat
 
 from pydantic_schemas.ingredient import Ingredient, IngredientLite
 from pydantic_schemas.uom import UOM, UOMLite
@@ -9,7 +10,7 @@ from pydantic_schemas.uom import UOM, UOMLite
 
 class IngredientRecipeAssociationBase(LowercaseBaseModel):
     ingredient_id: uuid.UUID
-    quantity: float
+    quantity: confloat(gt=0)
     uom_id: uuid.UUID
     is_essential: bool
 

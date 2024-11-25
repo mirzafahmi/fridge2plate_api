@@ -1446,6 +1446,1239 @@ def test_post_recipe_without_recipe_tags(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Field required"
     assert response_json["detail"][0]["type"] == "missing"
 
+def test_post_recipe_with_wrong_ingredient_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea85",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == f"ID 423f2e0f-d5cc-48dc-8b06-e987a3d8ea85 as Ingredient is not found"
+
+def test_post_recipe_with_invalid_ingredient_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea8z",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "ingredient_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_post_recipe_with_empty_ingredient_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "ingredient_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_post_recipe_without_ingredient_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "ingredient_id"]
+    assert response_json["detail"][0]["msg"] == "Field required"
+    assert response_json["detail"][0]["type"] == "missing"
+
+def test_post_recipe_with_invalid_ingredient_quantity(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "Test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": -123,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "quantity"]
+    assert response_json["detail"][0]["msg"] == "Input should be greater than 0"
+
+def test_post_recipe_with_not_integer_ingredient_quantity(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "Test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": "",
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "quantity"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid number, unable to parse string as a number"
+
+def test_post_recipe_without_ingredient_quantity(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "Test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "quantity"]
+    assert response_json["detail"][0]["msg"] == "Field required"
+    assert response_json["detail"][0]["type"] == "missing"
+
+def test_post_recipe_with_wrong_uom_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088453",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == f"ID 13444244-43b2-4d63-a080-604dd5088453 as UOM is not found"
+
+def test_post_recipe_with_invalid_uom_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd508845z",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "uom_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_post_recipe_with_empty_uom_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "uom_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_post_recipe_without_uom_id(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "uom_id"]
+    assert response_json["detail"][0]["msg"] == "Field required"
+    assert response_json["detail"][0]["type"] == "missing"
+
+def test_post_recipe_with_non_boolean_is_essential(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": "-true"
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "is_essential"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid boolean, unable to interpret input"
+    assert response_json["detail"][0]["type"] == "bool_parsing"
+
+def test_post_recipe_with_empty_is_essential(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": ""
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+    
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "is_essential"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid boolean, unable to interpret input"
+    assert response_json["detail"][0]["type"] == "bool_parsing"
+
+def test_post_recipe_without_is_essential(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "test recipe",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "ingredients", 0, "is_essential"]
+    assert response_json["detail"][0]["msg"] == "Field required"
+    assert response_json["detail"][0]["type"] == "missing"
+
+def test_post_recipe_with_wrong_step_number(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": -1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "steps", 0, "step_number"]
+    assert response_json["detail"][0]["msg"] == "Value error, step_number must be a positive integer"
+
+def test_post_recipe_with_non_integer_step_number(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": "asd",
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "steps", 0, "step_number"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid integer, unable to parse string as an integer"
+    assert response_json["detail"][0]["type"] == "int_parsing"
+
+def test_post_recipe_with_empty_step_description(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": ""
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "steps", 0, "description"]
+    assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
+    assert response_json["detail"][0]["type"] == "string_too_short"
+
+def test_post_recipe_without_step_description(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "steps", 0, "description"]
+    assert response_json["detail"][0]["msg"] == "Field required"
+    assert response_json["detail"][0]["type"] == "missing"
+
+def test_post_recipe_with_empty_steps(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "steps"]
+    assert response_json["detail"][0]["msg"] == "Value error, Steps cannot be an empty list."
+    assert response_json["detail"][0]["type"] == "value_error"
+
+def test_post_recipe_without_steps(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+    
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "steps"]
+    assert response_json["detail"][0]["msg"] == "Field required"
+    assert response_json["detail"][0]["type"] == "missing"
+
+#TODO! images test?
+def test_post_recipe_with_wrong_created_by(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69ddee"
+        }
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == f"Id 0c619092-817e-4f73-b25f-8e187e69ddee as User is not found"
+
+def test_post_recipe_with_invalid_created_by(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69ddez"
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+    
+    assert response_json["detail"][0]["loc"] == ["body", "created_by"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_post_recipe_with_empty_created_by(client: TestClient):
+    response = client.post(f"{url_prefix}",
+        json={
+            "name": "recipe name",
+            "serving": "1-3",
+            "cooking_time": "35 minutes",
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f481",
+            "recipe_origin_id": "92e80174-c259-480a-80b5-f5b0d32ca005",
+            "recipe_tags": [
+                "8c935f60-2f3a-410a-9860-09bb2c270a38",
+                "13444244-43b2-4d63-a080-604dd5088452"
+            ],
+            "ingredients": [
+                {
+                "ingredient_id": "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84",
+                "quantity": 1,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                },
+                {
+                "ingredient_id": "b3cceb34-9465-4020-9066-f7b5ce3c372c",
+                "quantity": 7,
+                "uom_id": "13444244-43b2-4d63-a080-604dd5088452",
+                "is_essential": True
+                }
+            ],
+            "steps": [
+                {
+                "step_number": 1,
+                "description": "wash chicken"
+                },
+                {
+                "step_number": 2,
+                "description": "eat chicken"
+                }
+            ],
+            "images": [
+                {
+                "image": "/string"
+                }
+            ],
+            "created_by": ""
+        }
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "created_by"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
 def test_put_recipe_by_changing_name(client: TestClient):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.put(f"{url_prefix}/{recipe_id}",
@@ -2034,7 +3267,6 @@ def test_delete_recipe(client: TestClient):
 
     assert recipe_image_response.status_code == 404
     assert recipe_image_response.json()["detail"] == "Recipe image list for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of recipe is empty"
-
 
 def test_delete_recipe_with_wrong_id(client: TestClient):
     response = client.delete(f"{url_prefix}/db67b3f4-0e04-47bb-bc46-94826847ee4f")

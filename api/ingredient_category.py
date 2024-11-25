@@ -17,7 +17,7 @@ router = APIRouter(
 @router.get("/", status_code=status.HTTP_200_OK, response_model=IngredientCategoriesResponse)
 async def read_ingredient_categories(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     ingredient_categories = get_ingredient_categories(db, skip=skip, limit=limit)
-
+    
     if not ingredient_categories:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 

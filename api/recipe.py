@@ -10,6 +10,7 @@ from utils.ingredient_recipe_association import *
 from utils.recipe_category import get_recipe_category_by_id
 from utils.recipe_tag import get_recipe_tag_by_id
 from utils.recipe_origin import get_recipe_origin_by_id
+from utils.uom import get_uom_by_id
 
 from db.db_setup import get_db
 from pydantic_schemas.recipe import Recipe, RecipeCreate, RecipeUpdate, RecipeResponse, RecipesResponse, RecipeLiteResponse, RecipesLiteResponse
@@ -116,6 +117,16 @@ async def add_recipe(*, db: Session = Depends(get_db), recipe: RecipeCreate):
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail=f"ID {ingredient.ingredient_id} as Ingredient is not found"
             )
+        
+        uom_by_id = get_uom_by_id(db, ingredient.uom_id)
+
+        if not uom_by_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=f"ID {ingredient.uom_id} as UOM is not found"
+            )
+    #TODO uom checking
+
 
     check_valid_user(db, recipe)
 
@@ -171,6 +182,14 @@ async def change_recipe(*, db: Session = Depends(get_db), recipe_id: UUID, recip
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND, 
                     detail=f"ID {ingredient.ingredient_id} as Ingredient is not found"
+                )
+            
+            uom_by_id = get_uom_by_id(db, ingredient.uom_id)
+
+            if not uom_by_id:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, 
+                    detail=f"ID {ingredient.uom_id} as UOM is not found"
                 )
 
     check_valid_user(db, recipe)

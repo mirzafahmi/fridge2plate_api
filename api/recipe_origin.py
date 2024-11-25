@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.recipe_origin import *
-from utils.user import check_valid_user
+from utils.user import check_valid_user, get_current_user
 from db.db_setup import get_db
 from pydantic_schemas.recipe_origin import RecipeOrigin, RecipeOriginCreate, RecipeOriginUpdate, RecipeOriginResponse, RecipeOriginsResponse
 
@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipeOriginsResponse)
-async def read_recipe_origin(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipe_origin(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     recipe_origins = get_recipe_origins(db, skip=skip, limit=limit)
 
     if not recipe_origins:
@@ -30,7 +30,7 @@ async def read_recipe_origin(db: Session = Depends(get_db), skip: int=0, limit: 
     }
 
 @router.get("/{recipe_origin_id}", status_code=status.HTTP_200_OK, response_model=RecipeOriginResponse)
-async def read_recipe_origin_by_id(*, db: Session = Depends(get_db), recipe_origin_id: UUID):
+async def read_recipe_origin_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_origin_id: UUID):
     recipe_origin_by_id = get_recipe_origin_by_id(db, recipe_origin_id)
 
     if recipe_origin_by_id is None:
@@ -45,7 +45,7 @@ async def read_recipe_origin_by_id(*, db: Session = Depends(get_db), recipe_orig
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeOriginResponse)
-async def add_recipe_origin(*, db: Session = Depends(get_db), recipe_origin: RecipeOriginCreate):
+async def add_recipe_origin(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_origin: RecipeOriginCreate):
     recipe_origin_by_name = get_recipe_origin_by_name(db, recipe_origin_name=recipe_origin.name)
     
     if recipe_origin_by_name:
@@ -63,7 +63,7 @@ async def add_recipe_origin(*, db: Session = Depends(get_db), recipe_origin: Rec
     return {"detail": result_message, "recipe_origin": recipe_origin_create}
 
 @router.put("/{recipe_origin_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeOriginResponse)
-async def change_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_id: UUID, recipe_origin: RecipeOriginUpdate):
+async def change_recipe_origin(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_origin_id: UUID, recipe_origin: RecipeOriginUpdate):
     recipe_origin_by_id = get_recipe_origin_by_id(db, recipe_origin_id)
     
     if not recipe_origin_by_id:
@@ -81,7 +81,7 @@ async def change_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_i
 
 
 @router.delete("/{recipe_origin_id}", status_code=status.HTTP_200_OK)
-async def remove_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_id: UUID):
+async def remove_recipe_origin(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_origin_id: UUID):
     recipe_origin_by_id = get_recipe_origin_by_id(db, recipe_origin_id)
 
     if not recipe_origin_by_id:
@@ -99,7 +99,7 @@ async def remove_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_i
 
 
 @router.get("/by_name/{recipe_origin_name}", status_code=status.HTTP_200_OK, response_model=RecipeOrigin, deprecated=True)
-async def read_recipe_origin_by_name(*, db: Session = Depends(get_db), recipe_origin_name: str):
+async def read_recipe_origin_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_origin_name: str):
     recipe_origin_by_name = get_recipe_origin_by_name(db, recipe_origin_name=recipe_origin_name)
 
     if recipe_origin_by_name is None:

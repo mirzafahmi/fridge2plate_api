@@ -1,12 +1,19 @@
 from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
-from typing import List, Optional, Any, Text
+from typing import List, Optional, Text
+from pydantic import constr, validator
 from uuid import UUID 
 
 
 class InstructionBase(LowercaseBaseModel):
     step_number: int
-    description: Text
+    description: constr(strip_whitespace=True, min_length=3)
+
+    @validator("step_number")
+    def validate_step_number(cls, value):
+        if value <= 0:
+            raise ValueError("step_number must be a positive integer")
+        return value
 
     model_config = {
         "transform_fields": ["description"]

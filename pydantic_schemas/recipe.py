@@ -50,6 +50,20 @@ class RecipeBase(LowercaseBaseModel):
         if len(value) < 1:
             raise ValueError('At least one recipe tag (UUID) is required.')
         return value
+    
+    @validator("steps")
+    def validate_steps(cls, steps):
+        if not steps:
+            raise ValueError("Steps cannot be an empty list.")
+        
+        step_numbers = sorted([step.step_number for step in steps])
+        expected_sequence = list(range(1, len(step_numbers) + 1))
+        if step_numbers != expected_sequence:
+            raise ValueError(
+                f"step_number values must start at 1 and be consecutive without gaps. "
+                f"Provided: {step_numbers}, Expected: {expected_sequence}"
+            )
+        return steps
 
 class RecipeCreate(RecipeBase):
     ...

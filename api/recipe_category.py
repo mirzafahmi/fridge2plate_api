@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.recipe_category import *
-from utils.user import check_valid_user
+from utils.user import check_valid_user, get_current_user
 from db.db_setup import get_db
 from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryCreate, RecipeCategoryUpdate, RecipeCategoryResponse, RecipeCategoriesResponse
 
@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipeCategoriesResponse)
-async def read_recipe_categories(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipe_categories(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     recipe_categories = get_recipe_categories(db, skip=skip, limit=limit)
 
     if not recipe_categories:
@@ -30,7 +30,7 @@ async def read_recipe_categories(db: Session = Depends(get_db), skip: int=0, lim
     }
 
 @router.get("/{recipe_category_id}", status_code=status.HTTP_200_OK, response_model=RecipeCategoryResponse)
-async def read_recipe_category_by_id(*, db: Session = Depends(get_db), recipe_category_id: UUID):
+async def read_recipe_category_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_category_id: UUID):
     recipe_category_by_id = get_recipe_category_by_id(db, recipe_category_id)
 
     if recipe_category_by_id is None:
@@ -45,7 +45,7 @@ async def read_recipe_category_by_id(*, db: Session = Depends(get_db), recipe_ca
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeCategoryResponse)
-async def add_recipe_category(*, db: Session = Depends(get_db), recipe_category: RecipeCategoryCreate):
+async def add_recipe_category(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_category: RecipeCategoryCreate):
     recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category.name)
     
     if recipe_category_by_name:
@@ -63,7 +63,7 @@ async def add_recipe_category(*, db: Session = Depends(get_db), recipe_category:
     return {"detail": result_message, "recipe_category": recipe_category_create}
 
 @router.put("/{recipe_category_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeCategoryResponse)
-async def change_recipe_category(*, db: Session = Depends(get_db), recipe_category_id: UUID, recipe_category: RecipeCategoryUpdate):
+async def change_recipe_category(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_category_id: UUID, recipe_category: RecipeCategoryUpdate):
     db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
     
     if not db_recipe_category:
@@ -80,7 +80,7 @@ async def change_recipe_category(*, db: Session = Depends(get_db), recipe_catego
     return {"detail": result_message, "recipe_category": recipe_category_update}
 
 @router.delete("/{recipe_category_id}", status_code=status.HTTP_200_OK)
-async def remove_recipe_category(*, db: Session = Depends(get_db), recipe_category_id: UUID):
+async def remove_recipe_category(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_category_id: UUID):
     db_recipe_category = get_recipe_category_by_id(db, recipe_category_id)
 
     if not db_recipe_category:
@@ -99,7 +99,7 @@ async def remove_recipe_category(*, db: Session = Depends(get_db), recipe_catego
 
 
 @router.get("/by_name/{recipe_category_name}", status_code=status.HTTP_200_OK, response_model=RecipeCategory, deprecated=True)
-async def read_recipe_category_by_name(*, db: Session = Depends(get_db), recipe_category_name: str):
+async def read_recipe_category_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_category_name: str):
     recipe_category_by_name = get_recipe_category_by_name(db, recipe_category_name=recipe_category_name)
 
     if recipe_category_by_name is None:
