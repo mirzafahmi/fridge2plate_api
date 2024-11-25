@@ -58,7 +58,7 @@ async def add_recipe_category(*, db: Session = Depends(get_db), recipe_category:
 
     recipe_category_create = post_recipe_category(db, recipe_category)
 
-    result_message = f"{recipe_category.name} as Recipe Category is successfully created"
+    result_message = f"{recipe_category.name} as Recipe Category is created successfully"
 
     return {"detail": result_message, "recipe_category": recipe_category_create}
 
@@ -75,7 +75,7 @@ async def change_recipe_category(*, db: Session = Depends(get_db), recipe_catego
     check_valid_user(db, recipe_category)
 
     recipe_category_update = put_recipe_category(db, recipe_category_id, recipe_category)
-    result_message = f"Id {recipe_category_id} as Recipe Category is successfully updated"
+    result_message = f"Id {recipe_category_id} as Recipe Category is updated successfully"
 
     return {"detail": result_message, "recipe_category": recipe_category_update}
 
@@ -90,7 +90,7 @@ async def remove_recipe_category(*, db: Session = Depends(get_db), recipe_catego
         )
 
     delete_recipe_category(db, recipe_category_id)
-    result_message = f"Id {recipe_category_id} as Recipe Category is successfully deleted"
+    result_message = f"Id {recipe_category_id} as Recipe Category is deleted successfully"
 
     return {"detail": result_message}
 

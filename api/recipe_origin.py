@@ -58,7 +58,7 @@ async def add_recipe_origin(*, db: Session = Depends(get_db), recipe_origin: Rec
 
     recipe_origin_create = post_recipe_origin(db, recipe_origin)
 
-    result_message = f"{recipe_origin.name} as Recipe Origin is successfully created"
+    result_message = f"{recipe_origin.name} as Recipe Origin is created successfully"
 
     return {"detail": result_message, "recipe_origin": recipe_origin_create}
 
@@ -75,7 +75,7 @@ async def change_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_i
     check_valid_user(db, recipe_origin)
     
     recipe_origin_update = put_recipe_origin(db, recipe_origin_id, recipe_origin)
-    result_message = f"Id {recipe_origin_id} as Recipe Origin is successfully updated"
+    result_message = f"Id {recipe_origin_id} as Recipe Origin is updated successfully"
 
     return {"detail": result_message, "recipe_origin": recipe_origin_update}
 
@@ -91,7 +91,7 @@ async def remove_recipe_origin(*, db: Session = Depends(get_db), recipe_origin_i
         )
 
     delete_recipe_origin(db, recipe_origin_id)
-    result_message = f"Id {recipe_origin_id} as Recipe Origin is successfully deleted"
+    result_message = f"Id {recipe_origin_id} as Recipe Origin is deleted successfully"
 
     return {"detail": result_message}
 

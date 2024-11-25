@@ -5,7 +5,7 @@ from uuid import UUID
 
 from utils.ingredient import *
 from utils.ingredient_category import get_ingredient_category_by_id
-from utils.user import get_user_by_id
+from utils.user import check_valid_user, get_current_user
 from db.db_setup import get_db
 from pydantic_schemas.ingredient import Ingredient, IngredientCreate, IngredientUpdate, IngredientResponse, IngredientsResponse
 
@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=IngredientsResponse)
-async def read_ingredient(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_ingredient(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     ingredients = get_ingredients(db, skip=skip, limit=limit)
 
     if not ingredients:
@@ -29,7 +29,7 @@ async def read_ingredient(db: Session = Depends(get_db), skip: int=0, limit: int
 
 
 @router.get("/{ingredient_id}", status_code=status.HTTP_200_OK, response_model=IngredientResponse)
-async def read_ingredient_by_id(*, db: Session = Depends(get_db), ingredient_id: UUID):
+async def read_ingredient_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_id: UUID):
     ingredient_by_id = get_ingredient_by_id(db, ingredient_id=ingredient_id)
 
     if ingredient_by_id is None:
@@ -44,10 +44,7 @@ async def read_ingredient_by_id(*, db: Session = Depends(get_db), ingredient_id:
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=IngredientResponse)
-async def add_ingredient(
-    *, db: Session = Depends(get_db), 
-    ingredient: IngredientCreate
-):
+async def add_ingredient(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient: IngredientCreate):
     ingredient_by_name = get_ingredient_by_name(db, ingredient.name)
     ingredient_category = get_ingredient_category_by_id(db, ingredient.ingredient_category_id)
     
@@ -65,17 +62,13 @@ async def add_ingredient(
 
     ingredient_create = post_ingredient(db=db, ingredient=ingredient)
 
-    result_message = f"{ingredient.name} as Ingredient is successfully created"
+    result_message = f"{ingredient.name} as Ingredient is created successfully"
 
     return {"detail": result_message, "ingredient": ingredient_create}
 
 
 @router.put("/{ingredient_id}", status_code=status.HTTP_202_ACCEPTED, response_model=IngredientResponse)
-async def change_ingredient(
-    *, db: Session = Depends(get_db), 
-    ingredient: IngredientUpdate,
-    ingredient_id: UUID, 
-):
+async def change_ingredient(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient: IngredientUpdate,ingredient_id: UUID):
     db_ingredient = get_ingredient_by_id(db, ingredient_id)
 
     if not db_ingredient:
@@ -93,23 +86,16 @@ async def change_ingredient(
                 detail=f"Id {ingredient.ingredient_category_id} as Ingredient Category is not found"
             )
     
-    if ingredient.created_by:
-        creator_id = get_user_by_id(db, ingredient.created_by)
-
-        if not creator_id:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"Id {ingredient.created_by} as User is not found"
-            )
+    check_valid_user(db, ingredient)
 
     ingredient_update = put_ingredient(db, ingredient_id, ingredient)
 
-    result_message = f"Id {ingredient_id} as Ingredient is successfully updated"
+    result_message = f"Id {ingredient_id} as Ingredient is updated successfully"
 
     return {"detail": result_message, "ingredient": ingredient_update}
 
 @router.delete("/{ingredient_id}", status_code=status.HTTP_200_OK)
-async def remove_ingredient(*, db: Session = Depends(get_db), ingredient_id: UUID):
+async def remove_ingredient(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_id: UUID):
     ingredient_by_id = get_ingredient_by_id(db, ingredient_id)
 
     if ingredient_by_id is None:
@@ -119,7 +105,7 @@ async def remove_ingredient(*, db: Session = Depends(get_db), ingredient_id: UUI
         )
 
     delete_ingredient(db, ingredient_id)
-    result_message = f"Id {ingredient_id} as Ingredient is successfully deleted"
+    result_message = f"Id {ingredient_id} as Ingredient is deleted successfully"
 
     return {"detail": result_message}
 
@@ -129,7 +115,7 @@ async def remove_ingredient(*, db: Session = Depends(get_db), ingredient_id: UUI
 
 
 @router.get("/by_name/{ingredient_name}", status_code=status.HTTP_200_OK, response_model=Ingredient, deprecated=True)
-async def read_ingredient_by_name(*, db: Session = Depends(get_db), ingredient_name: str):
+async def read_ingredient_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_name: str):
     ingredient_by_name = get_ingredient_by_name(db, ingredient_name=ingredient_name)
 
     if ingredient_by_name is None:
@@ -141,7 +127,7 @@ async def read_ingredient_by_name(*, db: Session = Depends(get_db), ingredient_n
     return ingredient_by_name
 
 @router.get("/by_category/{ingredient_category}", status_code=status.HTTP_200_OK, response_model=List[Ingredient], deprecated=True)
-async def read_ingredient_by_category(*, db: Session = Depends(get_db), ingredient_category: str):
+async def read_ingredient_by_category(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category: str):
     ingredient_by_category = get_ingredient_by_category(db, ingredient_category=ingredient_category)
 
     if ingredient_by_category is None:

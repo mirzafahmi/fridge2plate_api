@@ -3,7 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 
+from utils.user import check_valid_user
 from utils.recipe import *
+from utils.ingredient import get_ingredient_by_id
 from utils.ingredient_recipe_association import *
 from utils.recipe_category import get_recipe_category_by_id
 from utils.recipe_tag import get_recipe_tag_by_id
@@ -55,11 +57,11 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
     if recipe_by_id is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"Id {recipe_id} as Recipe is not found"
+            detail=f"ID {recipe_id} as Recipe is not found"
         )
 
     return {
-        "detail": f"Id {recipe_id} as Recipe is retrieved successfully",
+        "detail": f"ID {recipe_id} as Recipe is retrieved successfully",
         "recipe": recipe_by_id
     }
 
@@ -70,115 +72,120 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
     if recipe_by_id is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"Id {recipe_id} as Recipe is not found"
+            detail=f"ID {recipe_id} as Recipe is not found"
         )
 
     return {
-        "detail": f"Id {recipe_id} as Recipe Lite is retrieved successfully",
+        "detail": f"ID {recipe_id} as Recipe Lite is retrieved successfully",
         "recipe": recipe_by_id
     }
 
 #remove unique name
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeLiteResponse)
 async def add_recipe(*, db: Session = Depends(get_db), recipe: RecipeCreate):
-    recipe_category = get_recipe_category_by_id(db, recipe.recipe_category_id)
+    recipe_category_by_id = get_recipe_category_by_id(db, recipe.recipe_category_id)
     
-    if not recipe_category:
+    if not recipe_category_by_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"Id {recipe.recipe_category_id} as Recipe Category is not found"
+            detail=f"ID {recipe.recipe_category_id} as Recipe Category is not found"
         )
     
-    recipe_origin = get_recipe_origin_by_id(db, recipe.recipe_origin_id)
+    recipe_origin_by_id = get_recipe_origin_by_id(db, recipe.recipe_origin_id)
 
-    if not recipe_origin:
+    if not recipe_origin_by_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"Id {recipe.recipe_origin_id} as Recipe Origin is not found"
+            detail=f"ID {recipe.recipe_origin_id} as Recipe Origin is not found"
         )
+
     for recipe_tag in recipe.recipe_tags:
-        recipe_tag = get_recipe_tag_by_id(db, recipe_tag)
+        recipe_tag_by_id = get_recipe_tag_by_id(db, recipe_tag)
 
-        if not recipe_tag:
+        if not recipe_tag_by_id:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"Id {recipe_tag} as Recipe Tag is not found"
+                detail=f"ID {recipe_tag} as Recipe Tag is not found"
             )
-            
+
+    for ingredient in recipe.ingredients:
+        ingredients_by_id = get_ingredient_by_id(db, ingredient.ingredient_id)
+
+        if not ingredients_by_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=f"ID {ingredient.ingredient_id} as Ingredient is not found"
+            )
+
+    check_valid_user(db, recipe)
+
     recipe_create = post_recipe(db, recipe)
 
-    result_message = f"{recipe.name} as Recipe is successfully created"
+    result_message = f"{recipe.name} as Recipe is created successfully"
 
     return {"detail": result_message,"recipe": recipe_create}
 
-@router.put("/{recipe_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeResponse)
-async def change_recipe(*, db: Session = Depends(get_db), recipe_name: str, recipe: RecipeUpdate):
-    recipe_by_name = get_recipe_by_name(db, recipe_name)
+@router.put("/{recipe_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeLiteResponse)
+async def change_recipe(*, db: Session = Depends(get_db), recipe_id: UUID, recipe: RecipeUpdate):
+    recipe_by_id = get_recipe_by_id(db, recipe_id)
 
-    if not recipe_by_name:
+    if not recipe_by_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"{recipe.name} as Recipe is not found"
+            detail=f"ID {recipe_id} as Recipe is not found"
         )
 
-    if recipe.recipe_category_id:
-        recipe_category = get_recipe_category_by_name(db, recipe.recipe_category)
+    if hasattr(recipe, 'recipe_category_id') and recipe.recipe_category_id is not None:
+        recipe_category_by_id = get_recipe_category_by_id(db, recipe.recipe_category_id)
 
-        if not recipe_category:
+        if not recipe_category_by_id:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"{recipe.recipe_category} as Recipe Category is not found"
+                detail=f"ID {recipe.recipe_category_id} as Recipe Category is not found"
             )
+    
+    if hasattr(recipe, 'recipe_origin_id') and recipe.recipe_origin_id is not None:
+        recipe_origin_by_id = get_recipe_origin_by_id(db, recipe.recipe_origin_id)
 
-    if recipe.recipe_tag_id:
-        recipe_tag = get_recipe_tag_by_name(db, recipe.recipe_tag)
-
-        if not recipe_tag:
+        if not recipe_origin_by_id:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"{recipe.recipe_tag} as Recipe Tag is not found"
+                detail=f"ID {recipe.recipe_origin_id} as Recipe Origin is not found"
             )
 
-    if recipe.recipe_origin_id:
-        recipe_origin = get_recipe_origin_by_name(db, recipe.recipe_origin)
+    if hasattr(recipe, 'recipe_tags') and recipe.recipe_tags is not None:
+        for recipe_tag in recipe.recipe_tags:
+            recipe_tag_by_id = get_recipe_tag_by_id(db, recipe_tag)
 
-        if not recipe_origin:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"{recipe.recipe_origin} as Recipe Origin is not found"
-            )
+            if not recipe_tag_by_id:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, 
+                    detail=f"ID {recipe_tag} as Recipe Tag is not found"
+                )
+
+    if hasattr(recipe, 'ingredients') and recipe.ingredients is not None:
+        for ingredient in recipe.ingredients:    
+            ingredients_by_id = get_ingredient_by_id(db, ingredient.ingredient_id)
+
+            if not ingredients_by_id:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, 
+                    detail=f"ID {ingredient.ingredient_id} as Ingredient is not found"
+                )
+
+    check_valid_user(db, recipe)
 
     try:
-        recipe_update = update_recipe(
-            db=db, 
-            recipe_name=recipe_name,
-            recipe=recipe, 
-        )
+        recipe_update = put_recipe(db, recipe_id, recipe)
+        result_message = f"ID {recipe_id} as Recipe is updated successfully"
 
-        if recipe.ingredients:
-            delete_association(db, recipe_by_name.id)
+        return {"detail": result_message, "recipe": recipe_update}
 
-            for ingredient in recipe.ingredients:
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-                update_association(db=db, recipe_id=recipe_by_name.id, ingredient=ingredient)
-
-    except:
-        db.rollback()
-        db.commit()
-
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail=f"Error creating {recipe.name} as Recipe: {str(e)}"
-        )
-
-
-    if recipe.name is not None:
-        data = get_recipe_by_name(db, recipe.name)
-    else:
-        data = get_recipe_by_name(db, recipe_name)
-
-    return data
-
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 @router.delete("/{recipe_id}", status_code=status.HTTP_200_OK)
 async def remove_recipe(*, db: Session = Depends(get_db), recipe_id: UUID):
@@ -187,11 +194,11 @@ async def remove_recipe(*, db: Session = Depends(get_db), recipe_id: UUID):
     if not recipe_by_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"Id {recipe_id} as Recipe is not found"
+            detail=f"ID {recipe_id} as Recipe is not found"
         )
 
     delete_recipe(db, recipe_id)
-    result_message = f"Id {recipe_id} as Recipe is successfully deleted"
+    result_message = f"ID {recipe_id} as Recipe is deleted successfully"
 
     return {"detail": result_message}
 

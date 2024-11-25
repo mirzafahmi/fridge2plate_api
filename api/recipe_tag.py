@@ -58,7 +58,7 @@ async def add_recipe_tag(*, db: Session = Depends(get_db), recipe_tag: RecipeTag
 
     recipe_tag_create = post_recipe_tag(db, recipe_tag)
 
-    result_message = f"{recipe_tag.name} as Recipe Tag is successfully created"
+    result_message = f"{recipe_tag.name} as Recipe Tag is created successfully"
 
     return {"detail": result_message, "recipe_tag": recipe_tag_create}
 
@@ -76,7 +76,7 @@ async def change_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_id: UUI
     
     recipe_tag_update = put_recipe_tag(db, recipe_tag_id, recipe_tag)
 
-    result_message = f"Id {recipe_tag_id} as Recipe Tag is successfully updated"
+    result_message = f"Id {recipe_tag_id} as Recipe Tag is updated successfully"
 
     return {"detail": result_message, "recipe_tag": recipe_tag_update}
 
@@ -91,7 +91,7 @@ async def remove_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_id: UUI
         )
 
     delete_recipe_tag(db, recipe_tag_id)
-    result_message = f"Id {recipe_tag_id} as Recipe Tag is successfully deleted"
+    result_message = f"Id {recipe_tag_id} as Recipe Tag is deleted successfully"
 
     return {"detail": result_message}
 

@@ -55,7 +55,7 @@ def test_post_recipe_category(client: TestClient):
     })
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test recipe category as Recipe Category is successfully created"
+    assert response.json()["detail"] == f"test recipe category as Recipe Category is created successfully"
 
     recipe_category = response.json()["recipe_category"]
 
@@ -71,7 +71,7 @@ def test_post_recipe_category_with_various_letter_case(client: TestClient):
     })
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test recipe category as Recipe Category is successfully created"
+    assert response.json()["detail"] == f"test recipe category as Recipe Category is created successfully"
 
     recipe_category = response.json()["recipe_category"]
 
@@ -171,7 +171,7 @@ def test_put_recipe_category_by_changing_name(client: TestClient):
     })
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id 4053a7e8-9ae5-415d-9bed-e4d0a235f481 as Recipe Category is successfully updated"
+    assert response.json()["detail"] == "Id 4053a7e8-9ae5-415d-9bed-e4d0a235f481 as Recipe Category is updated successfully"
 
     recipe_category = response.json()["recipe_category"]
 
@@ -187,7 +187,7 @@ def test_put_recipe_category_by_changing_name_with_various_letter_case(client: T
     })
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id 4053a7e8-9ae5-415d-9bed-e4d0a235f481 as Recipe Category is successfully updated"
+    assert response.json()["detail"] == "Id 4053a7e8-9ae5-415d-9bed-e4d0a235f481 as Recipe Category is updated successfully"
 
     recipe_category = response.json()["recipe_category"]
 
@@ -265,7 +265,7 @@ def test_delete_recipe_category(client: TestClient):
     response = client.delete(f"{url_prefix}/4053a7e8-9ae5-415d-9bed-e4d0a235f481")
     
     assert response.status_code == 200
-    assert response.json()["detail"] == "Id 4053a7e8-9ae5-415d-9bed-e4d0a235f481 as Recipe Category is successfully deleted"
+    assert response.json()["detail"] == "Id 4053a7e8-9ae5-415d-9bed-e4d0a235f481 as Recipe Category is deleted successfully"
 
 def test_delete_recipe_category_by_wrong_id(client: TestClient):
     response = client.delete(f"{url_prefix}/db67b3f4-0e04-47bb-bc46-94826847ee4f")

@@ -64,7 +64,7 @@ def post_recipe(db: Session, recipe_data):
             )
             db.add(instruction_model)
 
-        #issue with images test with seeder too
+        #TODO! convert images as list of str not as list of recipeimage obj
         if recipe_data.images:
             for image in recipe_data.images:
                 recipe_image_model = RecipeImage(
@@ -79,6 +79,107 @@ def post_recipe(db: Session, recipe_data):
 
     except Exception as e:
         raise RuntimeError(f"Failed to create recipe: {e}")
+
+def put_recipe(db: Session, recipe_id: UUID, recipe_data):
+    try:
+        # Retrieve the existing recipe
+        db_recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
+        if not db_recipe:
+            raise ValueError(f"ID {recipe_id} of recipe is not found")
+
+        # Update main recipe fields
+        if hasattr(recipe_data, 'name') and recipe_data.name is not None:
+            db_recipe.name = recipe_data.name
+
+        if hasattr(recipe_data, 'serving') and recipe_data.serving is not None:
+            db_recipe.serving = recipe_data.serving
+
+        if hasattr(recipe_data, 'cooking_time') and recipe_data.cooking_time is not None:
+            db_recipe.cooking_time = recipe_data.cooking_time
+
+        if hasattr(recipe_data, 'recipe_category_id') and recipe_data.recipe_category_id is not None:
+            db_recipe.recipe_category_id = recipe_data.recipe_category_id
+
+        if hasattr(recipe_data, 'recipe_origin_id') and recipe_data.recipe_origin_id is not None:
+            db_recipe.recipe_origin_id = recipe_data.recipe_origin_id
+
+        if hasattr(recipe_data, 'created_by') and recipe_data.created_by is not None:
+            db_recipe.created_by = recipe_data.created_by
+
+        if hasattr(recipe_data, 'recipe_tags') and recipe_data.recipe_tags is not None:
+            existing_tag_ids = {tag.recipe_tag_id for tag in db_recipe.recipe_tag_recipe_associations}
+            new_tag_ids = set(recipe_data.recipe_tags)
+
+            # Remove tags not in the new data
+            for tag_id in existing_tag_ids - new_tag_ids:
+                db.query(RecipeTagRecipeAssociation).filter_by(recipe_id=recipe_id, recipe_tag_id=tag_id).delete()
+
+            # Add new tags
+            for tag_id in new_tag_ids - existing_tag_ids:
+                recipe_tag_association = RecipeTagRecipeAssociation(
+                    recipe_id=recipe_id,
+                    recipe_tag_id=tag_id
+                )
+                db.add(recipe_tag_association)
+        
+        if hasattr(recipe_data, 'ingredients') and recipe_data.ingredients is not None:
+            existing_ingredient_associations = {assoc.ingredient_id: assoc for assoc in db_recipe.ingredient_recipe_associations}
+            new_ingredients = {ingredient.ingredient_id: ingredient for ingredient in recipe_data.ingredients}
+
+            # Remove ingredients not in the new data
+            for ingredient_id in set(existing_ingredient_associations) - set(new_ingredients):
+                db.query(IngredientRecipeAssociation).filter_by(recipe_id=recipe_id, ingredient_id=ingredient_id).delete()
+
+            # Update or add new ingredients
+            for ingredient_id, ingredient in new_ingredients.items():
+                if ingredient_id in existing_ingredient_associations:
+                    # Update existing association
+                    assoc = existing_ingredient_associations[ingredient_id]
+                    if hasattr(ingredient, 'uom_id') and ingredient.uom_id is not None:
+                        assoc.uom_id = ingredient.uom_id
+                    if hasattr(ingredient, 'quantity') and ingredient.quantity is not None:
+                        assoc.quantity = ingredient.quantity
+                    if hasattr(ingredient, 'is_essential') and ingredient.is_essential is not None:
+                        assoc.is_essential = ingredient.is_essential
+                else:
+                    # Add new association
+                    ingredient_recipe_association = IngredientRecipeAssociation(
+                        ingredient_id=ingredient_id,
+                        recipe_id=recipe_id,
+                        uom_id=ingredient.uom_id,
+                        quantity=ingredient.quantity,
+                        is_essential=ingredient.is_essential
+                    )
+                    db.add(ingredient_recipe_association)
+
+        if hasattr(recipe_data, 'steps') and recipe_data.steps is not None:
+            db.query(Instruction).filter_by(recipe_id=recipe_id).delete()
+            for instruction in recipe_data.steps:
+                instruction_model = Instruction(
+                    step_number=instruction.step_number,
+                    description=instruction.description,
+                    recipe_id=recipe_id
+                )
+                db.add(instruction_model)
+
+        #TODO! convert images as list of str not as list of recipeimage obj
+        if hasattr(recipe_data, 'images') and recipe_data.images is not None:
+            db.query(RecipeImage).filter_by(recipe_id=recipe_id).delete()
+            for image in recipe_data.images:
+                recipe_image_model = RecipeImage(
+                    image=image.image,
+                    recipe_id=recipe_id
+                )
+                db.add(recipe_image_model)
+
+        db.commit()
+        db.refresh(db_recipe)
+        
+        return db_recipe
+
+    except Exception as e:
+        db.rollback()  # Rollback in case of an error
+        raise RuntimeError(f"Failed to update recipe: {e}")
 
 def update_recipe(db: Session, recipe_id: UUID, recipe: RecipeUpdate):
     db_recipe = get_recipe_by_id(db, recipe_id)

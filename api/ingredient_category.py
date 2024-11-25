@@ -58,7 +58,7 @@ async def add_ingredient_category(*, db: Session = Depends(get_db), current_user
 
     ingredient_category_create = post_ingredient_category(db, ingredient_category)
 
-    result_message = f"{ingredient_category.name} as Ingredient Category is successfully created"
+    result_message = f"{ingredient_category.name} as Ingredient Category is created successfully"
 
     return {"detail": result_message, "ingredient_category": ingredient_category_create}
 
@@ -75,7 +75,7 @@ async def change_ingredient_category_by_id(*, db: Session = Depends(get_db), cur
     check_valid_user(db, ingredient_category)
 
     ingredient_category_update = update_ingredient_category(db=db, ingredient_category_id=ingredient_category_id, ingredient_category=ingredient_category)
-    result_message = f"Id {ingredient_category_id} as Ingredient Category is successfully updated"
+    result_message = f"Id {ingredient_category_id} as Ingredient Category is updated successfully"
 
     return {"detail": result_message, "ingredient_category": ingredient_category_update}
 
@@ -91,7 +91,7 @@ async def remove_ingredient_category_by_id(*, db: Session = Depends(get_db), cur
         )
 
     delete_ingredient_category(db, ingredient_category_id)
-    result_message = f"Id {ingredient_category_id} as Ingredient Category is successfully deleted"
+    result_message = f"Id {ingredient_category_id} as Ingredient Category is deleted successfully"
 
     return {"detail": result_message}
 
@@ -134,7 +134,7 @@ async def remove_ingredient_category_by_name(*, db: Session = Depends(get_db), c
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient Category is not found")
 
     delete_ingredient_category_by_name(db=db, ingredient_category_name=ingredient_category_name)
-    result_message = f"{ingredient_category_name} as Ingredient Category is successfully deleted"
+    result_message = f"{ingredient_category_name} as Ingredient Category is deleted successfully"
 
     return {"result": result_message}
 

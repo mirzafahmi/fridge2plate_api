@@ -54,7 +54,7 @@ def test_post_recipe_tag(client: TestClient):
     })
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test recipe tag as Recipe Tag is successfully created"
+    assert response.json()["detail"] == f"test recipe tag as Recipe Tag is created successfully"
 
     recipe_tag = response.json()["recipe_tag"]
 
@@ -70,7 +70,7 @@ def test_post_recipe_tag_with_various_letter_case(client: TestClient):
     })
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test recipe tag as Recipe Tag is successfully created"
+    assert response.json()["detail"] == f"test recipe tag as Recipe Tag is created successfully"
 
     recipe_tag = response.json()["recipe_tag"]
 
@@ -170,7 +170,7 @@ def test_put_recipe_tag_by_changing_name(client: TestClient):
     })
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id 13444244-43b2-4d63-a080-604dd5088452 as Recipe Tag is successfully updated"
+    assert response.json()["detail"] == "Id 13444244-43b2-4d63-a080-604dd5088452 as Recipe Tag is updated successfully"
 
     recipe_tag = response.json()["recipe_tag"]
 
@@ -186,7 +186,7 @@ def test_put_recipe_tag_by_changing_name_with_various_letter_case(client: TestCl
     })
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id 13444244-43b2-4d63-a080-604dd5088452 as Recipe Tag is successfully updated"
+    assert response.json()["detail"] == "Id 13444244-43b2-4d63-a080-604dd5088452 as Recipe Tag is updated successfully"
 
     recipe_tag = response.json()["recipe_tag"]
 
@@ -264,7 +264,7 @@ def test_delete_recipe_tag(client: TestClient):
     response = client.delete(f"{url_prefix}/13444244-43b2-4d63-a080-604dd5088452")
 
     assert response.status_code == 200
-    assert response.json()["detail"] == "Id 13444244-43b2-4d63-a080-604dd5088452 as Recipe Tag is successfully deleted"
+    assert response.json()["detail"] == "Id 13444244-43b2-4d63-a080-604dd5088452 as Recipe Tag is deleted successfully"
 
 def test_delete_recipe_tag_by_wrong_id(client: TestClient):
     response = client.delete(f"{url_prefix}/db67b3f4-0e04-47bb-bc46-94826847ee4f")

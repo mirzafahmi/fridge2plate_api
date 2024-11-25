@@ -54,7 +54,7 @@ def test_post_recipe_origin(client: TestClient):
     })
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test recipe origin as Recipe Origin is successfully created"
+    assert response.json()["detail"] == f"test recipe origin as Recipe Origin is created successfully"
 
     recipe_origin = response.json()["recipe_origin"]
 
@@ -70,7 +70,7 @@ def test_post_recipe_origin_with_various_letter_case(client: TestClient):
     })
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test recipe origin as Recipe Origin is successfully created"
+    assert response.json()["detail"] == f"test recipe origin as Recipe Origin is created successfully"
 
     recipe_origin = response.json()["recipe_origin"]
 
@@ -170,7 +170,7 @@ def test_put_recipe_origin_by_changing_name(client: TestClient):
     })
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id 92e80174-c259-480a-80b5-f5b0d32ca005 as Recipe Origin is successfully updated"
+    assert response.json()["detail"] == "Id 92e80174-c259-480a-80b5-f5b0d32ca005 as Recipe Origin is updated successfully"
 
     recipe_origin = response.json()["recipe_origin"]
 
@@ -186,7 +186,7 @@ def test_put_recipe_origin_by_changing_name_with_various_letter_case(client: Tes
     })
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id 92e80174-c259-480a-80b5-f5b0d32ca005 as Recipe Origin is successfully updated"
+    assert response.json()["detail"] == "Id 92e80174-c259-480a-80b5-f5b0d32ca005 as Recipe Origin is updated successfully"
 
     recipe_origin = response.json()["recipe_origin"]
 
@@ -264,7 +264,7 @@ def test_delete_recipe_origin(client: TestClient):
     response = client.delete(f"{url_prefix}/92e80174-c259-480a-80b5-f5b0d32ca005")
 
     assert response.status_code == 200
-    assert response.json()["detail"] == "Id 92e80174-c259-480a-80b5-f5b0d32ca005 as Recipe Origin is successfully deleted"
+    assert response.json()["detail"] == "Id 92e80174-c259-480a-80b5-f5b0d32ca005 as Recipe Origin is deleted successfully"
 
 def test_delete_recipe_origin_by_wrong_id(client: TestClient):
     response = client.delete(f"{url_prefix}/db67b3f4-0e04-47bb-bc46-94826847ee4f")

@@ -91,7 +91,7 @@ def test_post_ingredient_category(client: TestClient, token: str):
     )
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test ingredient category as Ingredient Category is successfully created"
+    assert response.json()["detail"] == f"test ingredient category as Ingredient Category is created successfully"
 
     ingredient_category = response.json()["ingredient_category"]
 
@@ -133,7 +133,7 @@ def test_post_ingredient_category_with_various_letter_case(client: TestClient, t
     )
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test ingredient category as Ingredient Category is successfully created"
+    assert response.json()["detail"] == f"test ingredient category as Ingredient Category is created successfully"
 
     ingredient_category = response.json()["ingredient_category"]
 
@@ -254,7 +254,7 @@ def test_put_ingredient_category_by_changing_name(client: TestClient, token:str)
     )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is successfully updated"
+    assert response.json()["detail"] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is updated successfully"
 
     ingredient_category = response.json()["ingredient_category"]
 
@@ -294,7 +294,7 @@ def test_put_ingredient_category_by_changing_name_with_various_letter_case(clien
     )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is successfully updated"
+    assert response.json()["detail"] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is updated successfully"
 
     ingredient_category = response.json()["ingredient_category"]
 
@@ -387,7 +387,7 @@ def test_delete_ingredient_category(client: TestClient, token: str):
     response = client.delete(f"{url_prefix}/b4b165f6-a4f2-45f6-bda6-0a49092d3f03", headers={"Authorization": f"Bearer {token}"})
     
     assert response.status_code == 200
-    assert response.json()["detail"] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is successfully deleted"
+    assert response.json()["detail"] == "Id b4b165f6-a4f2-45f6-bda6-0a49092d3f03 as Ingredient Category is deleted successfully"
 
 def test_delete_ingredient_category_with_invalid_token(client: TestClient):
     response = client.delete(f"{url_prefix}/b4b165f6-a4f2-45f6-bda6-0a49092d3f03", headers={"Authorization": f"Bearer invalid_token"})

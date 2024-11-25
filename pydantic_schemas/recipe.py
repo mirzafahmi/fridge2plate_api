@@ -16,15 +16,15 @@ from .recipe_image import RecipeImageCreate, RecipeImage
 
 
 class RecipeBase(LowercaseBaseModel):
-    name: str
-    serving: str
-    cooking_time: str
+    name: constr(strip_whitespace=True, min_length=3)
+    serving: constr(strip_whitespace=True, min_length=1)
+    cooking_time: constr(strip_whitespace=True, min_length=1)
     recipe_category_id: UUID
     recipe_origin_id: UUID
     recipe_tags: List[UUID]
     ingredients: List[IngredientRecipeAssociationBase]
     steps: List[InstructionCreate]
-    images: Optional[List[RecipeImageCreate]] = None
+    images: Optional[List[RecipeImageCreate]] = None #TODO! convert images as list of str not as list of recipeimage obj
     created_by: Optional[UUID] = None
 
     model_config = {
@@ -38,6 +38,18 @@ class RecipeBase(LowercaseBaseModel):
         elif re.match(r'^\d+-\d+$', value):
             return value
         raise ValueError('Serving must be a number or a valid range (e.g., "1-3")')
+    
+    @validator('cooking_time')
+    def validate_cooking_time(cls, value):
+        if re.match(r'^\d+\s+(minute|hour)s?$', value.strip(), re.IGNORECASE):
+            return value
+        raise ValueError('Cooking time must be in the format "X minute(s)" or "X hour(s)", where X is a number and "minute(s)" or "hour(s)" is the unit.')
+
+    @validator('recipe_tags')
+    def validate_recipe_tags(cls, value):
+        if len(value) < 1:
+            raise ValueError('At least one recipe tag (UUID) is required.')
+        return value
 
 class RecipeCreate(RecipeBase):
     ...
@@ -45,16 +57,17 @@ class RecipeCreate(RecipeBase):
 class RecipeCreateSeeder(RecipeCreate):
     id: Optional[UUID] = None
 
-class RecipeUpdate(LowercaseBaseModel):
-    name: Optional[str] = None
-    serving: Optional[int] = None
-    cooking_time: Optional[str] = None
-    author: Optional[str] = None
-    instructions: Optional[str] = None
-    recipe_category_id: Optional[int] = None
-    recipe_tag_id: Optional[int] = None
-    recipe_origin_id: Optional[int] = None
-    ingredients: Optional[List[IngredientRecipeAssociationBase]]
+class RecipeUpdate(RecipeBase):
+    name: Optional[constr(strip_whitespace=True, min_length=3)] = None
+    serving: Optional[constr(strip_whitespace=True, min_length=1)] = None
+    cooking_time: Optional[constr(strip_whitespace=True, min_length=1)] = None
+    recipe_category_id: Optional[UUID] = None
+    recipe_origin_id: Optional[UUID] = None
+    recipe_tags: Optional[List[UUID]] = None
+    ingredients: Optional[List[IngredientRecipeAssociationBase]] = None
+    created_by: Optional[UUID] = None
+    steps: Optional[List[InstructionCreate]] = None
+    images: Optional[List[RecipeImageCreate]] = None
 
 class Recipe(LowercaseBaseModel):
     id: UUID
@@ -80,8 +93,9 @@ class Recipe(LowercaseBaseModel):
         self.steps = sorted(self.steps, key=lambda step: step.step_number)
         self.recipe_tags = sorted(self.recipe_tags, key=lambda recipe_tag: recipe_tag.name)
         self.ingredient_data = sorted(self.ingredient_data, key=lambda ingredient: ingredient.ingredient.name)
+        self.images = sorted(self.images, key=lambda image: image.image)
 
-class RecipeLite(LowercaseBaseModel):
+class RecipeLite(Recipe):
     id: UUID
     name: str
     serving: str
@@ -96,14 +110,6 @@ class RecipeLite(LowercaseBaseModel):
     creator: Optional[UserResponseLite]
     created_date: datetime
     updated_date: datetime
-
-    class Config:
-        from_attributes = True
-
-    def model_post_init(self, __context: Any) -> None:
-        self.steps = sorted(self.steps, key=lambda step: step.step_number)
-        self.recipe_tags = sorted(self.recipe_tags, key=lambda recipe_tag: recipe_tag.name)
-        self.ingredient_data = sorted(self.ingredient_data, key=lambda ingredient: ingredient.ingredient.name)
 
 class RecipeResponse(LowercaseBaseModel):
     detail: str

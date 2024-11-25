@@ -4,10 +4,11 @@ from fastapi.testclient import TestClient
 url_prefix = "/ingredients"
 ADMIN_ID = "db67b3f4-0e04-47bb-bc46-94826847ee4f"
 
-#TODO!: test with unique constraint error like name field
-def test_get_ingredient_list(client: TestClient):
-    response = client.get(f"{url_prefix}/")
-    print(response.json())
+def test_get_ingredient_list(client: TestClient, token: str):
+    response = client.get(f"{url_prefix}/",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
     assert response.status_code == 200
     assert response.json()["detail"] == "Ingredient list is retrieved successfully"
 
@@ -34,9 +35,25 @@ def test_get_ingredient_list(client: TestClient):
     assert "updated_date" in ingredients[1]
     assert "created_date" in ingredients[1]
 
-def test_get_ingredient_by_id(client: TestClient):
+def test_get_ingredient_list_with_invalid_token(client: TestClient):
+    response = client.get(f"{url_prefix}/",
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_get_ingredient_list_without_token(client: TestClient):
+    response = client.get(f"{url_prefix}/")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
+def test_get_ingredient_by_id(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.get(f"{url_prefix}/{ingredient_id}")
+    response = client.get(f"{url_prefix}/{ingredient_id}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 200
     assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient Category is retrieved successfully"
@@ -52,23 +69,44 @@ def test_get_ingredient_by_id(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_get_ingredient_by_wrong_id(client: TestClient):
+def test_get_ingredient_by_wrong_id(client: TestClient, token: str):
     ingredient_id = "db67b3f4-0e04-47bb-bc46-94826847ee4f"
-    response = client.get(f"{url_prefix}/{ingredient_id}")
-    print(response.json())
+    response = client.get(f"{url_prefix}/{ingredient_id}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
     assert response.status_code == 404
     assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is not found"
 
-def test_post_ingredient(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "name": "test ingredient",
-        "brand": "test ingredient brand",
-        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "created_by": ADMIN_ID
-    })
+def test_get_ingredient_by_id_with_invalid_token(client: TestClient):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.get(f"{url_prefix}/{ingredient_id}",
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_get_ingredient_by_id_without_token(client: TestClient):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.get(f"{url_prefix}/{ingredient_id}")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
+def test_post_ingredient(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "name": "test ingredient",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test ingredient as Ingredient is successfully created"
+    assert response.json()["detail"] == f"test ingredient as Ingredient is created successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -80,16 +118,46 @@ def test_post_ingredient(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_post_ingredient_with_various_letter_case(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "name": "teST inGREdient",
-        "brand": "tESt INgredient bRAnd",
-        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "created_by": ADMIN_ID
-    })
+def test_post_ingredient_with_invalid_token(client: TestClient):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "name": "test ingredient",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_post_ingredient_without_token(client: TestClient):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "name": "test ingredient",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by": ADMIN_ID
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
+def test_post_ingredient_with_various_letter_case(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "name": "teST inGREdient",
+            "brand": "tESt INgredient bRAnd",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 201
-    assert response.json()["detail"] == f"test ingredient as Ingredient is successfully created"
+    assert response.json()["detail"] == f"test ingredient as Ingredient is created successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -101,13 +169,16 @@ def test_post_ingredient_with_various_letter_case(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_post_ingredient_without_name(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "brand": "test ingredient brand",
-        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "created_by_id": ADMIN_ID
-    })
+def test_post_ingredient_without_name(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by_id": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -120,14 +191,17 @@ def test_post_ingredient_without_name(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Field required"
     assert response_json["detail"][0]["type"] == "missing"
 
-def test_post_ingredient_with_empty_name(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "name": "",
-        "brand": "test ingredient brand",
-        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "created_by_id": ADMIN_ID
-    })
+def test_post_ingredient_with_empty_name(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "name": "",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by_id": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -140,13 +214,16 @@ def test_post_ingredient_with_empty_name(client: TestClient):
     assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
 
-def test_post_ingredient_without_brand(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "name": "test ingredient",
-        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "created_by_id": ADMIN_ID
-    })
+def test_post_ingredient_without_brand(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "name": "test ingredient",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by_id": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -159,14 +236,17 @@ def test_post_ingredient_without_brand(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Field required"
     assert response_json["detail"][0]["type"] == "missing"
 
-def test_post_ingredient_with_empty_brand(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "name": "test ingredient",
-        "brand": "",
-        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "created_by_id": ADMIN_ID
-    })
+def test_post_ingredient_with_empty_brand(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "name": "test ingredient",
+            "brand": "",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "created_by_id": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -179,25 +259,31 @@ def test_post_ingredient_with_empty_brand(client: TestClient):
     assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
 
-def test_post_ingredient_with_wrong_ingredient_category_id(client: TestClient):
+def test_post_ingredient_with_wrong_ingredient_category_id(client: TestClient, token: str):
     ingredient_category_id = "b4b165f6-a4f2-45f6-bda6-0a49092d3f02"
-    response = client.post(f"{url_prefix}/", json={
-        "name": "test ingredient",
-        "brand": "test ingredient brand",
-        "ingredient_category_id": f"{ingredient_category_id}",
-        "created_by": ADMIN_ID
-    })
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "name": "test ingredient",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": f"{ingredient_category_id}",
+            "created_by": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 404
     assert response.json()["detail"] == f"Id {ingredient_category_id} as Ingredient Category is not found"
 
-def test_post_ingredient_with_invalid_category_id(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "name": "test ingredient",
-        "brand": "test ingredient brand",
-        "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f0z",
-        "created_by": ADMIN_ID
-    })
+def test_post_ingredient_with_invalid_category_id(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "name": "test ingredient",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f0z",
+            "created_by": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -210,14 +296,17 @@ def test_post_ingredient_with_invalid_category_id(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_post_ingredient_with_empty_ingredient_category_id(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "name": "test ingredient",
-        "brand": "test ingredient brand",
-        "ingredient_category_id": "", 
-        "created_by_id": ADMIN_ID
-    })
+def test_post_ingredient_with_empty_ingredient_category_id(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "name": "test ingredient",
+            "brand": "test ingredient brand",
+            "ingredient_category_id": "", 
+            "created_by_id": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -230,13 +319,16 @@ def test_post_ingredient_with_empty_ingredient_category_id(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_post_ingredient_without_ingredient_category_id(client: TestClient):
-    response = client.post(f"{url_prefix}/", json={
-        "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
-        "name": "test ingredient",
-        "brand": "test ingredient brand",
-        "created_by_id": ADMIN_ID
-    })
+def test_post_ingredient_without_ingredient_category_id(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "id": "b4b165f6-a4f2-45f6-bda6-0a49092d3f03",
+            "name": "test ingredient",
+            "brand": "test ingredient brand",
+            "created_by_id": ADMIN_ID
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -249,14 +341,17 @@ def test_post_ingredient_without_ingredient_category_id(client: TestClient):
     assert response_json["detail"][0]["msg"] == "Field required"
     assert response_json["detail"][0]["type"] == "missing"
 
-def test_put_ingredient_by_changing_name(client: TestClient):
+def test_put_ingredient_by_changing_name(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "name": "updated ingredient",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "name": "updated ingredient",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is updated successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -269,14 +364,40 @@ def test_put_ingredient_by_changing_name(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_put_ingredient_by_changing_name_with_various_letter_case(client: TestClient):
+def test_put_ingredient_by_changing_name_with_invalid_token(client: TestClient):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "name": "upDAted inGREdient",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "name": "updated ingredient",
+        },
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_put_ingredient_by_changing_name_with_invalid_token(client: TestClient):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "name": "updated ingredient",
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
+def test_put_ingredient_by_changing_name_with_various_letter_case(client: TestClient, token: str):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "name": "upDAted inGREdient",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is updated successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -289,11 +410,14 @@ def test_put_ingredient_by_changing_name_with_various_letter_case(client: TestCl
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_put_ingredient_by_changing_name_with_empty_name(client: TestClient):
+def test_put_ingredient_by_changing_name_with_empty_name(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "name": "",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "name": "",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -306,14 +430,17 @@ def test_put_ingredient_by_changing_name_with_empty_name(client: TestClient):
     assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
 
-def test_put_ingredient_by_changing_brand(client: TestClient):
+def test_put_ingredient_by_changing_brand(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "brand": "updated ingredient brand",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "brand": "updated ingredient brand",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is updated successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -326,14 +453,17 @@ def test_put_ingredient_by_changing_brand(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_put_ingredient_by_changing_brand_with_various_letter_case(client: TestClient):
+def test_put_ingredient_by_changing_brand_with_various_letter_case(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "brand": "upDAted ingREDient bRAnd",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "brand": "upDAted ingREDient bRAnd",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is updated successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -346,11 +476,14 @@ def test_put_ingredient_by_changing_brand_with_various_letter_case(client: TestC
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_put_ingredient_with_empty_brand(client: TestClient):
+def test_put_ingredient_with_empty_brand(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "brand": "",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "brand": "",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -363,14 +496,17 @@ def test_put_ingredient_with_empty_brand(client: TestClient):
     assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
     assert response_json["detail"][0]["type"] == "string_too_short"
 
-def test_put_ingredient_by_changing_ingredient_category_id(client: TestClient):
+def test_put_ingredient_by_changing_ingredient_category_id(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "ingredient_category_id": "6722eb62-884a-4208-8596-ed82d310e832",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "ingredient_category_id": "6722eb62-884a-4208-8596-ed82d310e832",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is updated successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -383,20 +519,26 @@ def test_put_ingredient_by_changing_ingredient_category_id(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_put_ingredient_by_changing_ingredient_category_id_with_not_available_id(client: TestClient):
+def test_put_ingredient_by_changing_ingredient_category_id_with_not_available_id(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "ingredient_category_id": "6722eb62-884a-4208-8596-ed82d310e833",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "ingredient_category_id": "6722eb62-884a-4208-8596-ed82d310e833",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 404
     assert response.json()["detail"] == f"Id 6722eb62-884a-4208-8596-ed82d310e833 as Ingredient Category is not found"
 
-def test_put_ingredient_by_changing_ingredient_category_id_with_invalid_id(client: TestClient):
+def test_put_ingredient_by_changing_ingredient_category_id_with_invalid_id(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "ingredient_category_id": "6722eb62-884a-4208-8596-ed82d310e83z",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "ingredient_category_id": "6722eb62-884a-4208-8596-ed82d310e83z",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -409,11 +551,14 @@ def test_put_ingredient_by_changing_ingredient_category_id_with_invalid_id(clien
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_ingredient_by_changing_ingredient_category_id_with_empty_id(client: TestClient):
+def test_put_ingredient_by_changing_ingredient_category_id_with_empty_id(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "ingredient_category_id": "",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "ingredient_category_id": "",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -426,14 +571,17 @@ def test_put_ingredient_by_changing_ingredient_category_id_with_empty_id(client:
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_ingredient_by_changing_created_by_id(client: TestClient):
+def test_put_ingredient_by_changing_created_by_id(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "created_by": "0c619092-817e-4f73-b25f-8e187e69dded",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69dded",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 202
-    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully updated"
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is updated successfully"
 
     ingredient = response.json()["ingredient"]
 
@@ -446,20 +594,26 @@ def test_put_ingredient_by_changing_created_by_id(client: TestClient):
     assert "updated_date" in ingredient
     assert "created_date" in ingredient
 
-def test_put_ingredient_by_changing_created_by_id_with_not_available_id(client: TestClient):
+def test_put_ingredient_by_changing_created_by_id_with_not_available_id(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "created_by": "0c619092-817e-4f73-b25f-8e187e69ddee",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69ddee",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 404
     assert response.json()["detail"] == f"Id 0c619092-817e-4f73-b25f-8e187e69ddee as User is not found"
 
-def test_put_ingredient_by_changing_created_by_id_with_invalid_uuid(client: TestClient):
+def test_put_ingredient_by_changing_created_by_id_with_invalid_uuid(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "created_by": "0c619092-817e-4f73-b25f-8e187e69ddez",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "created_by": "0c619092-817e-4f73-b25f-8e187e69ddez",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -469,11 +623,14 @@ def test_put_ingredient_by_changing_created_by_id_with_invalid_uuid(client: Test
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_ingredient_by_changing_created_by_id_with_empty_uuid(client: TestClient):
+def test_put_ingredient_by_changing_created_by_id_with_empty_uuid(client: TestClient, token: str):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
-    response = client.put(f"{url_prefix}/{ingredient_id}", json={
-        "created_by": "",
-    })
+    response = client.put(f"{url_prefix}/{ingredient_id}", 
+        json={
+            "created_by": "",
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 422
 
@@ -486,16 +643,36 @@ def test_put_ingredient_by_changing_created_by_id_with_empty_uuid(client: TestCl
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_delete_ingredient(client: TestClient):
+def test_delete_ingredient(client: TestClient, token: str):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.delete(f"{url_prefix}/{ingredient_id}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is deleted successfully"
+
+def test_delete_ingredient_with_invalid_token(client: TestClient):
+    ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
+    response = client.delete(f"{url_prefix}/{ingredient_id}",
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_delete_ingredient_without_token(client: TestClient):
     ingredient_id = "423f2e0f-d5cc-48dc-8b06-e987a3d8ea84"
     response = client.delete(f"{url_prefix}/{ingredient_id}")
 
-    assert response.status_code == 200
-    assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is successfully deleted"
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
-def test_delete_ingredient_by_wrong_id(client: TestClient):
+def test_delete_ingredient_by_wrong_id(client: TestClient, token: str):
     ingredient_id = "db67b3f4-0e04-47bb-bc46-94826847ee4f"
-    response = client.delete(f"{url_prefix}/{ingredient_id}")
+    response = client.delete(f"{url_prefix}/{ingredient_id}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 404
     assert response.json()["detail"] == f"Id {ingredient_id} as Ingredient is not found"
