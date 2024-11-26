@@ -140,6 +140,7 @@ class Recipe(TimestampMixin, Base):
     cooking_time = Column(Text, nullable=False)
 
     steps = relationship("Instruction", back_populates="recipe", cascade="all, delete")
+    tips = relationship("Tip", back_populates="recipe", cascade="all, delete")
     images = relationship("RecipeImage", back_populates="recipe", cascade="all, delete")
 
     recipe_category_id = Column(UUID(as_uuid=True), ForeignKey("recipe_categories.id"), nullable=True)
@@ -180,3 +181,12 @@ class Instruction(Base):
 
     recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=False)
     recipe = relationship("Recipe", back_populates="steps")
+
+class Tip(Base):
+    __tablename__ = "tips"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
+    description = Column(Text, nullable=False)
+
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=False)
+    recipe = relationship("Recipe", back_populates="tips")

@@ -14,5 +14,6 @@ __all__ = [
     "Instruction",
     "IngredientRecipeAssociation",
     "RecipeTagRecipeAssociation",
-    "RecipeImage"
+    "RecipeImage",
+    "Tip"
 ]

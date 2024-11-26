@@ -14,6 +14,15 @@ class IngredientRecipeAssociationBase(LowercaseBaseModel):
     uom_id: uuid.UUID
     is_essential: bool
 
+class IngredientRecipeAssociationCreate(IngredientRecipeAssociationBase):
+    recipe_id: uuid.UUID
+
+class IngredientRecipeAssociationUpdate(IngredientRecipeAssociationBase):
+    ingredient_id: Optional[uuid.UUID] = None
+    quantity: Optional[confloat(gt=0)] = None
+    uom_id: Optional[uuid.UUID] = None
+    is_essential: Optional[bool] = None
+
 class IngredientRecipeAssociationCreateSeeder(IngredientRecipeAssociationBase):
     id: Optional[uuid.UUID] = None
 
@@ -32,6 +41,7 @@ class IngredientRecipeAssociation(LowercaseBaseModel):
         from_attributes = True
 
 class IngredientRecipeAssociationLite(LowercaseBaseModel):
+    id: uuid.UUID
     recipe_id: uuid.UUID
     ingredient: IngredientLite
     quantity: float
@@ -49,10 +59,18 @@ class IngredientRecipeAssociationsResponse(LowercaseBaseModel):
     detail: str
     ingredient_recipe_associations: List[IngredientRecipeAssociation]
 
+    def model_post_init(self, __context: Any) -> None:
+        self.ingredient_recipe_associations = sorted(
+            self.ingredient_recipe_associations, 
+            key=lambda assoc: (assoc.recipe_id, assoc.ingredient.name)
+        )
+
 class IngredientRecipeAssociationResponseLite(LowercaseBaseModel):
     detail: str
     ingredient_recipe_association: IngredientRecipeAssociationLite
 
-class IngredientRecipeAssociationsResponseLite(LowercaseBaseModel):
+class IngredientRecipeAssociationsResponseLite(IngredientRecipeAssociationsResponse):
     detail: str
     ingredient_recipe_associations: List[IngredientRecipeAssociationLite]
+
+    

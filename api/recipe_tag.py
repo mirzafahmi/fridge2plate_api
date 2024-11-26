@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.recipe_tag import *
-from utils.user import check_valid_user
+from utils.user import check_valid_user, get_current_user
 from db.db_setup import get_db
 from pydantic_schemas.recipe_tag import RecipeTag, RecipeTagCreate, RecipeTagUpdate, RecipeTagResponse, RecipeTagsResponse
 
@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipeTagsResponse)
-async def read_recipe_tags(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipe_tags(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     recipe_tags = get_recipe_tags(db, skip=skip, limit=limit)
 
     if not recipe_tags:
@@ -30,7 +30,7 @@ async def read_recipe_tags(db: Session = Depends(get_db), skip: int=0, limit: in
     }
 
 @router.get("/{recipe_tag_id}", status_code=status.HTTP_200_OK, response_model=RecipeTagResponse)
-async def read_recipe_tag_by_id(*, db: Session = Depends(get_db), recipe_tag_id: UUID):
+async def read_recipe_tag_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_id: UUID):
     recipe_tag_by_id = get_recipe_tag_by_id(db, recipe_tag_id)
 
     if recipe_tag_by_id is None:
@@ -45,7 +45,7 @@ async def read_recipe_tag_by_id(*, db: Session = Depends(get_db), recipe_tag_id:
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeTagResponse)
-async def add_recipe_tag(*, db: Session = Depends(get_db), recipe_tag: RecipeTagCreate):
+async def add_recipe_tag(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag: RecipeTagCreate):
     recipe_tag_by_name = get_recipe_tag_by_name(db, recipe_tag.name)
     
     if recipe_tag_by_name:
@@ -63,7 +63,7 @@ async def add_recipe_tag(*, db: Session = Depends(get_db), recipe_tag: RecipeTag
     return {"detail": result_message, "recipe_tag": recipe_tag_create}
 
 @router.put("/{recipe_tag_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeTagResponse)
-async def change_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_id: UUID, recipe_tag: RecipeTagUpdate):
+async def change_recipe_tag(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_id: UUID, recipe_tag: RecipeTagUpdate):
     recipe_tag_by_id = get_recipe_tag_by_id(db, recipe_tag_id)
     
     if not recipe_tag_by_id:
@@ -81,7 +81,7 @@ async def change_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_id: UUI
     return {"detail": result_message, "recipe_tag": recipe_tag_update}
 
 @router.delete("/{recipe_tag_id}", status_code=status.HTTP_200_OK)
-async def remove_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_id: UUID):
+async def remove_recipe_tag(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_id: UUID):
     recipe_tag_by_id = get_recipe_tag_by_id(db, recipe_tag_id)
 
     if recipe_tag_by_id is None:
@@ -99,7 +99,7 @@ async def remove_recipe_tag(*, db: Session = Depends(get_db), recipe_tag_id: UUI
 
 
 @router.get("by_name/{recipe_tag_name}", status_code=status.HTTP_200_OK, response_model=RecipeTag, deprecated=True)
-async def read_recipe_tag_by_name(*, db: Session = Depends(get_db), recipe_tag_name: str):
+async def read_recipe_tag_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_name: str):
     recipe_tag_by_name = get_recipe_tag_by_name(db, recipe_tag_name=recipe_tag_name)
 
     if recipe_tag_by_name is None:

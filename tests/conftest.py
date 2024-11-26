@@ -83,6 +83,13 @@ def setup_and_teardown():
             ingredient_category_id=uuid.UUID("6722eb62-884a-4208-8596-ed82d310e832"),
             created_by=test_admin_id
         ),
+        Ingredient(
+            id=uuid.UUID("c282fc9e-dfbd-46ff-8ee0-87463c63a51e"),
+            name="fish",
+            brand="fish",
+            ingredient_category_id=uuid.UUID("b4b165f6-a4f2-45f6-bda6-0a49092d3f03"),
+            created_by=test_admin_id
+        ),
     ]
 
     dummy_uoms = [
