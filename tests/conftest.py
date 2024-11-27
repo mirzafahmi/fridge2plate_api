@@ -146,6 +146,11 @@ def setup_and_teardown():
             name="beginner",
             created_by=test_admin_id
         ),
+        RecipeTag(
+            id=uuid.UUID("3d460ec6-f369-4681-851d-78999ec3d2a8"),
+            name="quick & easy",
+            created_by=test_admin_id
+        )
     ]
     
     for recipe in recipes:

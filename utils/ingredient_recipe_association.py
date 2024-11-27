@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from uuid import UUID
 
 from db.models.recipe import IngredientRecipeAssociation
-from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssociationCreate
+from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssociationCreate, IngredientRecipeAssociationUpdate
 from utils.ingredient import get_ingredient_by_id
 from utils.uom import get_uom_by_id
 from utils.recipe import get_recipe_by_name, get_recipe_by_id
@@ -36,7 +36,7 @@ def post_association(db: Session, ingredient: IngredientRecipeAssociationCreate)
 
     return db_association
 
-def put_association(db: Session, ingredient_recipe_association_id: UUID, ingredient: IngredientRecipeAssociation):
+def put_association(db: Session, ingredient_recipe_association_id: UUID, ingredient: IngredientRecipeAssociationUpdate):
     db_ingredient_recipe_asscociation = get_ingredient_recipe_associations_by_id(db, ingredient_recipe_association_id)
 
     if ingredient:

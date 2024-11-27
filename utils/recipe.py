@@ -11,6 +11,7 @@ from pydantic_schemas.recipe import RecipeCreate, RecipeUpdate
 from utils.recipe_category import get_recipe_category_by_name
 from utils.recipe_tag import get_recipe_tag_by_name
 from utils.recipe_origin import get_recipe_origin_by_name
+from utils.instruction import validate_step_number
 
 
 load_dotenv()
@@ -56,13 +57,15 @@ def post_recipe(db: Session, recipe_data):
             )
             db.add(ingredient_recipe_association)
 
-        for instruction in recipe_data.steps:
+        for instruction in sorted(recipe_data.steps, key=lambda x: x.step_number): #could cause error in test
+            validate_step_number(db, db_recipe.id, instruction.step_number)
             instruction_model = Instruction(
                 step_number=instruction.step_number,
                 description=instruction.description,
                 recipe_id=db_recipe.id
             )
             db.add(instruction_model)
+            db.flush() #need to make the instance accessible for next iter
 
         #TODO! convert images as list of str not as list of recipeimage obj
         if recipe_data.images:

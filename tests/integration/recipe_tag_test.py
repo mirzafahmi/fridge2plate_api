@@ -15,7 +15,7 @@ def test_get_recipe_tag_list(client: TestClient, token: str):
     recipe_tags = response.json()["recipe_tags"]
 
     assert isinstance(recipe_tags, list)
-    assert len(recipe_tags) == 2
+    assert len(recipe_tags) == 3
 
     assert recipe_tags[0]['id'] == "13444244-43b2-4d63-a080-604dd5088452"
     assert recipe_tags[0]['name'] == "beginner"

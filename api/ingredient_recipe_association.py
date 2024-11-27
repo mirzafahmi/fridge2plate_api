@@ -13,7 +13,8 @@ from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssoc
 
 router = APIRouter(
     prefix="/ingredient_recipe_association",
-    tags=["Ingredient Recipe Association"])
+    tags=["Ingredient Recipe Association"]
+)
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=IngredientRecipeAssociationsResponseLite)
 async def read_ingredient_recipe_associations(db: Session = Depends(get_db), skip: int=0, limit: int = 100):

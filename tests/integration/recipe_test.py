@@ -3256,7 +3256,7 @@ def test_delete_recipe(client: TestClient):
     recipe_tag_recipe_association_response = client.get(f"/recipe_tag_recipe_association/by_recipe_id/{recipe_id}")
 
     assert recipe_tag_recipe_association_response.status_code == 404
-    assert recipe_tag_recipe_association_response.json()["detail"] == "Recipe tag recipe association list for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of recipe is empty"
+    assert recipe_tag_recipe_association_response.json()["detail"] == "Recipe Tag Recipe Association list for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of recipe is empty"
 
     instruction_response = client.get(f"/instruction/by_recipe_id/{recipe_id}")
 
