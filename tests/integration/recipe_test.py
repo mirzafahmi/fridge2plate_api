@@ -313,15 +313,11 @@ def test_post_recipe(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
-
+    
     assert response.status_code == 201
     assert response.json()["detail"] == "test recipe as Recipe is created successfully"
 
@@ -401,11 +397,7 @@ def test_post_recipe_with_empty_name(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -456,11 +448,7 @@ def test_post_recipe_without_name(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -512,11 +500,7 @@ def test_post_recipe_with_wrong_serving_format(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -567,11 +551,7 @@ def test_post_recipe_with_empty_serving(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -622,11 +602,7 @@ def test_post_recipe_without_serving(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -678,11 +654,7 @@ def test_post_recipe_with_wrong_cooking_time_format(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -733,11 +705,7 @@ def test_post_recipe_with_empty_cooking_time(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -788,11 +756,7 @@ def test_post_recipe_without_cooking_time(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -844,11 +808,7 @@ def test_post_recipe_with_wrong_recipe_category_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -892,11 +852,7 @@ def test_post_recipe_with_invalid_recipe_category_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -948,11 +904,7 @@ def test_post_recipe_with_empty_recipe_category_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1003,11 +955,7 @@ def test_post_recipe_without_recipe_category_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1059,11 +1007,7 @@ def test_post_recipe_with_wrong_recipe_origin_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1107,11 +1051,7 @@ def test_post_recipe_with_invalid_recipe_origin_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1163,11 +1103,7 @@ def test_post_recipe_with_empty_recipe_origin_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1218,11 +1154,7 @@ def test_post_recipe_without_recipe_origin_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1274,11 +1206,7 @@ def test_post_recipe_with_wrong_recipe_tags(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1322,11 +1250,7 @@ def test_post_recipe_with_invalid_recipe_tags(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1375,11 +1299,7 @@ def test_post_recipe_with_empty_recipe_tags(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1426,11 +1346,7 @@ def test_post_recipe_without_recipe_tags(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1482,11 +1398,7 @@ def test_post_recipe_with_wrong_ingredient_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1530,11 +1442,7 @@ def test_post_recipe_with_invalid_ingredient_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1586,11 +1494,7 @@ def test_post_recipe_with_empty_ingredient_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1641,11 +1545,7 @@ def test_post_recipe_without_ingredient_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1697,11 +1597,7 @@ def test_post_recipe_with_invalid_ingredient_quantity(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1752,11 +1648,7 @@ def test_post_recipe_with_not_integer_ingredient_quantity(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1806,11 +1698,7 @@ def test_post_recipe_without_ingredient_quantity(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1860,11 +1748,7 @@ def test_post_recipe_with_wrong_uom_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1908,11 +1792,7 @@ def test_post_recipe_with_invalid_uom_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -1964,11 +1844,7 @@ def test_post_recipe_with_empty_uom_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2019,11 +1895,7 @@ def test_post_recipe_without_uom_id(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2075,11 +1947,7 @@ def test_post_recipe_with_non_boolean_is_essential(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2131,11 +1999,7 @@ def test_post_recipe_with_empty_is_essential(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2186,11 +2050,7 @@ def test_post_recipe_without_is_essential(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2242,11 +2102,7 @@ def test_post_recipe_with_wrong_step_number(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2297,11 +2153,7 @@ def test_post_recipe_with_non_integer_step_number(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2353,11 +2205,7 @@ def test_post_recipe_with_empty_step_description(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2408,11 +2256,7 @@ def test_post_recipe_without_step_description(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2455,11 +2299,7 @@ def test_post_recipe_with_empty_steps(client: TestClient):
                 }
             ],
             "steps": [],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2501,11 +2341,7 @@ def test_post_recipe_without_steps(client: TestClient):
                 "is_essential": True
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69dded"
         }
     )
@@ -2558,11 +2394,7 @@ def test_post_recipe_with_wrong_created_by(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69ddee"
         }
     )
@@ -2606,11 +2438,7 @@ def test_post_recipe_with_invalid_created_by(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": "0c619092-817e-4f73-b25f-8e187e69ddez"
         }
     )
@@ -2659,11 +2487,7 @@ def test_post_recipe_with_empty_created_by(client: TestClient):
                 "description": "eat chicken"
                 }
             ],
-            "images": [
-                {
-                "image": "/string"
-                }
-            ],
+            "images": ["/string"],
             "created_by": ""
         }
     )
@@ -3137,17 +2961,10 @@ def test_put_recipe_by_changing_images(client: TestClient):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.put(f"{url_prefix}/{recipe_id}",
         json={
-            "images": [
-                {
-                    "image": "/test_url"
-                },
-                {
-                    "image": "/image_url"
-                },
-            ]
+            "images": ["/test_url", "/image_url"]
         }
     )
-
+    print(response.json())
     assert response.status_code == 202
     assert response.json()["detail"] == f"ID {recipe_id} as Recipe is updated successfully"
     

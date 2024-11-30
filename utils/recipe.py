@@ -71,7 +71,7 @@ def post_recipe(db: Session, recipe_data):
         if recipe_data.images:
             for image in recipe_data.images:
                 recipe_image_model = RecipeImage(
-                    image=image.image,
+                    image=image,
                     recipe_id=db_recipe.id
                 )
                 db.add(recipe_image_model)
@@ -170,7 +170,7 @@ def put_recipe(db: Session, recipe_id: UUID, recipe_data):
             db.query(RecipeImage).filter_by(recipe_id=recipe_id).delete()
             for image in recipe_data.images:
                 recipe_image_model = RecipeImage(
-                    image=image.image,
+                    image=image,
                     recipe_id=recipe_id
                 )
                 db.add(recipe_image_model)

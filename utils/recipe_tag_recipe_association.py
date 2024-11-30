@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from db.models.recipe import RecipeTagRecipeAssociation
 from pydantic_schemas.recipe_tag_recipe_association import RecipeTagRecipeAssociationCreate, RecipeTagRecipeAssociationUpdate
 
+
 def get_recipe_tag_recipe_association(db: Session, skip: int=0, limit: int = 100):
     return db.query(RecipeTagRecipeAssociation).offset(skip).limit(limit).all()
 

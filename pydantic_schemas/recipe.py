@@ -1,8 +1,8 @@
 from .lowercase_base_model import LowercaseBaseModel
 from datetime import datetime
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union
 from uuid import UUID
-from pydantic import constr, validator, Field, root_validator
+from pydantic import constr, validator, Field, root_validator, HttpUrl
 import re
 
 from pydantic_schemas.recipe_category import RecipeCategory, RecipeCategoryLite
@@ -24,7 +24,7 @@ class RecipeBase(LowercaseBaseModel):
     recipe_tags: List[UUID]
     ingredients: List[IngredientRecipeAssociationBase]
     steps: List[InstructionCreate]
-    images: Optional[List[RecipeImageCreate]] = None #TODO! convert images as list of str not as list of recipeimage obj
+    images: Optional[List[Union[HttpUrl, str]]] = None #TODO! convert images as list of str not as list of recipeimage obj
     created_by: Optional[UUID] = None
 
     model_config = {
@@ -81,7 +81,7 @@ class RecipeUpdate(RecipeBase):
     ingredients: Optional[List[IngredientRecipeAssociationBase]] = None
     created_by: Optional[UUID] = None
     steps: Optional[List[InstructionCreate]] = None
-    images: Optional[List[RecipeImageCreate]] = None
+    images: Optional[List[Union[HttpUrl, str]]] = None
 
 class Recipe(LowercaseBaseModel):
     id: UUID
