@@ -38,7 +38,7 @@ async def read_recipe_tag_recipe_associations_by_id(*, db: Session = Depends(get
         )
 
     return {
-        "detail": f"ID {recipe_tag_recipe_association_id} as Ingredient Recipe Association is retrieved successfully",
+        "detail": f"ID {recipe_tag_recipe_association_id} as Recipe Tag Recipe Association is retrieved successfully",
         "recipe_tag_recipe_association": db_recipe_tag_recipe_association
     }
 
