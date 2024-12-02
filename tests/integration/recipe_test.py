@@ -26,7 +26,12 @@ def test_get_recipe_list(client: TestClient):
     assert recipes[0]["steps"][2]["step_number"] == 3
     assert recipes[0]["steps"][2]["description"] == "masak"
     
-    assert recipes[0]["images"] == []
+    assert len(recipes[0]["images"]) == 2
+    assert recipes[0]["images"][0]["image"] == "/string_test"
+    assert recipes[0]["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipes[0]["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipes[0]["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipes[0]["recipe_category"]["name"] == "lunch"
     assert recipes[0]["recipe_origin"]["name"] == "malay"
     assert recipes[0]["recipe_tags"][0]["name"] == "beginner"
@@ -62,7 +67,12 @@ def test_get_recipe_list(client: TestClient):
     assert recipes[1]["steps"][1]["step_number"] == 2
     assert recipes[1]["steps"][1]["description"] == "potong lobak"
     
-    assert recipes[1]["images"] == []
+    assert len(recipes[1]["images"]) == 2
+    assert recipes[1]["images"][0]["image"] == "/string_test"
+    assert recipes[1]["images"][0]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+    assert recipes[1]["images"][1]["image"] == "/test_recipe_image"
+    assert recipes[1]["images"][1]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+
     assert recipes[1]["recipe_category"]["name"] == "lunch"
     assert recipes[1]["recipe_origin"]["name"] == "malay"
     assert recipes[1]["recipe_tags"][0]["name"] == "beginner"
@@ -110,7 +120,12 @@ def test_get_recipe_list_lite(client: TestClient):
     assert recipes[0]["steps"][2]["step_number"] == 3
     assert recipes[0]["steps"][2]["description"] == "masak"
     
-    assert recipes[0]["images"] == []
+    assert len(recipes[0]["images"]) == 2
+    assert recipes[0]["images"][0]["image"] == "/string_test"
+    assert recipes[0]["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipes[0]["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipes[0]["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipes[0]["recipe_category"]["name"] == "lunch"
     assert recipes[0]["recipe_origin"]["name"] == "malay"
     assert recipes[0]["recipe_tags"][0]["name"] == "beginner"
@@ -146,7 +161,12 @@ def test_get_recipe_list_lite(client: TestClient):
     assert recipes[1]["steps"][1]["step_number"] == 2
     assert recipes[1]["steps"][1]["description"] == "potong lobak"
     
-    assert recipes[1]["images"] == []
+    assert len(recipes[1]["images"]) == 2
+    assert recipes[1]["images"][0]["image"] == "/string_test"
+    assert recipes[1]["images"][0]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+    assert recipes[1]["images"][1]["image"] == "/test_recipe_image"
+    assert recipes[1]["images"][1]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+
     assert recipes[1]["recipe_category"]["name"] == "lunch"
     assert recipes[1]["recipe_origin"]["name"] == "malay"
     assert recipes[1]["recipe_tags"][0]["name"] == "beginner"
@@ -192,7 +212,12 @@ def test_get_recipe_by_id(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipe["recipe_category"]["name"] == "lunch"
     assert recipe["recipe_origin"]["name"] == "malay"
     assert recipe["recipe_tags"][0]["name"] == "beginner"
@@ -238,7 +263,12 @@ def test_get_recipe_by_id_lite(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipe["recipe_category"]["name"] == "lunch"
     assert recipe["recipe_origin"]["name"] == "malay"
     assert recipe["recipe_tags"][0]["name"] == "beginner"
@@ -2528,7 +2558,12 @@ def test_put_recipe_by_changing_name(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipe["recipe_category"]["name"] == "lunch"
     assert recipe["recipe_origin"]["name"] == "malay"
     assert recipe["recipe_tags"][0]["name"] == "beginner"
@@ -2578,7 +2613,12 @@ def test_put_recipe_by_changing_serving(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipe["recipe_category"]["name"] == "lunch"
     assert recipe["recipe_origin"]["name"] == "malay"
     assert recipe["recipe_tags"][0]["name"] == "beginner"
@@ -2628,7 +2668,12 @@ def test_put_recipe_by_changing_cooking_time(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipe["recipe_category"]["name"] == "lunch"
     assert recipe["recipe_origin"]["name"] == "malay"
     assert recipe["recipe_tags"][0]["name"] == "beginner"
@@ -2678,7 +2723,12 @@ def test_put_recipe_by_changing_cooking_time(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
     assert recipe["recipe_category"]["name"] == "lunch"
     assert recipe["recipe_origin"]["name"] == "malay"
     assert recipe["recipe_tags"][0]["name"] == "beginner"
@@ -2747,7 +2797,11 @@ def test_put_recipe_by_changing_recipe_category_id(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
     assert recipe["creator"]["username"] == "testuser"
     
@@ -2798,7 +2852,11 @@ def test_put_recipe_by_changing_recipe_origin_id(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
     assert recipe["creator"]["username"] == "testuser"
     
@@ -2848,7 +2906,11 @@ def test_put_recipe_by_changing_recipe_tags(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
     assert recipe["creator"]["username"] == "testuser"
     
@@ -2898,7 +2960,11 @@ def test_put_recipe_by_changing_ingredients(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
     assert recipe["creator"]["username"] == "testuser"
     
@@ -2949,7 +3015,11 @@ def test_put_recipe_by_changing_steps(client: TestClient):
     assert recipe["steps"][0]["step_number"] == 1
     assert recipe["steps"][0]["description"] == "test steps"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
     assert recipe["creator"]["username"] == "testuser"
     
@@ -3051,7 +3121,11 @@ def test_put_recipe_by_changing_created_by(client: TestClient):
     assert recipe["steps"][2]["step_number"] == 3
     assert recipe["steps"][2]["description"] == "masak"
     
-    assert recipe["images"] == []
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
     assert recipe["creator"]["username"] == "second_user"
     

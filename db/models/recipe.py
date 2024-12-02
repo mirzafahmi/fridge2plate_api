@@ -135,7 +135,7 @@ class Recipe(TimestampMixin, Base):
     __tablename__ = "recipes"
     
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
-    name = Column(Text, nullable=False) #TODO! remove unique
+    name = Column(Text, nullable=False)
     serving = Column(String, nullable=True)
     cooking_time = Column(Text, nullable=False)
 
