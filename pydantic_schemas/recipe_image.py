@@ -6,7 +6,7 @@ from pydantic import HttpUrl, validator
 
 
 class RecipeImageBase(LowercaseBaseModel):
-    image: Union[str, List[Union[HttpUrl, str]]]
+    image: Union[str, List[Union[HttpUrl, str]]] #why union of str and list?, Should test for only str
 
     model_config = {
         "transform_fields": []

@@ -6,7 +6,7 @@ from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 
-from db.models.recipe import Recipe, RecipeTagRecipeAssociation, Instruction, Ingredient, IngredientRecipeAssociation, RecipeImage
+from db.models.recipe import Recipe, RecipeTagRecipeAssociation, Instruction, Ingredient, IngredientRecipeAssociation, RecipeImage, RecipeTip
 from pydantic_schemas.recipe import RecipeCreate, RecipeUpdate
 from utils.recipe_category import get_recipe_category_by_name
 from utils.recipe_tag import get_recipe_tag_by_name
@@ -67,7 +67,6 @@ def post_recipe(db: Session, recipe_data):
             db.add(instruction_model)
             db.flush() #need to make the instance accessible for next iter
 
-        #TODO! convert images as list of str not as list of recipeimage obj
         if recipe_data.images:
             for image in recipe_data.images:
                 recipe_image_model = RecipeImage(
@@ -75,6 +74,14 @@ def post_recipe(db: Session, recipe_data):
                     recipe_id=db_recipe.id
                 )
                 db.add(recipe_image_model)
+        
+        if recipe_data.tips:
+            for tip in recipe_data.tips:
+                recipe_tip_model = RecipeTip(
+                    description=tip,
+                    recipe_id=db_recipe.id
+                )
+                db.add(recipe_tip_model)
         db.commit()
         db.refresh(db_recipe)
         

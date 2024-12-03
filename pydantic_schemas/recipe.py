@@ -24,7 +24,8 @@ class RecipeBase(LowercaseBaseModel):
     recipe_tags: List[UUID]
     ingredients: List[IngredientRecipeAssociationBase]
     steps: List[InstructionCreate]
-    images: Optional[List[Union[HttpUrl, str]]] = None #TODO! convert images as list of str not as list of recipeimage obj
+    images: Optional[List[Union[HttpUrl, str]]] = None
+    tips: Optional[List[constr(strip_whitespace=True, min_length=3)]] = None
     created_by: Optional[UUID] = None
 
     model_config = {
