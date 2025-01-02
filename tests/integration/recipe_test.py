@@ -2983,7 +2983,6 @@ def test_put_recipe_by_changing_steps(client: TestClient):
             ]
         }
     )
-
     assert response.status_code == 202
     assert response.json()["detail"] == f"ID {recipe_id} as Recipe is updated successfully"
     

@@ -4,16 +4,20 @@ from .recipe import *
 __all__ = [
     "User",
     "UserProvider",
+    "Badge",
+    "UserBadgeAssociation",
+
     "IngredientCategory",
     "Ingredient",
     "UOM",
     "RecipeCategory",
-    "RecipeTag",
     "RecipeOrigin",
-    "Recipe",
-    "Instruction",
+    "RecipeTag",
     "IngredientRecipeAssociation",
     "RecipeTagRecipeAssociation",
+    "Recipe",
     "RecipeImage",
-    "RecipeTip"
+    "RecipeInstruction",
+    "RecipeTip",
+    "RecipeUserAssociation"
 ]

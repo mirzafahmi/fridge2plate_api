@@ -10,7 +10,7 @@ from passlib.context import CryptContext
 
 from main import app
 from db.db_setup import get_db  
-from db.models.user import User
+from db.models.user import User, Badge
 from db.models.recipe import IngredientCategory, Ingredient, UOM, RecipeCategory, RecipeOrigin, RecipeTag
 from db.db_setup import Base
 from utils.recipe import post_recipe
@@ -55,6 +55,32 @@ def setup_and_teardown():
             password=bcrypt_context.hash("test123")
         )
     ]
+
+    dummy_badges = [
+        Badge(
+            id=uuid.UUID("3afb1e3d-617e-41f8-b140-b6a5fd876446"),
+            name="getting started",
+            description="created at least 1 recipe",
+            image="/static/badges/getting_started.png",
+            created_by=test_admin_id
+        ),
+        Badge(
+            id=uuid.UUID("52518fea-cae4-4a79-abf4-65cb8a122f16"),
+            name="veteran",
+            description="created at least 5 recipe",
+            image="/static/badges/veteran.png",
+            created_by=test_admin_id
+        )
+        ,
+        Badge(
+            id=uuid.UUID("6446f1e0-fd4a-455e-a9d0-e77c8c059140"),
+            name="community leader",
+            description="reached at least 5 follower",
+            image="/static/badges/community_leader.png",
+            created_by=test_admin_id
+        )
+    ]
+
     dummy_ingredient_categories = [
         IngredientCategory(
             id=uuid.UUID("b4b165f6-a4f2-45f6-bda6-0a49092d3f03"),
@@ -158,7 +184,7 @@ def setup_and_teardown():
         
         post_recipe(session, recipe_data)
 
-    session.add_all(dummy_users + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms)
+    session.add_all(dummy_users + dummy_badges + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms)
     session.commit()
     session.close()
 

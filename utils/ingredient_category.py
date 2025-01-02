@@ -30,6 +30,7 @@ def post_ingredient_category(db: Session, ingredient_category: IngredientCategor
 
     return db_ingredient_category
 
+## TODO? why tf it not use update schemas?
 def update_ingredient_category(db: Session, ingredient_category_id: UUID, ingredient_category: Optional[IngredientCategoryCreate]):
     db_ingredient_category = get_ingredient_category_by_id(db, ingredient_category_id)
 

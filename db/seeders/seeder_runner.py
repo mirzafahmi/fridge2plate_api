@@ -6,6 +6,7 @@ from db.seeders.recipe_category_seeder import seed_recipe_category_data
 from db.seeders.recipe_origin_seeder import seed_recipe_origin_data
 from db.seeders.recipe_tag_seeder import seed_recipe_tag_data
 from db.seeders.recipe_seeder import seed_recipe_data
+from db.seeders.badge_seeder import seed_badge_data
 
 def run_seeder():
     seed_user_data()
@@ -16,6 +17,7 @@ def run_seeder():
     seed_recipe_origin_data()
     seed_recipe_tag_data()
     seed_recipe_data()
+    seed_badge_data()
 
 def run_deseeder():
     pass

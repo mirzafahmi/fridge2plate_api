@@ -6,7 +6,7 @@ from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 
-from db.models.recipe import Recipe, RecipeTagRecipeAssociation, Instruction, Ingredient, IngredientRecipeAssociation, RecipeImage, RecipeTip
+from db.models.recipe import Recipe, RecipeTagRecipeAssociation, RecipeInstruction, Ingredient, IngredientRecipeAssociation, RecipeImage, RecipeTip
 from pydantic_schemas.recipe import RecipeCreate, RecipeUpdate
 from utils.recipe_category import get_recipe_category_by_name
 from utils.recipe_tag import get_recipe_tag_by_name
@@ -26,7 +26,7 @@ def get_recipe_by_id(db: Session, recipe_id: UUID):
 def get_recipe_by_name(db: Session, recipe_name: str):
     return db.query(Recipe).filter(Recipe.name == recipe_name).first()
 
-def post_recipe(db: Session, recipe_data):
+def post_recipe(db: Session, recipe_data: RecipeCreate):
     try:
         db_recipe = Recipe(
             id=recipe_data.id if hasattr(recipe_data, 'id') and recipe_data.id is not None else uuid4(),
@@ -59,19 +59,19 @@ def post_recipe(db: Session, recipe_data):
 
         for instruction in sorted(recipe_data.steps, key=lambda x: x.step_number): #could cause error in test
             validate_step_number(db, db_recipe.id, instruction.step_number)
-            instruction_model = Instruction(
+            instruction_model = RecipeInstruction(
                 step_number=instruction.step_number,
                 description=instruction.description,
-                recipe_id=db_recipe.id
+                recipe_id=db_recipe.id,
             )
             db.add(instruction_model)
             db.flush() #need to make the instance accessible for next iter
-
+        
         if recipe_data.images:
             for image in recipe_data.images:
                 recipe_image_model = RecipeImage(
                     image=image,
-                    recipe_id=db_recipe.id
+                    recipe_id=db_recipe.id,
                 )
                 db.add(recipe_image_model)
         
@@ -79,7 +79,7 @@ def post_recipe(db: Session, recipe_data):
             for tip in recipe_data.tips:
                 recipe_tip_model = RecipeTip(
                     description=tip,
-                    recipe_id=db_recipe.id
+                    recipe_id=db_recipe.id,
                 )
                 db.add(recipe_tip_model)
         db.commit()
@@ -90,7 +90,7 @@ def post_recipe(db: Session, recipe_data):
     except Exception as e:
         raise RuntimeError(f"Failed to create recipe: {e}")
 
-def put_recipe(db: Session, recipe_id: UUID, recipe_data):
+def put_recipe(db: Session, recipe_id: UUID, recipe_data: RecipeUpdate):
     try:
         # Retrieve the existing recipe
         db_recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
@@ -162,10 +162,12 @@ def put_recipe(db: Session, recipe_id: UUID, recipe_data):
                     )
                     db.add(ingredient_recipe_association)
 
+        #caused by created_by, use pydantic schemas in utils
         if hasattr(recipe_data, 'steps') and recipe_data.steps is not None:
-            db.query(Instruction).filter_by(recipe_id=recipe_id).delete()
+            db.query(RecipeInstruction).filter_by(recipe_id=recipe_id).delete()
+            
             for instruction in recipe_data.steps:
-                instruction_model = Instruction(
+                instruction_model = RecipeInstruction(
                     step_number=instruction.step_number,
                     description=instruction.description,
                     recipe_id=recipe_id

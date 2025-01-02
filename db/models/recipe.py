@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, Text, Float
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 import os
 from dotenv import load_dotenv
 
@@ -24,7 +24,6 @@ class IngredientCategory(TimestampMixin, Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="ingredient_categories")
 
-
 class Ingredient(TimestampMixin, Base):
     __tablename__ = "ingredients"
     
@@ -40,7 +39,6 @@ class Ingredient(TimestampMixin, Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="ingredients")
 
-
 class UOM(TimestampMixin, Base):
     __tablename__ = "uoms"
     
@@ -51,7 +49,6 @@ class UOM(TimestampMixin, Base):
 
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="uoms")
-
 
 class RecipeCategory(TimestampMixin, Base):
     __tablename__ = "recipe_categories"
@@ -64,6 +61,16 @@ class RecipeCategory(TimestampMixin, Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="recipe_categories")
 
+class RecipeOrigin(TimestampMixin, Base):
+    __tablename__ = "recipe_origins"
+        
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
+    name = Column(String(100), unique=True, nullable=False)
+
+    recipes = relationship("Recipe", back_populates="recipe_origin")
+
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
+    creator = relationship("User", back_populates="recipe_origins")
 
 class RecipeTag(TimestampMixin, Base):
     __tablename__ = "recipe_tags"
@@ -81,19 +88,6 @@ class RecipeTag(TimestampMixin, Base):
 
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="recipe_tags")
-
-
-class RecipeOrigin(TimestampMixin, Base):
-    __tablename__ = "recipe_origins"
-        
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
-    name = Column(String(100), unique=True, nullable=False)
-
-    recipes = relationship("Recipe", back_populates="recipe_origin")
-
-    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
-    creator = relationship("User", back_populates="recipe_origins")
-
 
 class IngredientRecipeAssociation(TimestampMixin, Base):
     __tablename__ = "ingredient_recipe_associations"
@@ -135,11 +129,12 @@ class Recipe(TimestampMixin, Base):
     __tablename__ = "recipes"
     
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
+    original_recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=True)
     name = Column(Text, nullable=False)
     serving = Column(String, nullable=True)
     cooking_time = Column(Text, nullable=False)
 
-    steps = relationship("Instruction", back_populates="recipe", cascade="all, delete")
+    steps = relationship("RecipeInstruction", back_populates="recipe", cascade="all, delete")
     tips = relationship("RecipeTip", back_populates="recipe", cascade="all, delete")
     images = relationship("RecipeImage", back_populates="recipe", cascade="all, delete")
 
@@ -158,6 +153,8 @@ class Recipe(TimestampMixin, Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
     creator = relationship("User", back_populates="recipes")
 
+    recipe_user_associations = relationship("RecipeUserAssociation", back_populates="recipe", cascade="all, delete")
+
     @property
     def ingredient_data(self):
         # This property method ensures that the Pydantic model sees `ingredient_data`
@@ -172,8 +169,7 @@ class RecipeImage(TimestampMixin, Base):
     recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=False)
     recipe = relationship("Recipe", back_populates="images")
 
-#change to recipeinstruction
-class Instruction(TimestampMixin, Base):
+class RecipeInstruction(TimestampMixin, Base):
     __tablename__ = "instructions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
@@ -191,3 +187,27 @@ class RecipeTip(TimestampMixin, Base):
 
     recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=False)
     recipe = relationship("Recipe", back_populates="tips")
+
+class RecipeUserAssociation(TimestampMixin, Base):
+    __tablename__ = "recipe_user_associations"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=lambda: uuid.uuid4())
+    cooked = Column(Boolean, default=False)
+    cooked_date = Column(DateTime, nullable=True)
+    liked = Column(Boolean, default=False)
+    liked_date = Column(DateTime, nullable=True)
+    bookmarked = Column(Boolean, default=False)
+    bookmarked_date = Column(DateTime, nullable=True)
+
+    recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=False)
+    recipe = relationship("Recipe", back_populates="recipe_user_associations")
+
+    @validates('cooked', 'liked', 'bookmarked')
+    def update_dates(self, key, value):
+        if value and key == 'cooked':
+            self.cooked_date = datetime.utcnow()
+        elif value and key == 'liked':
+            self.liked_date = datetime.utcnow()
+        elif value and key == 'bookmarked':
+            self.bookmarked_date = datetime.utcnow()
+        return value
