@@ -94,7 +94,10 @@ class Recipe(LowercaseBaseModel):
     recipe_category: RecipeCategory
     recipe_origin: RecipeOrigin
     recipe_tags: List[RecipeTag]
-    ingredient_data: List[IngredientRecipeAssociation]  
+    ingredient_data: List[IngredientRecipeAssociation]
+    cooked_count: Optional[int] = None
+    bookmarked_count: Optional[int] = None
+    liked_count: Optional[int] = None
     
     creator: Optional[UserResponse]
     created_date: datetime
@@ -120,7 +123,10 @@ class RecipeLite(Recipe):
     recipe_category: RecipeCategoryLite
     recipe_origin: RecipeOriginLite
     recipe_tags: List[RecipeTagLite]
-    ingredient_data: List[IngredientRecipeAssociationLite]  
+    ingredient_data: List[IngredientRecipeAssociationLite]
+    cooked_count: Optional[int] = None
+    bookmarked_count: Optional[int] = None
+    liked_count: Optional[int] = None
 
     creator: Optional[UserResponseLite]
     created_date: datetime

@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
 from typing import Optional
-from sqlalchemy import func, asc
+from sqlalchemy import func, asc, case
 from uuid import UUID, uuid4
 from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 
-from db.models.recipe import Recipe, RecipeTagRecipeAssociation, RecipeInstruction, Ingredient, IngredientRecipeAssociation, RecipeImage, RecipeTip
+from db.models.recipe import Recipe, RecipeTagRecipeAssociation, RecipeInstruction, Ingredient, IngredientRecipeAssociation, RecipeImage, RecipeTip, RecipeUserAssociation
 from pydantic_schemas.recipe import RecipeCreate, RecipeUpdate
 from utils.recipe_category import get_recipe_category_by_name
 from utils.recipe_tag import get_recipe_tag_by_name
@@ -210,3 +210,67 @@ def delete_recipe(db: Session, recipe_id: UUID):
     db_recipe = get_recipe_by_id(db, recipe_id)
     db.delete(db_recipe)
     db.commit()
+
+def get_recipe_cooked_count(db:Session, recipe_id:UUID):
+    count = (
+        db.query(func.count(RecipeUserAssociation.id))
+        .filter(RecipeUserAssociation.recipe_id == recipe_id, RecipeUserAssociation.cooked == True)
+        .scalar()
+    )
+
+    return count
+
+def get_recipe_boormarked_count(db:Session, recipe_id:UUID):
+    count = (
+        db.query(func.count(RecipeUserAssociation.id))
+        .filter(RecipeUserAssociation.recipe_id == recipe_id, RecipeUserAssociation.bookmarked == True)
+        .scalar()
+    )
+
+    return count
+
+def get_recipe_liked_count(db:Session, recipe_id:UUID):
+    count = (
+        db.query(func.count(RecipeUserAssociation.id))
+        .filter(RecipeUserAssociation.recipe_id == recipe_id, RecipeUserAssociation.liked == True)
+        .scalar()
+    )
+
+    return count
+
+def get_recipe_interaction_counts(db: Session, recipe_ids: list[UUID]):
+    # Ensure recipe_ids is a list (in case a single recipe_id is passed)
+    if isinstance(recipe_ids, UUID):
+        recipe_ids = [recipe_ids]
+
+    # Query interaction counts for multiple recipe_ids
+    interaction_counts = (
+        db.query(
+            RecipeUserAssociation.recipe_id,
+            func.sum(
+                case(
+                    (RecipeUserAssociation.cooked == True, 1),
+                    else_=0
+                )
+            ).label("cooked_count"),
+            func.sum(
+                case(
+                    (RecipeUserAssociation.bookmarked == True, 1),
+                    else_=0
+                )
+            ).label("bookmarked_count"),
+            func.sum(
+                case(
+                    (RecipeUserAssociation.liked == True, 1),
+                    else_=0
+                )
+            ).label("liked_count"),
+        )
+        .filter(RecipeUserAssociation.recipe_id.in_(recipe_ids))  # Filter by multiple recipe_ids
+        .group_by(RecipeUserAssociation.recipe_id)
+        .all()
+    )
+
+    # Convert the results to a dictionary for easy lookup by recipe_id
+    return {row.recipe_id: row._asdict() for row in interaction_counts}
+

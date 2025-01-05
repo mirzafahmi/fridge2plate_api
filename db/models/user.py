@@ -32,6 +32,7 @@ class User(TimestampMixin, Base):
     recipe_tags = relationship("RecipeTag", back_populates="creator")
     recipes = relationship("Recipe", back_populates="creator")
     badges = relationship("Badge", back_populates="creator")
+    recipe_user_associations = relationship("RecipeUserAssociation", back_populates="user")
 
     user_badge_associations = relationship(
         "UserBadgeAssociation", 

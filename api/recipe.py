@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from utils.user import check_valid_user
+from utils.user import check_valid_user, get_current_user
 from utils.recipe import *
 from utils.ingredient import get_ingredient_by_id
 from utils.ingredient_recipe_association import *
@@ -11,9 +11,11 @@ from utils.recipe_category import get_recipe_category_by_id
 from utils.recipe_tag import get_recipe_tag_by_id
 from utils.recipe_origin import get_recipe_origin_by_id
 from utils.uom import get_uom_by_id
+from utils.recipe_user_association import get_or_create_recipe_user_association, toggle_action
 
 from db.db_setup import get_db
 from pydantic_schemas.recipe import Recipe, RecipeCreate, RecipeUpdate, RecipeResponse, RecipesResponse, RecipeLiteResponse, RecipesLiteResponse
+from pydantic_schemas.recipe_user_association import ActionSchema, RecipeUserAssociation, RecipeUserAssociationResponse, RecipeUserAssociationsResponse
 
 
 router = APIRouter(
@@ -31,6 +33,16 @@ async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 
             detail="Recipe list is empty"
         )
 
+    recipe_ids = [recipe.id for recipe in recipes]
+
+    interaction_counts = get_recipe_interaction_counts(db, recipe_ids)
+    
+    for recipe in recipes:
+        counts = interaction_counts.get(recipe.id, {})
+        recipe.cooked_count = counts.get("cooked_count", 0)
+        recipe.bookmarked_count = counts.get("bookmarked_count", 0)
+        recipe.liked_count = counts.get("liked_count", 0)
+        
     return {
         "detail": "Recipe list is retrieved successfully",
         "recipes": recipes
@@ -45,6 +57,16 @@ async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 
             status_code=status.HTTP_404_NOT_FOUND, 
             detail="Recipe list is empty"
         )
+
+    recipe_ids = [recipe.id for recipe in recipes]
+
+    interaction_counts = get_recipe_interaction_counts(db, recipe_ids)
+    
+    for recipe in recipes:
+        counts = interaction_counts.get(recipe.id, {})
+        recipe.cooked_count = counts.get("cooked_count", 0)
+        recipe.bookmarked_count = counts.get("bookmarked_count", 0)
+        recipe.liked_count = counts.get("liked_count", 0)
 
     return {
         "detail": "Recipe list Lite is retrieved successfully",
@@ -61,6 +83,13 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
             detail=f"ID {recipe_id} as Recipe is not found"
         )
 
+    interaction_counts = get_recipe_interaction_counts(db, [recipe_id])
+    
+    counts = interaction_counts.get(recipe_id, {})
+    recipe_by_id.cooked_count = counts.get("cooked_count", 0)
+    recipe_by_id.bookmarked_count = counts.get("bookmarked_count", 0)
+    recipe_by_id.liked_count = counts.get("liked_count", 0)
+
     return {
         "detail": f"ID {recipe_id} as Recipe is retrieved successfully",
         "recipe": recipe_by_id
@@ -75,6 +104,13 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
             status_code=status.HTTP_404_NOT_FOUND, 
             detail=f"ID {recipe_id} as Recipe is not found"
         )
+
+    interaction_counts = get_recipe_interaction_counts(db, [recipe_id])
+
+    counts = interaction_counts.get(recipe_id, {})
+    recipe_by_id.cooked_count = counts.get("cooked_count", 0)
+    recipe_by_id.bookmarked_count = counts.get("bookmarked_count", 0)
+    recipe_by_id.liked_count = counts.get("liked_count", 0)
 
     return {
         "detail": f"ID {recipe_id} as Recipe Lite is retrieved successfully",
@@ -135,6 +171,36 @@ async def add_recipe(*, db: Session = Depends(get_db), recipe: RecipeCreate):
     result_message = f"{recipe.name} as Recipe is created successfully"
 
     return {"detail": result_message,"recipe": recipe_create}
+
+@router.post("/{recipe_id}/toggle", status_code=status.HTTP_200_OK, response_model=RecipeUserAssociationResponse)
+async def toggle_recipe_action(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID, action: ActionSchema):
+    user_id = UUID(current_user['sub'])
+    action_value = action.action
+    
+    recipe_by_id = get_recipe_by_id(db, recipe_id)
+
+    if not recipe_by_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"ID {recipe_id} as Recipe is not found"
+        )
+
+    association = get_or_create_recipe_user_association(db, recipe_id, user_id)
+
+    updated_association = toggle_action(db, association, action_value)
+
+    interaction_counts = get_recipe_interaction_counts(db, [recipe_id])
+
+    counts = interaction_counts.get(recipe_id, {})
+    updated_association.recipe.cooked_count = counts.get("cooked_count", 0)
+    updated_association.recipe.bookmarked_count = counts.get("bookmarked_count", 0)
+    updated_association.recipe.liked_count = counts.get("liked_count", 0)
+    
+    result_message = f"ID{recipe_id} as Recipe is {action_value} successfully"
+
+    return {"detail": result_message, "recipe_user_association": updated_association}
+
+#TODO endpoint to retrieved liked, bookmarked and cooked
 
 @router.put("/{recipe_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeLiteResponse)
 async def change_recipe(*, db: Session = Depends(get_db), recipe_id: UUID, recipe: RecipeUpdate):

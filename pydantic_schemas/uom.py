@@ -16,6 +16,7 @@ class UOMBase(LowercaseBaseModel):
     model_config = {
         "transform_fields": ["name"]
     }
+    
 class UOMCreate(UOMBase):
     ...
 

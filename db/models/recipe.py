@@ -202,12 +202,15 @@ class RecipeUserAssociation(TimestampMixin, Base):
     recipe_id = Column(UUID(as_uuid=True), ForeignKey("recipes.id"), nullable=False)
     recipe = relationship("Recipe", back_populates="recipe_user_associations")
 
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, default=ADMIN_ID)
+    user = relationship("User", back_populates="recipe_user_associations")
+
     @validates('cooked', 'liked', 'bookmarked')
     def update_dates(self, key, value):
         if value and key == 'cooked':
-            self.cooked_date = datetime.utcnow()
+            self.cooked_date = func.now()
         elif value and key == 'liked':
-            self.liked_date = datetime.utcnow()
+            self.liked_date = func.now()
         elif value and key == 'bookmarked':
-            self.bookmarked_date = datetime.utcnow()
+            self.bookmarked_date = func.now()
         return value

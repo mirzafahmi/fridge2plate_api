@@ -5,8 +5,10 @@ from uuid import UUID
 
 from db.db_setup import get_db
 from pydantic_schemas.user import UserResponse, UserMessageResponse, UsersMessageResponse, UserCreate, UserUpdate, UserLogin, AuthResponse
+from pydantic_schemas.recipe_user_association import RecipeUserAssociationResponse, RecipeUserAssociationsResponse
 from db.models.user import User
 from utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, get_current_user, post_user, put_user, authenticate_user, create_jwt_token, decode_jwt_token
+from utils.recipe_user_association import get_cooked_recipes, get_bookmarked_recipes, get_liked_recipes
 
 from datetime import timedelta, datetime
 from typing import Annotated
@@ -99,7 +101,7 @@ async def update_profile(user_update: UserUpdate, current_user: dict = Depends(g
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="User not found"
-        )
+        )# why tf 401 instead of 404
 
     updated_user = put_user(db, user, user_update)
 
@@ -131,6 +133,75 @@ async def retrieve_user_by_email(email: str, db: Session = Depends(get_db), curr
                 updated_date=user.updated_date
             )
         }
+
+@router.get("/users/{user_id}/cooked", status_code=status.HTTP_200_OK, response_model=RecipeUserAssociationsResponse)
+async def retrieve_cooked_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), user_id: UUID):
+    db_user = get_user_by_id(db, user_id)
+
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"ID {user_id} as User is not found"
+        )
+
+    recipe_user_assocs = get_cooked_recipes(db, user_id)
+
+    if not recipe_user_assocs:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Cooked recipe list for ID {user_id} of User is empty"
+        )
+
+    return {
+        "detail": f"ID {user_id} as User's cooked Recipe list is retrieved successfully",
+        "recipe_user_associations": recipe_user_assocs
+    }
+
+@router.get("/users/{user_id}/bookmarked", status_code=status.HTTP_200_OK, response_model=RecipeUserAssociationsResponse)
+async def retrieve_bookmarked_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), user_id: UUID):
+    db_user = get_user_by_id(db, user_id)
+
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"ID {user_id} as User is not found"
+        )
+
+    recipe_user_assocs = get_bookmarked_recipes(db, user_id)
+
+    if not recipe_user_assocs:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Bookmarked recipe list for ID {user_id} of User is empty"
+        )
+
+    return {
+        "detail": f"ID {user_id} as User's bookmarked Recipe list is retrieved successfully",
+        "recipe_user_associations": recipe_user_assocs
+    }
+
+@router.get("/users/{user_id}/liked", status_code=status.HTTP_200_OK, response_model=RecipeUserAssociationsResponse)
+async def retrieve_liked_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), user_id: UUID):
+    db_user = get_user_by_id(db, user_id)
+
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"ID {user_id} as User is not found"
+        )
+
+    recipe_user_assocs = get_liked_recipes(db, user_id)
+
+    if not recipe_user_assocs:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Liked recipe list for ID {user_id} of User is empty"
+        )
+
+    return {
+        "detail": f"ID {user_id} as User's liked Recipe list is retrieved successfully",
+        "recipe_user_associations": recipe_user_assocs
+    }
 
 @router.get("/users", response_model=UsersMessageResponse)
 async def retrieve_user(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):

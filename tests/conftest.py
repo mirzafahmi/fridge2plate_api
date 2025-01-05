@@ -4,14 +4,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.pool import StaticPool
-from sqlalchemy import inspect 
+from sqlalchemy import inspect , func
 import uuid
 from passlib.context import CryptContext
 
 from main import app
 from db.db_setup import get_db  
 from db.models.user import User, Badge
-from db.models.recipe import IngredientCategory, Ingredient, UOM, RecipeCategory, RecipeOrigin, RecipeTag
+from db.models.recipe import IngredientCategory, Ingredient, UOM, RecipeCategory, RecipeOrigin, RecipeTag, RecipeUserAssociation
 from db.db_setup import Base
 from utils.recipe import post_recipe
 from tests.integration.recipe_data import recipes
@@ -179,12 +179,25 @@ def setup_and_teardown():
         )
     ]
     
+    dummy_user_recipe_assoc = [
+        RecipeUserAssociation(
+            user_id=test_admin_id,
+            recipe_id=uuid.UUID("6b86885b-a613-4ca6-a9b7-584c3d376337"),
+            cooked=True,
+            cooked_date=func.now(),
+            bookmarked=True,
+            bookmarked_date=func.now(),
+            liked=True,
+            liked_date=func.now(),
+        )
+    ]
+
     for recipe in recipes:
         recipe_data = RecipeCreateSeeder(**recipe)
         
         post_recipe(session, recipe_data)
 
-    session.add_all(dummy_users + dummy_badges + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms)
+    session.add_all(dummy_users + dummy_badges + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms + dummy_user_recipe_assoc)
     session.commit()
     session.close()
 

@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 18bbd2b5b004
+Revision ID: 2b872d6b90e1
 Revises: 
-Create Date: 2025-01-01 16:11:10.837717
+Create Date: 2025-01-04 07:59:28.626190
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '18bbd2b5b004'
+revision: str = '2b872d6b90e1'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -225,9 +225,11 @@ def upgrade() -> None:
     sa.Column('bookmarked', sa.Boolean(), nullable=True),
     sa.Column('bookmarked_date', sa.DateTime(), nullable=True),
     sa.Column('recipe_id', sa.UUID(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['recipe_id'], ['recipes.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_recipe_user_associations_id'), 'recipe_user_associations', ['id'], unique=False)
