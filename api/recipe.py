@@ -105,6 +105,7 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
             detail=f"ID {recipe_id} as Recipe is not found"
         )
 
+    #TODO add this to post and put
     interaction_counts = get_recipe_interaction_counts(db, [recipe_id])
 
     counts = interaction_counts.get(recipe_id, {})

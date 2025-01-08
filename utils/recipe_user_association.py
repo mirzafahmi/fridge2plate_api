@@ -75,3 +75,25 @@ def get_user_interactions(db: Session, user_id: UUID):
         "liked_count": interactions.liked_count,
         "bookmarked_count": interactions.bookmarked_count
     }
+
+def get_users_interactions(db: Session, user_ids: list[UUID]):
+    interactions = (
+        db.query(
+            RecipeUserAssociation.user_id,
+            func.count().filter(RecipeUserAssociation.cooked == True).label("cooked_count"),
+            func.count().filter(RecipeUserAssociation.liked == True).label("liked_count"),
+            func.count().filter(RecipeUserAssociation.bookmarked == True).label("bookmarked_count"),
+        )
+        .filter(RecipeUserAssociation.user_id.in_(user_ids))
+        .group_by(RecipeUserAssociation.user_id)
+        .all()
+    )
+
+    return {
+        interaction.user_id: {
+            "cooked_count": interaction.cooked_count,
+            "liked_count": interaction.liked_count,
+            "bookmarked_count": interaction.bookmarked_count,
+        }
+        for interaction in interactions
+    }

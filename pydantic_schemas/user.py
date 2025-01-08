@@ -31,6 +31,10 @@ class UserResponse(LowercaseBaseModel):
     id: uuid.UUID
     username: str
     email: str
+    cooked_count: Optional[int] = 0
+    bookmarked_count: Optional[int] = 0
+    liked_count: Optional[int] = 0
+
     created_date: datetime
     updated_date: datetime
 
