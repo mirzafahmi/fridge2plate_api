@@ -15,10 +15,18 @@ def test_post_assoc_by_cooked_action(client: TestClient, token: str):
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 1
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == True
     assert assoc["bookmarked"] == False
     assert assoc["bookmarked_date"] == None
@@ -41,10 +49,18 @@ def test_post_assoc_by_cooked_action_with_toggle_original_state(client: TestClie
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 1
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == True
     assert assoc["bookmarked"] == False
     assert assoc["bookmarked_date"] == None
@@ -66,10 +82,18 @@ def test_post_assoc_by_cooked_action_with_toggle_original_state(client: TestClie
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == False
@@ -87,10 +111,18 @@ def test_post_assoc_by_uncooked_action(client: TestClient, token: str):
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 1
+    assert recipe["liked_count"] == 1
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == True
@@ -118,10 +150,18 @@ def test_post_assoc_by_bookmarked_action(client: TestClient, token: str):
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 1
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == True
@@ -144,10 +184,18 @@ def test_post_assoc_by_bookmarked_action_with_toggle_to_original_state(client: T
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 1
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == True
@@ -169,10 +217,18 @@ def test_post_assoc_by_bookmarked_action_with_toggle_to_original_state(client: T
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == False
@@ -190,10 +246,18 @@ def test_post_assoc_by_unbookmarked_action(client: TestClient, token: str):
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+    assert recipe["cooked_count"] == 1
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 1
+
     assert assoc["cooked"] == True
     assert assoc["bookmarked"] == False
     assert assoc["bookmarked_date"] == None
@@ -221,10 +285,18 @@ def test_post_assoc_by_liked_action(client: TestClient, token: str):
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 1
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == False
@@ -247,10 +319,18 @@ def test_post_assoc_by_liked_action_with_toggle_to_original_state(client: TestCl
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 1
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == False
@@ -272,10 +352,18 @@ def test_post_assoc_by_liked_action_with_toggle_to_original_state(client: TestCl
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["cooked_count"] == 0
+    assert recipe["bookmarked_count"] == 0
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == False
     assert assoc["cooked_date"] == None
     assert assoc["bookmarked"] == False
@@ -293,10 +381,18 @@ def test_post_assoc_by_unliked_action(client: TestClient, token: str):
 
     assert response.status_code == 200
 
-    assoc = response.json()
+    assoc = response.json()["recipe_user_association"]
 
     assert assoc["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert assoc["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+
+    recipe = assoc["recipe"]
+
+    assert recipe["id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+    assert recipe["cooked_count"] == 1
+    assert recipe["bookmarked_count"] == 1
+    assert recipe["liked_count"] == 0
+
     assert assoc["cooked"] == True
     assert assoc["bookmarked"] == True
     assert assoc["liked"] == False

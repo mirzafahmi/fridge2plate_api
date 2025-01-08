@@ -13,14 +13,16 @@ def test_index(client: TestClient):
     assert response.json() == "Fridge2plate API server is running"
 
 def test_register_user(client: TestClient):
-    response = client.post("/auth/register", json={
-        "username": "Test User 2",
-        "email": "test2@example.com",
-        "password": "test123"
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "Test User 2",
+            "email": "test2@example.com",
+            "password": "test123"
+        }
+    )
 
     user = response.json()["user"]
-
+    print(user)
     assert response.status_code == 201
     assert response.json()["detail"] == "User created successfully"
 
@@ -32,11 +34,13 @@ def test_register_user(client: TestClient):
     assert "updated_date" in user
 
 def test_register_user_by_various_letter_case(client: TestClient):
-    response = client.post("/auth/register", json={
-        "username": "tEsT UseR 2",
-        "email": "tESt2@example.com",
-        "password": "test123"
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "tEsT UseR 2",
+            "email": "tESt2@example.com",
+            "password": "test123"
+        }
+    )
 
     user = response.json()["user"]
 
@@ -53,11 +57,13 @@ def test_register_user_by_various_letter_case(client: TestClient):
 def test_register_existed_email(client: TestClient):
     test_email = "test@example.com"
     
-    response = client.post("/auth/register", json={
-        "username": "Test User",
-        "email": test_email,
-        "password": "test123"
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "Test User",
+            "email": test_email,
+            "password": "test123"
+        }
+    )
 
     assert response.status_code == 400
 
@@ -66,22 +72,26 @@ def test_register_existed_email(client: TestClient):
 def test_register_existed_username(client: TestClient):
     test_username = "Test User"
     
-    response = client.post("/auth/register", json={
-        "username": test_username,
-        "email": "tests@example.com",
-        "password": "test123"
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": test_username,
+            "email": "tests@example.com",
+            "password": "test123"
+        }
+    )
 
     assert response.status_code == 400
 
     assert response.json() == {"detail": f"{test_username.lower().replace(" ", "")} is already registered"}
 
 def test_register_empty_user_data(client: TestClient):
-    response = client.post("/auth/register", json={
-        "username": "",
-        "email": "",
-        "password": ""
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "",
+            "email": "",
+            "password": ""
+        }
+    )
 
     response_json = response.json()
 
@@ -103,11 +113,13 @@ def test_register_empty_user_data(client: TestClient):
     assert response_json["detail"][2]["type"] == "string_too_short"
 
 def test_register_empty_username(client: TestClient):
-    response = client.post("/auth/register", json={
-        "username": "",
-        "email": "test7@example.com",
-        "password": "test123"
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "",
+            "email": "test7@example.com",
+            "password": "test123"
+        }
+    )
 
     response_json = response.json()
 
@@ -121,11 +133,13 @@ def test_register_empty_username(client: TestClient):
     assert response_json["detail"][0]["type"] == "string_too_short"
 
 def test_register_empty_email(client: TestClient):
-    response = client.post("/auth/register", json={
-        "username": "Test User 7",
-        "email": "",
-        "password": "test123"
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "Test User 7",
+            "email": "",
+            "password": "test123"
+        }
+    )
 
     response_json = response.json()
 
@@ -139,11 +153,13 @@ def test_register_empty_email(client: TestClient):
     assert response_json["detail"][0]["type"] == "value_error"
 
 def test_register_not_email(client: TestClient):
-    response = client.post("/auth/register", json={
-        "username": "Test User 7",
-        "email": "username",
-        "password": "test123"
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "Test User 7",
+            "email": "username",
+            "password": "test123"
+        }
+    )
 
     response_json = response.json()
 
@@ -157,11 +173,13 @@ def test_register_not_email(client: TestClient):
     assert response_json["detail"][0]["type"] == "value_error"
 
 def test_register_empty_password(client: TestClient):
-    response = client.post("/auth/register", json={
-        "username": "Test User 7",
-        "email": "test7@example.com",
-        "password": ""
-    })
+    response = client.post("/auth/register", 
+        json={
+            "username": "Test User 7",
+            "email": "test7@example.com",
+            "password": ""
+        }
+    )
 
     response_json = response.json()
 
@@ -237,37 +255,46 @@ def test_get_user_by_wrong_email(client: TestClient, token: str):
     assert response.json() == {"detail": "User not found"}
 
 def test_login_user(client: TestClient):
-    response = client.post("/auth/login", data={
-        "username": "test@example.com",
-        "password": "test123"
-    })
+    response = client.post("/auth/login",
+        data={
+            "username": "test@example.com",
+            "password": "test123"
+        }
+    )
     assert response.status_code == 200
 
     assert "access_token" in response.json()
 
 def test_login_not_exist_user(client: TestClient):
-    response = client.post("/auth/login", data={
-        "username": "wrongtest@example.com",
-        "password": "test123"
-    })
+    response = client.post("/auth/login", 
+        data={
+            "username": "wrongtest@example.com",
+            "password": "test123"
+        }
+    )
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid credentials"}
 
 def test_login_wrong_password(client: TestClient):
-    response = client.post("/auth/login", data={
-        "username": "test@example.com",
-        "password": "test1234"
-    })
+    response = client.post("/auth/login",
+        data={
+            "username": "test@example.com",
+            "password": "test1234"
+        }
+    )
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid credentials"}
 
 def test_validate_with_valid_token(client: TestClient):
-    login_response = client.post("/auth/login", data={
-        "username": "test@example.com",
-        "password": "test123"
-    })
+    login_response = client.post("/auth/login", 
+        data={
+            "username": "test@example.com",
+            "password": "test123"
+        }
+    )
+
     assert login_response.status_code == 200
 
     assert "access_token" in login_response.json()
