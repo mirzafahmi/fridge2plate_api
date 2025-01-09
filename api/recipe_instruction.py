@@ -3,17 +3,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 
+from utils.user import check_valid_user, get_current_user
 from utils.instruction import get_instructions, get_instruction_by_id, get_instructions_by_recipe_id, check_instruction_by_step_number_duplication, validate_step_number, post_instruction, put_instruction, delete_instruction
 from utils.recipe import get_recipe_by_id
 from db.db_setup import get_db
 from pydantic_schemas.instruction import InstructionResponse, InstructionsResponse, InstructionCreateV2, InstructionUpdate
 
 router = APIRouter(
-    prefix="/instruction",
-    tags=["Instruction"])
+    prefix="/recipe_instructions",
+    tags=["Recipe Instructions"])
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=InstructionsResponse)
-async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     db_instructions = get_instructions(db, skip=skip, limit=limit)
 
     if not db_instructions:
@@ -25,7 +26,7 @@ async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), skip: 
     }
 
 @router.get("/{instruction_id}", status_code=status.HTTP_200_OK, response_model=InstructionResponse)
-async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), instruction_id: UUID):
+async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), instruction_id: UUID):
     db_instruction = get_instruction_by_id(db, instruction_id)
 
     if not db_instruction:
@@ -40,7 +41,7 @@ async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), instru
     }
 
 @router.get("/by_recipe_id/{recipe_id}", status_code=status.HTTP_200_OK, response_model=InstructionsResponse)
-async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     instructions = get_instructions_by_recipe_id(db, recipe_id)
 
     if not instructions:
@@ -55,7 +56,7 @@ async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), recipe
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=InstructionResponse)
-async def add_instruction(*, db: Session = Depends(get_db), instruction: InstructionCreateV2):
+async def add_instruction(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), instruction: InstructionCreateV2):
     db_recipe = get_recipe_by_id(db, instruction.recipe_id)
 
     if not db_recipe:
@@ -80,7 +81,7 @@ async def add_instruction(*, db: Session = Depends(get_db), instruction: Instruc
     return {"detail": result_message, "instruction": instruction_create}
 
 @router.put("/{instruction_id}", status_code=status.HTTP_202_ACCEPTED, response_model=InstructionResponse)
-async def change_instruction(*, db: Session = Depends(get_db), instruction_id: UUID, instruction: InstructionUpdate):
+async def change_instruction(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), instruction_id: UUID, instruction: InstructionUpdate):
     db_instruction = get_instruction_by_id(db , instruction_id)
 
     if not db_instruction:
@@ -101,7 +102,7 @@ async def change_instruction(*, db: Session = Depends(get_db), instruction_id: U
     return {"detail": result_message, "instruction": instruction_update}
 
 @router.delete("/{instruction_id}", status_code=status.HTTP_200_OK)
-async def remove_instruction(*, db: Session = Depends(get_db), instruction_id: UUID):
+async def remove_instruction(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), instruction_id: UUID):
     db_instruction = get_instruction_by_id(db , instruction_id)
 
     if not db_instruction:

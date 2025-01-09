@@ -3131,29 +3131,37 @@ def test_put_recipe_by_changing_created_by(client: TestClient):
     assert "updated_date" in recipe
     assert "created_date" in recipe
 
-def test_delete_recipe(client: TestClient):
+def test_delete_recipe(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.delete(f"{url_prefix}/{recipe_id}")
 
     assert response.status_code == 200
     assert response.json()["detail"] == "ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 as Recipe is deleted successfully"
 
-    ingredient_recipe_association_response = client.get(f"/ingredient_recipe_association/by_recipe_id/{recipe_id}")
+    ingredient_recipe_association_response = client.get(f"/ingredient_recipe_association/by_recipe_id/{recipe_id}", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert ingredient_recipe_association_response.status_code == 404
     assert ingredient_recipe_association_response.json()["detail"] == "Ingredient Recipe Association list for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of recipe is empty"
 
-    recipe_tag_recipe_association_response = client.get(f"/recipe_tag_recipe_association/by_recipe_id/{recipe_id}")
+    recipe_tag_recipe_association_response = client.get(f"/recipe_tag_recipe_associations/by_recipe_id/{recipe_id}", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert recipe_tag_recipe_association_response.status_code == 404
     assert recipe_tag_recipe_association_response.json()["detail"] == "Recipe Tag Recipe Association list for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of recipe is empty"
 
-    instruction_response = client.get(f"/instruction/by_recipe_id/{recipe_id}")
+    instruction_response = client.get(f"/recipe_instructions/by_recipe_id/{recipe_id}", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert instruction_response.status_code == 404
     assert instruction_response.json()["detail"] == "Instruction list for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of recipe is empty"
 
-    recipe_image_response = client.get(f"/recipe_image/by_recipe_id/{recipe_id}")
+    recipe_image_response = client.get(f"/recipe_image/by_recipe_id/{recipe_id}", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert recipe_image_response.status_code == 404
     assert recipe_image_response.json()["detail"] == "Recipe image list for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of recipe is empty"

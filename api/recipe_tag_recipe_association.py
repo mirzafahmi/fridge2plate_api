@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.recipe_tag_recipe_association import *
+from utils.user import check_valid_user, get_current_user
 from utils.recipe import get_recipe_by_id
 from utils.recipe_tag import get_recipe_tag_by_id
 from db.db_setup import get_db
@@ -11,12 +12,12 @@ from pydantic_schemas.recipe_tag_recipe_association import RecipeTagRecipeAssoci
 
 
 router = APIRouter(
-    prefix="/recipe_tag_recipe_association",
-    tags=["Recipe Tag Recipe Association"]
+    prefix="/recipe_tag_recipe_associations",
+    tags=["Recipe Tag Recipe Associations"]
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipeTagRecipeAssociationsLiteResponse)
-async def read_recipe_tag_recipe_associations(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipe_tag_recipe_associations(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     db_recipe_tag_recipe_associations = get_recipe_tag_recipe_association(db, skip=skip, limit=limit)
 
     if not db_recipe_tag_recipe_associations:
@@ -28,7 +29,7 @@ async def read_recipe_tag_recipe_associations(db: Session = Depends(get_db), ski
     }
 
 @router.get("/{recipe_tag_recipe_association_id}", status_code=status.HTTP_200_OK, response_model=RecipeTagRecipeAssociationResponse)
-async def read_recipe_tag_recipe_associations_by_id(*, db: Session = Depends(get_db), recipe_tag_recipe_association_id: UUID):
+async def read_recipe_tag_recipe_associations_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_recipe_association_id: UUID):
     db_recipe_tag_recipe_association = get_recipe_tag_recipe_association_by_id(db, recipe_tag_recipe_association_id)
 
     if not db_recipe_tag_recipe_association:
@@ -43,7 +44,7 @@ async def read_recipe_tag_recipe_associations_by_id(*, db: Session = Depends(get
     }
 
 @router.get("/by_recipe_id/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipeTagRecipeAssociationsResponse)
-async def read_recipe_tag_recipe_associations_by_recipe_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def read_recipe_tag_recipe_associations_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     db_recipe_tag_recipe_associations = get_recipe_tag_recipe_association_by_recipe_id(db, recipe_id)
 
     if not db_recipe_tag_recipe_associations:
@@ -55,7 +56,7 @@ async def read_recipe_tag_recipe_associations_by_recipe_id(*, db: Session = Depe
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeTagRecipeAssociationResponse)
-async def add_recipe_tag_recipe_association(*, db: Session = Depends(get_db), recipe_tag_recipe_association: RecipeTagRecipeAssociationCreate):
+async def add_recipe_tag_recipe_association(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_recipe_association: RecipeTagRecipeAssociationCreate):
     db_recipe = get_recipe_by_id(db, recipe_tag_recipe_association.recipe_id)
 
     if not db_recipe:
@@ -86,7 +87,7 @@ async def add_recipe_tag_recipe_association(*, db: Session = Depends(get_db), re
     return {"detail": result_message, "recipe_tag_recipe_association": recipe_tag_recipe_association_create}
 
 @router.put("/{recipe_tag_recipe_association_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeTagRecipeAssociationResponse)
-async def change_recipe_tag_recipe_association(*, db: Session = Depends(get_db), recipe_tag_recipe_association_id: UUID, recipe_tag_recipe_association: RecipeTagRecipeAssociationUpdate):
+async def change_recipe_tag_recipe_association(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_recipe_association_id: UUID, recipe_tag_recipe_association: RecipeTagRecipeAssociationUpdate):
     db_recipe_tag_recipe_association = get_recipe_tag_recipe_association_by_id(db, recipe_tag_recipe_association_id)
 
     #TODO! do url param checking to all endpoint
@@ -117,7 +118,7 @@ async def change_recipe_tag_recipe_association(*, db: Session = Depends(get_db),
     return {"detail": result_message, "recipe_tag_recipe_association": recipe_tag_recipe_association_update}
 
 @router.delete("/{recipe_tag_recipe_association_id}", status_code=status.HTTP_200_OK)
-async def remove_recipe_tag_recipe_association(*, db: Session = Depends(get_db), recipe_tag_recipe_association_id: UUID):
+async def remove_recipe_tag_recipe_association(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tag_recipe_association_id: UUID):
     db_recipe_tag_recipe_association = get_recipe_tag_recipe_association_by_id(db, recipe_tag_recipe_association_id)
 
     if not db_recipe_tag_recipe_association:
