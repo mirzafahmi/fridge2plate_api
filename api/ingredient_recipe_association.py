@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.ingredient_recipe_association import *
+from utils.user import check_valid_user, get_current_user
 from utils.ingredient import get_ingredient_by_id
 from utils.uom import get_uom_by_id
 from utils.recipe import get_recipe_by_id
@@ -12,12 +13,12 @@ from pydantic_schemas.ingredient_recipe_association import IngredientRecipeAssoc
 
 
 router = APIRouter(
-    prefix="/ingredient_recipe_association",
-    tags=["Ingredient Recipe Association"]
+    prefix="/ingredient_recipe_associations",
+    tags=["Ingredient Recipe Associations"]
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=IngredientRecipeAssociationsResponseLite)
-async def read_ingredient_recipe_associations(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_ingredient_recipe_associations(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     db_ingredient_recipe_associations = get_ingredient_recipe_associations(db, skip=skip, limit=limit)
 
     if not db_ingredient_recipe_associations:
@@ -29,7 +30,7 @@ async def read_ingredient_recipe_associations(db: Session = Depends(get_db), ski
     }
 
 @router.get("/{ingredient_recipe_association_id}", status_code=status.HTTP_200_OK, response_model=IngredientRecipeAssociationResponseLite)
-async def read_ingredient_recipe_associations_by_id(*, db: Session = Depends(get_db), ingredient_recipe_association_id: UUID):
+async def read_ingredient_recipe_associations_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_recipe_association_id: UUID):
     db_ingredient_recipe_association = get_ingredient_recipe_associations_by_id(db, ingredient_recipe_association_id)
 
     if not db_ingredient_recipe_association:
@@ -41,7 +42,7 @@ async def read_ingredient_recipe_associations_by_id(*, db: Session = Depends(get
     }
 
 @router.get("/by_recipe_id/{recipe_id}", status_code=status.HTTP_200_OK, response_model=IngredientRecipeAssociationsResponseLite)
-async def read_ingredient_recipe_associations_by_recipe_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def read_ingredient_recipe_associations_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     ingredient_recipe_associations = get_ingredient_recipe_associations_by_recipe_id(db, recipe_id)
 
     if not ingredient_recipe_associations:
@@ -53,7 +54,7 @@ async def read_ingredient_recipe_associations_by_recipe_id(*, db: Session = Depe
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=IngredientRecipeAssociationResponseLite)
-async def add_ingredient_recipe_associations(*, db: Session = Depends(get_db), ingredient_recipe_association: IngredientRecipeAssociationCreate):
+async def add_ingredient_recipe_associations(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_recipe_association: IngredientRecipeAssociationCreate):
     db_recipe = get_recipe_by_id(db, ingredient_recipe_association.recipe_id)
 
     if not db_recipe:
@@ -92,7 +93,7 @@ async def add_ingredient_recipe_associations(*, db: Session = Depends(get_db), i
     return {"detail": result_message, "ingredient_recipe_association": ingredient_recipe_association_create}
 
 @router.put("/{ingredient_recipe_association_id}", status_code=status.HTTP_202_ACCEPTED, response_model=IngredientRecipeAssociationResponseLite)
-async def change_ingredient_recipe_associations(*, db: Session = Depends(get_db), ingredient_recipe_association_id: UUID, ingredient_recipe_association: IngredientRecipeAssociationUpdate):
+async def change_ingredient_recipe_associations(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_recipe_association_id: UUID, ingredient_recipe_association: IngredientRecipeAssociationUpdate):
     db_ingredient_recipe_association = get_ingredient_recipe_associations_by_id(db, ingredient_recipe_association_id)
 
     if not db_ingredient_recipe_association:
@@ -131,7 +132,7 @@ async def change_ingredient_recipe_associations(*, db: Session = Depends(get_db)
     return {"detail": result_message, "ingredient_recipe_association": ingredient_recipe_association_update}
     
 @router.delete("/{ingredient_recipe_association_id}", status_code=status.HTTP_200_OK)
-async def remove_ingredient_recipe_associations(*, db: Session = Depends(get_db), ingredient_recipe_association_id: UUID):
+async def remove_ingredient_recipe_associations(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_recipe_association_id: UUID):
     db_ingredient_recipe_association = get_ingredient_recipe_associations_by_id(db, ingredient_recipe_association_id)
 
     if not db_ingredient_recipe_association:
@@ -156,7 +157,7 @@ async def remove_ingredient_recipe_associations(*, db: Session = Depends(get_db)
 
 
 @router.get("/by_recipe_name", response_model=List[IngredientRecipeAssociation], deprecated=True)
-async def read_ingredient_recipe_associations_by_recipe_name(*, db: Session = Depends(get_db), recipe_name: str):
+async def read_ingredient_recipe_associations_by_recipe_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_name: str):
     ingredient_recipe_associations = get_ingredient_recipe_associations_by_recipe_name(db, recipe_name)
 
     if not ingredient_recipe_associations:
