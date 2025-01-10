@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 import os
 
+from utils.user import check_valid_user, get_current_user
 from utils.recipe_image import get_recipe_images, get_recipe_image_by_id, get_recipe_images_by_recipe_id, post_recipe_image, put_recipe_image, delete_recipe_image
 from utils.recipe import get_recipe_by_id
 from pydantic_schemas.recipe_image import RecipeImageCreate, RecipeImageUpdate, RecipeImageResponse, RecipeImagesResponse
@@ -11,14 +12,15 @@ from db.db_setup import get_db
 
 
 router = APIRouter(
-    prefix="/recipe_image",
-    tags=["Recipe Image"])
+    prefix="/recipe_images",
+    tags=["Recipe Images"]
+)
 
 UPLOAD_FOLDER = "uploads/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipeImagesResponse)
-async def read_recipe_images(*, db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipe_images(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     db_recipe_images = get_recipe_images(db, skip=skip, limit=limit)
 
     if not db_recipe_images:
@@ -30,7 +32,7 @@ async def read_recipe_images(*, db: Session = Depends(get_db), skip: int=0, limi
     }
 
 @router.get("/{recipe_image_id}", status_code=status.HTTP_200_OK, response_model=RecipeImageResponse)
-async def read_recipe_image_by_recipe_id(*, db: Session = Depends(get_db), recipe_image_id: UUID):
+async def read_recipe_image_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_image_id: UUID):
     db_recipe_image = get_recipe_image_by_id(db, recipe_image_id)
 
     if not db_recipe_image:
@@ -45,7 +47,7 @@ async def read_recipe_image_by_recipe_id(*, db: Session = Depends(get_db), recip
     }
 
 @router.get("/by_recipe_id/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipeImagesResponse)
-async def read_recipe_image_by_recipe_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def read_recipe_image_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     recipe_images = get_recipe_images_by_recipe_id(db, recipe_id)
 
     if not recipe_images:
@@ -57,7 +59,7 @@ async def read_recipe_image_by_recipe_id(*, db: Session = Depends(get_db), recip
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeImagesResponse)
-async def add_recipe_image(*, db: Session = Depends(get_db), recipe_image: RecipeImageCreate):
+async def add_recipe_image(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_image: RecipeImageCreate):
     db_recipe = get_recipe_by_id(db, recipe_image.recipe_id)
 
     if not db_recipe:
@@ -78,7 +80,7 @@ async def add_recipe_image(*, db: Session = Depends(get_db), recipe_image: Recip
     }
 
 @router.put("/{recipe_image_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeImageResponse)
-async def change_recipe_image(*, db: Session = Depends(get_db), recipe_image_id: UUID, recipe_image: RecipeImageUpdate):
+async def change_recipe_image(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_image_id: UUID, recipe_image: RecipeImageUpdate):
     db_recipe_image = get_recipe_image_by_id(db, recipe_image_id)
 
     if not db_recipe_image:
@@ -109,7 +111,7 @@ async def change_recipe_image(*, db: Session = Depends(get_db), recipe_image_id:
 
 
 @router.delete("/{recipe_image_id}", status_code=status.HTTP_200_OK)
-async def remove_recipe_image(*, db: Session = Depends(get_db), recipe_image_id: UUID):
+async def remove_recipe_image(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_image_id: UUID):
     db_recipe_image = get_recipe_image_by_id(db, recipe_image_id)
 
     if not db_recipe_image:

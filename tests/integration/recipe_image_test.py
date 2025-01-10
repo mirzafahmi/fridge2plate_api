@@ -1,7 +1,17 @@
 from fastapi.testclient import TestClient
+import pytest
+from uuid import UUID
 
 
-url_prefix = '/recipe_image'
+url_prefix = '/recipe_images'
+
+@pytest.fixture
+def recipe_image_id(client: TestClient, token: str):
+    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71", 
+        headers={"Authorization": f"Bearer {token}"}
+        ).json()["recipe_images"][1]["id"]
+
+    return recipe_image_id
 
 def test_get_recipe_images_list(client: TestClient, token: str):
     response = client.get(f"{url_prefix}/", 
@@ -26,11 +36,22 @@ def test_get_recipe_images_list(client: TestClient, token: str):
     recipe_images[3]["image"] == "/test_recipe_image"
     recipe_images[3]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
 
-def test_get_recipe_image_by_id(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71", 
-        headers={"Authorization": f"Bearer {token}"}
-        ).json()["recipe_images"][1]["id"]
-    
+def test_get_recipe_images_list_with_invalid_token(client: TestClient, token: str):
+    response = client.get(f"{url_prefix}/", 
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_get_recipe_images_list_without_token(client: TestClient, token: str):
+    response = client.get(f"{url_prefix}/"
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
+def test_get_recipe_image_by_id(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.get(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"}
     )
@@ -42,6 +63,21 @@ def test_get_recipe_image_by_id(client: TestClient, token: str):
 
     recipe_image["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
     recipe_image["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+def test_get_recipe_image_by_id_with_invalid_token(client: TestClient, recipe_image_id: UUID, token: str):
+    response = client.get(f"{url_prefix}/{recipe_image_id}", 
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_get_recipe_image_by_id_without_token(client: TestClient, recipe_image_id: UUID, token: str):
+    response = client.get(f"{url_prefix}/{recipe_image_id}"
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
 def test_get_recipe_image_with_wrong_id(client: TestClient, token: str):
     response = client.get(f"{url_prefix}/2cdd1a37-9c45-4202-a38c-026686b0ff71", 
@@ -89,6 +125,35 @@ def test_post_recipe_image(client: TestClient, token: str):
 
     assert recipe_image[1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     assert recipe_image[1]["image"] == "https://www.foodandwine.com/thmb/ppDgfqJYhMeDAxtArwoYEssEMkI=/750x0/filters:no_upscale():max_bytes(150000):strip_icc()/bucatini-with-mushroom-ragu-dandelion-greens-and-tarragon-FT-RECIPE0421-3a5f0d29f7264f5e9952d4a3a51f5f58.jpg"
+
+def test_post_recipe_image_with_invalid_token(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        headers={"Authorization": f"Bearer invalid_token"},
+        json={
+            "image": [
+                "/test_post_recipe_image", 
+                "https://www.foodandwine.com/thmb/ppDgfqJYhMeDAxtArwoYEssEMkI=/750x0/filters:no_upscale():max_bytes(150000):strip_icc()/bucatini-with-mushroom-ragu-dandelion-greens-and-tarragon-FT-RECIPE0421-3a5f0d29f7264f5e9952d4a3a51f5f58.jpg"
+                ],
+            "recipe_id": "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_post_recipe_image_without_token(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/",
+        json={
+            "image": [
+                "/test_post_recipe_image", 
+                "https://www.foodandwine.com/thmb/ppDgfqJYhMeDAxtArwoYEssEMkI=/750x0/filters:no_upscale():max_bytes(150000):strip_icc()/bucatini-with-mushroom-ragu-dandelion-greens-and-tarragon-FT-RECIPE0421-3a5f0d29f7264f5e9952d4a3a51f5f58.jpg"
+                ],
+            "recipe_id": "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
 def test_post_recipe_image_with_non_string(client: TestClient, token: str):
     response = client.post(f"{url_prefix}/", 
@@ -238,9 +303,7 @@ def test_post_recipe_image_with_empty_json(client: TestClient, token: str):
     assert response_json["detail"][1]["msg"] == "Field required"
     assert response_json["detail"][1]["type"] == "missing"
 
-def test_put_recipe_image(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -256,6 +319,29 @@ def test_put_recipe_image(client: TestClient, token: str):
     
     assert recipe_image["image"] == "/test_updated_recipe_image"
     assert recipe_image["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+
+def test_put_recipe_image_with_invalid_token(client: TestClient, recipe_image_id: UUID, token: str):
+    response = client.put(f"{url_prefix}/{recipe_image_id}", 
+        headers={"Authorization": f"Bearer invalid_token"},
+        json={
+            "image": "/test_updated_recipe_image",
+            "recipe_id": "6b86885b-a613-4ca6-a9b7-584c3d376337"
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_put_recipe_image_without_token(client: TestClient, recipe_image_id: UUID, token: str):
+    response = client.put(f"{url_prefix}/{recipe_image_id}",
+        json={
+            "image": "/test_updated_recipe_image",
+            "recipe_id": "6b86885b-a613-4ca6-a9b7-584c3d376337"
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
 def test_put_recipe_image_with_wrong_id(client: TestClient, token: str):
     response = client.put(f"{url_prefix}/b3cceb34-9465-4020-9066-f7b5ce3c372c", 
@@ -301,9 +387,7 @@ def test_put_recipe_image_with_empty_id(client: TestClient, token: str):
     assert response.status_code == 405
     assert response.json()["detail"] == f"Method Not Allowed"
 
-def test_put_recipe_image_by_changing_image_path(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_by_changing_image_path(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -319,9 +403,7 @@ def test_put_recipe_image_by_changing_image_path(client: TestClient, token: str)
     assert recipe_image["image"] == "/test_updated_recipe_image"
     assert recipe_image["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
-def test_put_recipe_image_with_invalid_image_path(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_with_invalid_image_path(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -344,9 +426,7 @@ def test_put_recipe_image_with_invalid_image_path(client: TestClient, token: str
     assert response_json["detail"][1]["msg"] == "Input should be a valid string"
     assert response_json["detail"][1]["type"] == "string_type"
 
-def test_put_recipe_image_with_empty_image_path(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_with_empty_image_path(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -365,9 +445,7 @@ def test_put_recipe_image_with_empty_image_path(client: TestClient, token: str):
     assert response_json["detail"][0]["msg"] == "Value error, Image must not be an empty string."
     assert response_json["detail"][0]["type"] == "value_error"
 
-def test_put_recipe_image_by_changing_recipe_id(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_by_changing_recipe_id(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -380,12 +458,10 @@ def test_put_recipe_image_by_changing_recipe_id(client: TestClient, token: str):
 
     recipe_image = response.json()["recipe_image"]
     
-    assert recipe_image["image"] == "/string_test"
+    assert recipe_image["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
     assert recipe_image["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
 
-def test_put_recipe_image_with_wrong_recipe_id(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_with_wrong_recipe_id(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -396,9 +472,7 @@ def test_put_recipe_image_with_wrong_recipe_id(client: TestClient, token: str):
     assert response.status_code == 404
     assert response.json()["detail"] == f"ID 6b86885b-a613-4ca6-a9b7-584c3d376338 as Recipe is not found"
 
-def test_put_recipe_image_with_invalid_recipe_id(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_with_invalid_recipe_id(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -417,9 +491,7 @@ def test_put_recipe_image_with_invalid_recipe_id(client: TestClient, token: str)
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_recipe_image_with_empty_recipe_id(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_with_empty_recipe_id(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={
@@ -438,9 +510,7 @@ def test_put_recipe_image_with_empty_recipe_id(client: TestClient, token: str):
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
-def test_put_recipe_image_with_empty_json(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_put_recipe_image_with_empty_json(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.put(f"{url_prefix}/{recipe_image_id}", 
         headers={"Authorization": f"Bearer {token}"},
         json={}
@@ -449,9 +519,7 @@ def test_put_recipe_image_with_empty_json(client: TestClient, token: str):
     assert response.status_code == 400
     assert response.json()["detail"] == "Request body must include at least one field to update"
 
-def test_delete_recipe_image(client: TestClient, token: str):
-    recipe_image_id = client.get(f"{url_prefix}/by_recipe_id/2cdd1a37-9c45-4202-a38c-026686b0ff71").json()["recipe_images"][0]["id"]
-    
+def test_delete_recipe_image(client: TestClient, recipe_image_id: UUID, token: str):
     response = client.delete(f"{url_prefix}/{recipe_image_id}",
         headers={"Authorization": f"Bearer {token}"}
     )
@@ -459,10 +527,26 @@ def test_delete_recipe_image(client: TestClient, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {recipe_image_id} as Recipe Image for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of Recipe is deleted successfully"
 
-    recipe_image_response = client.get(f"/recipe_image/{recipe_image_id}")
+    recipe_image_response = client.get(f"{url_prefix}/{recipe_image_id}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert recipe_image_response.status_code == 404
     assert recipe_image_response.json()["detail"] == f"ID {recipe_image_id} as Recipe Image is not found"
+
+def test_delete_recipe_image_with_invalid_token(client: TestClient, recipe_image_id: UUID, token: str):
+    response = client.delete(f"{url_prefix}/{recipe_image_id}",
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_delete_recipe_image_without_token(client: TestClient, recipe_image_id: UUID, token: str):
+    response = client.delete(f"{url_prefix}/{recipe_image_id}")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
 def test_delete_recipe_image_with_wrong_id(client: TestClient, token: str):
     response = client.delete(f"{url_prefix}/2cdd1a37-9c45-4202-a38c-026686b0ff71",

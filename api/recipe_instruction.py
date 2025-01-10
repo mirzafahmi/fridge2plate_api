@@ -11,7 +11,8 @@ from pydantic_schemas.instruction import InstructionResponse, InstructionsRespon
 
 router = APIRouter(
     prefix="/recipe_instructions",
-    tags=["Recipe Instructions"])
+    tags=["Recipe Instructions"]
+)
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=InstructionsResponse)
 async def read_instruction_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
