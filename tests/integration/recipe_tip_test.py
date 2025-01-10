@@ -3,7 +3,7 @@ import pytest
 from uuid import UUID
 
 
-url_prefix = '/recipe_tip'
+url_prefix = '/recipe_tips'
 
 @pytest.fixture
 def recipe_tip_id(client, token: str):
@@ -36,6 +36,20 @@ def test_get_recipe_tips_list(client: TestClient, token: str):
     assert recipe_tips[3]["description"] == "test tip 2"
     assert recipe_tips[3]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
 
+def test_get_recipe_tips_list_with_invalid_token(client: TestClient, token: str):
+    response = client.get(f"{url_prefix}/", 
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_get_recipe_tips_list_without_token(client: TestClient, token: str):
+    response = client.get(f"{url_prefix}/")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
 def test_get_recipe_tip_by_id(client: TestClient, recipe_tip_id: UUID, token: str):
     response = client.get(f"{url_prefix}/{recipe_tip_id}", 
         headers={"Authorization": f"Bearer {token}"}
@@ -45,6 +59,20 @@ def test_get_recipe_tip_by_id(client: TestClient, recipe_tip_id: UUID, token: st
 
     assert recipe_tip["description"] == "tumbuk bahan instead of blender"
     assert recipe_tip["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+def test_get_recipe_tip_by_id_with_invalid_token(client: TestClient, recipe_tip_id: UUID, token: str):
+    response = client.get(f"{url_prefix}/{recipe_tip_id}", 
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_get_recipe_tip_by_id_without_token(client: TestClient, recipe_tip_id: UUID, token: str):
+    response = client.get(f"{url_prefix}/{recipe_tip_id}")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
 def test_get_recipe_tip_with_wrong_id(client: TestClient, token: str):
     response = client.get(f"{url_prefix}/2cdd1a37-9c45-4202-a38c-026686b0ff71", 
@@ -87,6 +115,51 @@ def test_post_recipe_tip(client: TestClient, token: str):
 
     assert recipe_tips[0]["description"] == "test recipe tip"
     assert recipe_tips[0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+def test_post_recipe_tip_with_list_of_tips(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "description": ["tESt recipe TIP", "second test TIP"],
+            "recipe_id": "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    assert response.status_code == 201
+    assert response.json()["detail"] == "2 of Recipe Tip is created successfully for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of Recipe"
+
+    recipe_tips = response.json()['recipe_tips']
+
+    assert recipe_tips[0]["description"] == "test recipe tip"
+    assert recipe_tips[0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    assert recipe_tips[1]["description"] == "second test tip"
+    assert recipe_tips[1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+#test with existing list of recipe tips
+
+def test_post_recipe_tip_with_invalid_token(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "description": ["tESt recipe TIP"],
+            "recipe_id": "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+        },
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_post_recipe_tip_without_token(client: TestClient, token: str):
+    response = client.post(f"{url_prefix}/", 
+        json={
+            "description": ["tESt recipe TIP"],
+            "recipe_id": "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
 def test_post_recipe_tip_with_duplicate_description(client: TestClient, token: str):
     response = client.post(f"{url_prefix}/", 
@@ -274,6 +347,27 @@ def test_put_recipe_tip(client: TestClient, recipe_tip_id: UUID, token: str):
     assert recipe_tip["description"] == "test recipe tip updated"
     assert recipe_tip["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
 
+def test_put_recipe_tip_with_invalid_token(client: TestClient, recipe_tip_id: UUID, token: str):
+    response = client.put(f"{url_prefix}/{recipe_tip_id}", 
+        json={
+            "description": "tESt recipe TIP updated"
+        },
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_put_recipe_tip_without_token(client: TestClient, recipe_tip_id: UUID, token: str):
+    response = client.put(f"{url_prefix}/{recipe_tip_id}", 
+        json={
+            "description": "tESt recipe TIP updated"
+        }
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
+
 def test_put_recipe_tip_with_wrong_id(client: TestClient, token: str):
     response = client.put(f"{url_prefix}/2cdd1a37-9c45-4202-a38c-026686b0ff72", 
         json={
@@ -385,10 +479,26 @@ def test_delete_recipe_tip(client: TestClient, recipe_tip_id: UUID, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {recipe_tip_id} as Recipe Tip is deleted successfully for ID 2cdd1a37-9c45-4202-a38c-026686b0ff71 of Recipe"
 
-    recipe_tip_response = client.get(f"{url_prefix}/{recipe_tip_id}")
+    recipe_tip_response = client.get(f"{url_prefix}/{recipe_tip_id}", 
+        headers={"Authorization": f"Bearer {token}"}
+    )
     
     assert recipe_tip_response.status_code == 404
     assert recipe_tip_response.json()["detail"] == f"ID {recipe_tip_id} as Recipe Tip is not found"
+
+def test_delete_recipe_tip_with_invalid_token(client: TestClient, recipe_tip_id: UUID, token: str):
+    response = client.delete(f"{url_prefix}/{recipe_tip_id}", 
+        headers={"Authorization": f"Bearer invalid_token"}
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
+
+def test_delete_recipe_tip_without_token(client: TestClient, recipe_tip_id: UUID, token: str):
+    response = client.delete(f"{url_prefix}/{recipe_tip_id}")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Not authenticated"
 
 def test_delete_recipe_tip_with_wrong_id(client: TestClient, token: str):
     response = client.delete(f"{url_prefix}/2cdd1a37-9c45-4202-a38c-026686b0ff71", 

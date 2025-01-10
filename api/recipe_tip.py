@@ -5,17 +5,18 @@ from uuid import UUID
 
 from db.db_setup import get_db
 from utils.recipe_tip import *
+from utils.user import check_valid_user, get_current_user
 from utils.recipe import get_recipe_by_id
 from pydantic_schemas.recipe_tip import RecipeTipResponse, RecipeTipsResponse
 
 
 router = APIRouter(
-    prefix="/recipe_tip",
-    tags=["Recipe Tip"]
+    prefix="/recipe_tips",
+    tags=["Recipe Tips"]
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipeTipsResponse)
-async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     db_recipe_tips = get_recipe_tips(db, skip=skip, limit=limit)
 
     if not db_recipe_tips:
@@ -27,7 +28,7 @@ async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), skip: i
     }
 
 @router.get("/{recipe_tip_id}", status_code=status.HTTP_200_OK, response_model=RecipeTipResponse)
-async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), recipe_tip_id: UUID):
+async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tip_id: UUID):
     db_recipe_tip = get_recipe_tip_by_id(db, recipe_tip_id)
 
     if not db_recipe_tip:
@@ -42,7 +43,7 @@ async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), recipe_
     }
 
 @router.get("/by_recipe_id/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipeTipsResponse)
-async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     recipe_tips = get_recipe_tips_by_recipe_id(db, recipe_id)
 
     if not recipe_tips:
@@ -57,7 +58,7 @@ async def read_recipe_tip_by_recipe_id(*, db: Session = Depends(get_db), recipe_
     }
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeTipsResponse)
-async def add_recipe_tip(*, db: Session = Depends(get_db), recipe_tip: RecipeTipCreate):
+async def add_recipe_tip(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tip: RecipeTipCreate):
     db_recipe = get_recipe_by_id(db, recipe_tip.recipe_id)
 
     if not db_recipe:
@@ -86,7 +87,7 @@ async def add_recipe_tip(*, db: Session = Depends(get_db), recipe_tip: RecipeTip
     }
 
 @router.put("/{recipe_tip_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeTipResponse)
-async def change_recipe_tip(*, db: Session = Depends(get_db), recipe_tip_id: UUID, recipe_tip: RecipeTipUpdate):
+async def change_recipe_tip(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tip_id: UUID, recipe_tip: RecipeTipUpdate):
     db_recipe_tip = get_recipe_tip_by_id(db , recipe_tip_id)
 
     if not db_recipe_tip:
@@ -107,7 +108,7 @@ async def change_recipe_tip(*, db: Session = Depends(get_db), recipe_tip_id: UUI
     return {"detail": result_message, "recipe_tip": recipe_tip_update}
 
 @router.delete("/{recipe_tip_id}", status_code=status.HTTP_200_OK)
-async def remove_recipe_tip(*, db: Session = Depends(get_db), recipe_tip_id: UUID):
+async def remove_recipe_tip(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_tip_id: UUID):
     db_recipe_tip = get_recipe_tip_by_id(db , recipe_tip_id)
 
     if not db_recipe_tip:
