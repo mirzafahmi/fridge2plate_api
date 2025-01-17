@@ -24,7 +24,7 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipesResponse)
-async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     recipes = get_recipes(db, skip=skip, limit=limit)
 
     if not recipes:
@@ -49,7 +49,7 @@ async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 
     }
 
 @router.get("/lite", status_code=status.HTTP_200_OK, response_model=RecipesLiteResponse)
-async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 100):
+async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
     recipes = get_recipes(db, skip=skip, limit=limit)
 
     if not recipes:
@@ -74,7 +74,7 @@ async def read_recipes(db: Session = Depends(get_db), skip: int=0, limit: int = 
     }
 
 @router.get("/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipeResponse)
-async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     recipe_by_id = get_recipe_by_id(db, recipe_id)
 
     if recipe_by_id is None:
@@ -96,7 +96,7 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
     }
 
 @router.get("/{recipe_id}/lite", status_code=status.HTTP_200_OK, response_model=RecipeLiteResponse)
-async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     recipe_by_id = get_recipe_by_id(db, recipe_id)
 
     if recipe_by_id is None:
@@ -120,7 +120,7 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), recipe_id: UUID):
 
 #remove unique name
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeLiteResponse)
-async def add_recipe(*, db: Session = Depends(get_db), recipe: RecipeCreate):
+async def add_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe: RecipeCreate):
     recipe_category_by_id = get_recipe_category_by_id(db, recipe.recipe_category_id)
     
     if not recipe_category_by_id:
@@ -204,7 +204,7 @@ async def toggle_recipe_action(*, db: Session = Depends(get_db), current_user: d
 #TODO endpoint to retrieved liked, bookmarked and cooked
 
 @router.put("/{recipe_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeLiteResponse)
-async def change_recipe(*, db: Session = Depends(get_db), recipe_id: UUID, recipe: RecipeUpdate):
+async def change_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID, recipe: RecipeUpdate):
     recipe_by_id = get_recipe_by_id(db, recipe_id)
 
     if not recipe_by_id:
@@ -274,7 +274,7 @@ async def change_recipe(*, db: Session = Depends(get_db), recipe_id: UUID, recip
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 @router.delete("/{recipe_id}", status_code=status.HTTP_200_OK)
-async def remove_recipe(*, db: Session = Depends(get_db), recipe_id: UUID):
+async def remove_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
     recipe_by_id = get_recipe_by_id(db, recipe_id)
 
     if not recipe_by_id:
@@ -291,7 +291,7 @@ async def remove_recipe(*, db: Session = Depends(get_db), recipe_id: UUID):
 
 
 @router.get("/by_name/{recipe_name}", status_code=status.HTTP_200_OK, response_model=Recipe, deprecated=True)
-async def read_recipe_by_name(*, db: Session = Depends(get_db), recipe_name: str):
+async def read_recipe_by_name(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_name: str):
     recipe_by_name = get_recipe_by_name(db, recipe_name=recipe_name)
 
     if recipe_by_name is None:
