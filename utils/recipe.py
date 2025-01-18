@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy import func, asc, case
 from uuid import UUID, uuid4
 from fastapi import HTTPException
@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from db.models.recipe import Recipe, RecipeTagRecipeAssociation, RecipeInstruction, Ingredient, IngredientRecipeAssociation, RecipeImage, RecipeTip, RecipeUserAssociation
 from pydantic_schemas.recipe import RecipeCreate, RecipeUpdate
+from pydantic_schemas.recipe_user_association import RecipeUserAssociationV2
 from utils.recipe_category import get_recipe_category_by_name
 from utils.recipe_tag import get_recipe_tag_by_name
 from utils.recipe_origin import get_recipe_origin_by_name
@@ -239,11 +240,9 @@ def get_recipe_liked_count(db:Session, recipe_id:UUID):
     return count
 
 def get_recipe_interaction_counts(db: Session, recipe_ids: list[UUID]):
-    # Ensure recipe_ids is a list (in case a single recipe_id is passed)
     if isinstance(recipe_ids, UUID):
         recipe_ids = [recipe_ids]
 
-    # Query interaction counts for multiple recipe_ids
     interaction_counts = (
         db.query(
             RecipeUserAssociation.recipe_id,
@@ -266,11 +265,53 @@ def get_recipe_interaction_counts(db: Session, recipe_ids: list[UUID]):
                 )
             ).label("liked_count"),
         )
-        .filter(RecipeUserAssociation.recipe_id.in_(recipe_ids))  # Filter by multiple recipe_ids
+        .filter(RecipeUserAssociation.recipe_id.in_(recipe_ids)) 
         .group_by(RecipeUserAssociation.recipe_id)
         .all()
     )
 
-    # Convert the results to a dictionary for easy lookup by recipe_id
     return {row.recipe_id: row._asdict() for row in interaction_counts}
 
+def get_recipe_user_interaction(db: Session, user_id: UUID, recipe_ids: List[UUID]):
+    user_interactions = (
+        db.query(RecipeUserAssociation)
+        .filter(
+            RecipeUserAssociation.user_id == user_id,
+            RecipeUserAssociation.recipe_id.in_(recipe_ids)
+        )
+        .all()
+    )
+
+    interaction_map = {
+        recipe_id: RecipeUserAssociationV2(
+            id=None,
+            user_id=user_id,
+            recipe_id=recipe_id,
+            cooked=False,
+            cooked_date=None,
+            bookmarked=False,
+            bookmarked_date=None,
+            liked=False,
+            liked_date=None,
+            created_date=None,
+            updated_date=None
+        )
+        for recipe_id in recipe_ids
+    }
+
+    for interaction in user_interactions:
+        interaction_map[interaction.recipe_id] = RecipeUserAssociationV2(
+            id=interaction.id,
+            user_id=interaction.user_id,
+            recipe_id=interaction.recipe_id,
+            cooked=interaction.cooked,
+            cooked_date=interaction.cooked_date,
+            bookmarked=interaction.bookmarked,
+            bookmarked_date=interaction.bookmarked_date,
+            liked=interaction.liked,
+            liked_date=interaction.liked_date,
+            created_date=interaction.created_date,
+            updated_date=interaction.updated_date,
+        )
+
+    return interaction_map

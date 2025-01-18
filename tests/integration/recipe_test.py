@@ -2,6 +2,8 @@ from fastapi.testclient import TestClient
 import pytest
 from uuid import UUID
 
+from utils.datetime_utils import DateTimeUtils
+
 url_prefix = "/recipes"
 
 def test_get_recipe_list(client: TestClient, token: str):
@@ -59,6 +61,17 @@ def test_get_recipe_list(client: TestClient, token: str):
     assert "updated_date" in recipes[0]
     assert "created_date" in recipes[0]
 
+    assert recipes[0]["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipes[0]["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipes[0]["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["cooked_date"])
+    assert recipes[0]["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["bookmarked_date"])
+    assert recipes[0]["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["updated_date"])
+
 
     assert recipes[1]["id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
     assert recipes[1]["name"] == "test"
@@ -99,6 +112,17 @@ def test_get_recipe_list(client: TestClient, token: str):
 
     assert "updated_date" in recipes[1]
     assert "created_date" in recipes[1]
+
+    assert recipes[1]["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipes[1]["user_interactions"]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+    assert recipes[1]["user_interactions"]["cooked"] == True
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["cooked_date"])
+    assert recipes[1]["user_interactions"]["bookmarked"] == True
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["bookmarked_date"])
+    assert recipes[1]["user_interactions"]["liked"] == True
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["updated_date"])
 
 def test_get_recipe_list_with_invalid_token(client: TestClient):
     response = client.get(f"{url_prefix}", 
@@ -169,6 +193,17 @@ def test_get_recipe_list_lite(client: TestClient, token: str):
     assert "updated_date" in recipes[0]
     assert "created_date" in recipes[0]
 
+    assert recipes[0]["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipes[0]["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipes[0]["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["cooked_date"])
+    assert recipes[0]["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["bookmarked_date"])
+    assert recipes[0]["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[0]["user_interactions"]["updated_date"])
+
 
     assert recipes[1]["id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
     assert recipes[1]["name"] == "test"
@@ -209,6 +244,17 @@ def test_get_recipe_list_lite(client: TestClient, token: str):
 
     assert "updated_date" in recipes[1]
     assert "created_date" in recipes[1]
+
+    assert recipes[1]["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipes[1]["user_interactions"]["recipe_id"] == "6b86885b-a613-4ca6-a9b7-584c3d376337"
+    assert recipes[1]["user_interactions"]["cooked"] == True
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["cooked_date"])
+    assert recipes[1]["user_interactions"]["bookmarked"] == True
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["bookmarked_date"])
+    assert recipes[1]["user_interactions"]["liked"] == True
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipes[1]["user_interactions"]["updated_date"])
 
 def test_get_recipe_list_lite_with_invalid_token(client: TestClient):
     response = client.get(f"{url_prefix}/lite", 
@@ -276,6 +322,17 @@ def test_get_recipe_by_id(client: TestClient, token: str):
     
     assert "updated_date" in recipe
     assert "created_date" in recipe
+
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
 
 def test_get_recipe_by_id_with_invalid_token(client: TestClient):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
@@ -345,6 +402,17 @@ def test_get_recipe_by_id_lite(client: TestClient, token: str):
     
     assert "updated_date" in recipe
     assert "created_date" in recipe
+
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
 
 def test_get_recipe_by_id_with_wrong_id(client: TestClient, token: str):
     recipe_id = "b4b165f6-a4f2-45f6-bda6-0a49092d3f01"
@@ -448,6 +516,16 @@ def test_post_recipe(client: TestClient, token: str):
     
     assert "updated_date" in recipe
     assert "created_date" in recipe
+
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
 
 def test_post_recipe_with_invalid_token(client: TestClient):
     response = client.post(f"{url_prefix}",
@@ -2778,6 +2856,57 @@ def test_put_recipe_by_changing_name(client: TestClient, token: str):
     
     assert "updated_date" in recipe
     assert "created_date" in recipe
+    
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
+def test_put_recipe_by_changing_name_with_not_string(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "name": False
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "name"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid string"
+    assert response_json["detail"][0]["type"] == "string_type"
+
+def test_put_recipe_by_changing_name_with_short_string(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "name": "te"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "name"]
+    assert response_json["detail"][0]["msg"] == "String should have at least 3 characters"
+    assert response_json["detail"][0]["type"] == "string_too_short"
 
 def test_put_recipe_by_changing_name_with_invalid_token(client: TestClient):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
@@ -2858,6 +2987,124 @@ def test_put_recipe_by_changing_serving(client: TestClient, token: str):
     assert "updated_date" in recipe
     assert "created_date" in recipe
 
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
+def test_put_recipe_by_changing_serving_with_single_digit(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "serving": "2"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    assert response.status_code == 202
+    assert response.json()["detail"] == f"ID {recipe_id} as Recipe is updated successfully"
+    
+    recipe = response.json()["recipe"]
+    
+    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["name"] == "ayam masak lemak cili padi"
+    assert recipe["serving"] == "2"
+    assert recipe["cooking_time"] == "30 minutes"
+
+    assert recipe["steps"][0]["step_number"] == 1
+    assert recipe["steps"][0]["description"] == "potong ayam"
+    assert recipe["steps"][1]["step_number"] == 2
+    assert recipe["steps"][1]["description"] == "potong lobak"
+    assert recipe["steps"][2]["step_number"] == 3
+    assert recipe["steps"][2]["description"] == "masak"
+    
+    assert len(recipe["images"]) == 2
+    assert recipe["images"][0]["image"] == "/string_test"
+    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
+    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+
+    assert recipe["recipe_category"]["name"] == "lunch"
+    assert recipe["recipe_origin"]["name"] == "malay"
+    assert recipe["recipe_tags"][0]["name"] == "beginner"
+    assert recipe["recipe_tags"][1]["name"] == "eid"
+    
+    assert recipe["ingredient_data"][0]["ingredient"]["name"] == "carrot"
+    assert recipe["ingredient_data"][0]["ingredient"]["brand"] == "carrot"
+    assert recipe["ingredient_data"][0]["ingredient"]["ingredient_category"]["name"] == "vegetables"
+    assert recipe["ingredient_data"][0]["quantity"] == 3
+    assert recipe["ingredient_data"][0]["uom"]["name"] == "piece"
+    assert recipe["ingredient_data"][0]["is_essential"] == False
+
+    assert recipe["ingredient_data"][1]["ingredient"]["name"] == "chicken"
+    assert recipe["ingredient_data"][1]["ingredient"]["brand"] == "chicken"
+    assert recipe["ingredient_data"][1]["ingredient"]["ingredient_category"]["name"] == "proteins"
+    assert recipe["ingredient_data"][1]["quantity"] == 3
+    assert recipe["ingredient_data"][1]["uom"]["name"] == "piece"
+    assert recipe["ingredient_data"][1]["is_essential"] == True
+
+    assert recipe["creator"]["username"] == "testuser"
+    
+    assert "updated_date" in recipe
+    assert "created_date" in recipe
+
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
+def test_put_recipe_by_changing_serving_with_invalid_type(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "serving": False
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "serving"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid string"
+    assert response_json["detail"][0]["type"] == "string_type"
+
+def test_put_recipe_by_changing_serving_with_wrong_format(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "serving": "1 to 2"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "serving"]
+    assert response_json["detail"][0]["msg"] == 'Value error, Serving must be a number or a valid range (e.g., "1-3")'
+    assert response_json["detail"][0]["type"] == "value_error"
+
 def test_put_recipe_by_changing_cooking_time(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.put(f"{url_prefix}/{recipe_id}",
@@ -2914,61 +3161,56 @@ def test_put_recipe_by_changing_cooking_time(client: TestClient, token: str):
     assert "updated_date" in recipe
     assert "created_date" in recipe
 
-def test_put_recipe_by_changing_cooking_time(client: TestClient, token: str):
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
+def test_put_recipe_by_changing_wrong_cooking_time(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.put(f"{url_prefix}/{recipe_id}",
         json={
-            "cooking_time": "27 minutes"
+            "cooking_time": "27 minuts"
         }, 
         headers={"Authorization": f"Bearer {token}"}
     )
-
-    assert response.status_code == 202
-    assert response.json()["detail"] == f"ID {recipe_id} as Recipe is updated successfully"
     
-    recipe = response.json()["recipe"]
+    assert response.status_code == 422
 
-    assert recipe["id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
-    assert recipe["name"] == "ayam masak lemak cili padi"
-    assert recipe["serving"] == "4-5"
-    assert recipe["cooking_time"] == "27 minutes"
+    response_json = response.json()
 
-    assert recipe["steps"][0]["step_number"] == 1
-    assert recipe["steps"][0]["description"] == "potong ayam"
-    assert recipe["steps"][1]["step_number"] == 2
-    assert recipe["steps"][1]["description"] == "potong lobak"
-    assert recipe["steps"][2]["step_number"] == 3
-    assert recipe["steps"][2]["description"] == "masak"
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+
+    assert response_json["detail"][0]["loc"] == ["body", "cooking_time"]
+    assert response_json["detail"][0]["msg"] == 'Value error, Cooking time must be in the format "X minute(s)" or "X hour(s)", where X is a number and "minute(s)" or "hour(s)" is the unit.'
+    assert response_json["detail"][0]["type"] == "value_error"
+
+def test_put_recipe_by_changing_wrong_cooking_time_with_wrong_suffix(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "cooking_time": "27 min"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
     
-    assert len(recipe["images"]) == 2
-    assert recipe["images"][0]["image"] == "/string_test"
-    assert recipe["images"][0]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
-    assert recipe["images"][1]["image"] == "https://www.simplyrecipes.com/thmb/KRw_r32s4gQeOX-d07NWY1OlOFk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Homemade-Pizza-Dough-Lead-Shot-1c-c2b1885d27d4481c9cfe6f6286a64342.jpg"
-    assert recipe["images"][1]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert response.status_code == 422
 
-    assert recipe["recipe_category"]["name"] == "lunch"
-    assert recipe["recipe_origin"]["name"] == "malay"
-    assert recipe["recipe_tags"][0]["name"] == "beginner"
-    assert recipe["recipe_tags"][1]["name"] == "eid"
-    
-    assert recipe["ingredient_data"][0]["ingredient"]["name"] == "carrot"
-    assert recipe["ingredient_data"][0]["ingredient"]["brand"] == "carrot"
-    assert recipe["ingredient_data"][0]["ingredient"]["ingredient_category"]["name"] == "vegetables"
-    assert recipe["ingredient_data"][0]["quantity"] == 3
-    assert recipe["ingredient_data"][0]["uom"]["name"] == "piece"
-    assert recipe["ingredient_data"][0]["is_essential"] == False
+    response_json = response.json()
 
-    assert recipe["ingredient_data"][1]["ingredient"]["name"] == "chicken"
-    assert recipe["ingredient_data"][1]["ingredient"]["brand"] == "chicken"
-    assert recipe["ingredient_data"][1]["ingredient"]["ingredient_category"]["name"] == "proteins"
-    assert recipe["ingredient_data"][1]["quantity"] == 3
-    assert recipe["ingredient_data"][1]["uom"]["name"] == "piece"
-    assert recipe["ingredient_data"][1]["is_essential"] == True
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
 
-    assert recipe["creator"]["username"] == "testuser"
-    
-    assert "updated_date" in recipe
-    assert "created_date" in recipe
+    assert response_json["detail"][0]["loc"] == ["body", "cooking_time"]
+    assert response_json["detail"][0]["msg"] == 'Value error, Cooking time must be in the format "X minute(s)" or "X hour(s)", where X is a number and "minute(s)" or "hour(s)" is the unit.'
+    assert response_json["detail"][0]["type"] == "value_error"
 
 def test_put_recipe_by_changing_recipe_category_id(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
@@ -3026,6 +3268,69 @@ def test_put_recipe_by_changing_recipe_category_id(client: TestClient, token: st
     assert "updated_date" in recipe
     assert "created_date" in recipe
 
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
+def test_put_recipe_by_changing_recipe_category_id_with_wrong_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f482"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "ID 4053a7e8-9ae5-415d-9bed-e4d0a235f482 as Recipe Category is not found"
+
+def test_put_recipe_by_changing_recipe_category_id_with_invalid_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_category_id": "4053a7e8-9ae5-415d-9bed-e4d0a235f48z"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["path", "recipe_category_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_put_recipe_wihtout_recipe_category_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_category_id": ""
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_category_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
 def test_put_recipe_by_changing_recipe_origin_id(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.put(f"{url_prefix}/{recipe_id}",
@@ -3082,6 +3387,69 @@ def test_put_recipe_by_changing_recipe_origin_id(client: TestClient, token: str)
     assert "updated_date" in recipe
     assert "created_date" in recipe
 
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
+def test_put_recipe_by_changing_recipe_origin_id_with_wrong_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_origin_id": "c7048030-10ff-486c-9e78-7417212dd722"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "ID c7048030-10ff-486c-9e78-7417212dd722 as Recipe Origin is not found"
+
+def test_put_recipe_by_changing_recipe_origin_id_with_invalid_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_origin_id": "c7048030-10ff-486c-9e78-7417212dd72z"
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["path", "recipe_category_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_put_recipe_without_recipe_origin_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_origin_id": ""
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_category_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
 def test_put_recipe_by_changing_recipe_tags(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.put(f"{url_prefix}/{recipe_id}",
@@ -3136,6 +3504,89 @@ def test_put_recipe_by_changing_recipe_tags(client: TestClient, token: str):
     
     assert "updated_date" in recipe
     assert "created_date" in recipe
+
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
+def test_put_recipe_by_changing_recipe_tags_with_wrong_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_tags": ["13444244-43b2-4d63-a080-604dd5088453"]
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "ID 13444244-43b2-4d63-a080-604dd5088453 as Recipe Tag is not found"
+
+def test_put_recipe_by_changing_recipe_tags_with_invalid_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_tags": ["13444244-43b2-4d63-a080-604dd508845z"]
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["path", "recipe_category_id"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
+    assert response_json["detail"][0]["type"] == "uuid_parsing"
+
+def test_put_recipe_with_empty_recipe_tags_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_tags": ""
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_tags"]
+    assert response_json["detail"][0]["msg"] == "Input should be a valid list"
+    assert response_json["detail"][0]["type"] == "list_type"
+
+def test_put_recipe_with_empty_list_of_recipe_tags_id(client: TestClient, token: str):
+    recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    response = client.put(f"{url_prefix}/{recipe_id}",
+        json={
+            "recipe_tags": []
+        }, 
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 422
+
+    response_json = response.json()
+
+    assert response_json["detail"] is not None
+    assert len(response_json["detail"]) == 1
+    
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_tags"]
+    assert response_json["detail"][0]["msg"] == "Value error, At least one recipe tag (UUID) is required."
+    assert response_json["detail"][0]["type"] == "value_error"
 
 def test_put_recipe_by_changing_ingredients(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
@@ -3192,6 +3643,17 @@ def test_put_recipe_by_changing_ingredients(client: TestClient, token: str):
     assert "updated_date" in recipe
     assert "created_date" in recipe
 
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
 def test_put_recipe_by_changing_steps(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
     response = client.put(f"{url_prefix}/{recipe_id}",
@@ -3247,6 +3709,17 @@ def test_put_recipe_by_changing_steps(client: TestClient, token: str):
     assert "updated_date" in recipe
     assert "created_date" in recipe
 
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
+
 #TODO! convert images as list of str not as list of recipeimage obj
 def test_put_recipe_by_changing_images(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
@@ -3300,6 +3773,17 @@ def test_put_recipe_by_changing_images(client: TestClient, token: str):
     
     assert "updated_date" in recipe
     assert "created_date" in recipe
+
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
 
 def test_put_recipe_by_changing_created_by(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"
@@ -3355,6 +3839,17 @@ def test_put_recipe_by_changing_created_by(client: TestClient, token: str):
     
     assert "updated_date" in recipe
     assert "created_date" in recipe
+
+    assert recipe["user_interactions"]["user_id"] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
+    assert recipe["user_interactions"]["recipe_id"] == "2cdd1a37-9c45-4202-a38c-026686b0ff71"
+    assert recipe["user_interactions"]["cooked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["cooked_date"])
+    assert recipe["user_interactions"]["bookmarked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["bookmarked_date"])
+    assert recipe["user_interactions"]["liked"] == False
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["liked_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["created_date"])
+    DateTimeUtils.assert_is_none_or_datetime(recipe["user_interactions"]["updated_date"])
 
 def test_delete_recipe(client: TestClient, token: str):
     recipe_id = "2cdd1a37-9c45-4202-a38c-026686b0ff71"

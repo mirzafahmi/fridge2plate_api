@@ -10,6 +10,7 @@ from pydantic_schemas.recipe_tag import RecipeTag, RecipeTagLite
 from pydantic_schemas.recipe_origin import RecipeOrigin, RecipeOriginLite
 from pydantic_schemas.ingredient import Ingredient
 from pydantic_schemas.ingredient_recipe_association import *
+from pydantic_schemas.recipe_user_association import RecipeUserAssociationV2
 from .user import UserResponse, UserResponseLite
 from .instruction import InstructionCreate, Instruction, InstructionLite
 from .recipe_image import RecipeImageCreate, RecipeImage
@@ -102,6 +103,7 @@ class Recipe(LowercaseBaseModel):
     creator: Optional[UserResponse]
     created_date: datetime
     updated_date: datetime
+    user_interactions: Optional[RecipeUserAssociationV2] = None
 
     class Config:
         from_attributes = True
@@ -131,6 +133,7 @@ class RecipeLite(Recipe):
     creator: Optional[UserResponseLite]
     created_date: datetime
     updated_date: datetime
+    user_interactions: Optional[RecipeUserAssociationV2] = None
 
 class RecipeResponse(LowercaseBaseModel):
     detail: str

@@ -25,6 +25,7 @@ router = APIRouter(
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=RecipesResponse)
 async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
+    user_id = UUID(current_user["sub"])
     recipes = get_recipes(db, skip=skip, limit=limit)
 
     if not recipes:
@@ -42,7 +43,12 @@ async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depen
         recipe.cooked_count = counts.get("cooked_count", 0)
         recipe.bookmarked_count = counts.get("bookmarked_count", 0)
         recipe.liked_count = counts.get("liked_count", 0)
-        
+    
+    user_interactions_map = get_recipe_user_interaction(db, user_id, recipe_ids)
+    
+    for recipe in recipes:
+        recipe.user_interactions = user_interactions_map.get(recipe.id)
+    
     return {
         "detail": "Recipe list is retrieved successfully",
         "recipes": recipes
@@ -50,6 +56,7 @@ async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depen
 
 @router.get("/lite", status_code=status.HTTP_200_OK, response_model=RecipesLiteResponse)
 async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), skip: int=0, limit: int = 100):
+    user_id = UUID(current_user["sub"])
     recipes = get_recipes(db, skip=skip, limit=limit)
 
     if not recipes:
@@ -67,6 +74,11 @@ async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depen
         recipe.cooked_count = counts.get("cooked_count", 0)
         recipe.bookmarked_count = counts.get("bookmarked_count", 0)
         recipe.liked_count = counts.get("liked_count", 0)
+
+    user_interactions_map = get_recipe_user_interaction(db, user_id, recipe_ids)
+    
+    for recipe in recipes:
+        recipe.user_interactions = user_interactions_map.get(recipe.id)
 
     return {
         "detail": "Recipe list Lite is retrieved successfully",
@@ -75,6 +87,7 @@ async def read_recipes(db: Session = Depends(get_db), current_user: dict = Depen
 
 @router.get("/{recipe_id}", status_code=status.HTTP_200_OK, response_model=RecipeResponse)
 async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
+    user_id = UUID(current_user["sub"])
     recipe_by_id = get_recipe_by_id(db, recipe_id)
 
     if recipe_by_id is None:
@@ -90,6 +103,10 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict
     recipe_by_id.bookmarked_count = counts.get("bookmarked_count", 0)
     recipe_by_id.liked_count = counts.get("liked_count", 0)
 
+    user_interactions_map = get_recipe_user_interaction(db, user_id, [recipe_id])
+    
+    recipe_by_id.user_interactions = user_interactions_map.get(recipe_id)
+
     return {
         "detail": f"ID {recipe_id} as Recipe is retrieved successfully",
         "recipe": recipe_by_id
@@ -97,6 +114,7 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict
 
 @router.get("/{recipe_id}/lite", status_code=status.HTTP_200_OK, response_model=RecipeLiteResponse)
 async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID):
+    user_id = UUID(current_user["sub"])
     recipe_by_id = get_recipe_by_id(db, recipe_id)
 
     if recipe_by_id is None:
@@ -112,6 +130,10 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict
     recipe_by_id.cooked_count = counts.get("cooked_count", 0)
     recipe_by_id.bookmarked_count = counts.get("bookmarked_count", 0)
     recipe_by_id.liked_count = counts.get("liked_count", 0)
+
+    user_interactions_map = get_recipe_user_interaction(db, user_id, [recipe_id])
+    
+    recipe_by_id.user_interactions = user_interactions_map.get(recipe_id)
 
     return {
         "detail": f"ID {recipe_id} as Recipe Lite is retrieved successfully",
@@ -168,6 +190,9 @@ async def add_recipe(*, db: Session = Depends(get_db), current_user: dict = Depe
     check_valid_user(db, recipe)
 
     recipe_create = post_recipe(db, recipe)
+    user_id = UUID(current_user["sub"])
+    user_interactions_map = get_recipe_user_interaction(db, user_id, [recipe_create.id])
+    recipe_create.user_interactions = user_interactions_map.get(recipe_create.id)
 
     result_message = f"{recipe.name} as Recipe is created successfully"
 
@@ -263,6 +288,13 @@ async def change_recipe(*, db: Session = Depends(get_db), current_user: dict = D
 
     try:
         recipe_update = put_recipe(db, recipe_id, recipe)
+
+        user_id = UUID(current_user["sub"])
+
+        user_interactions_map = get_recipe_user_interaction(db, user_id, [recipe_id])
+    
+        recipe_update.user_interactions = user_interactions_map.get(recipe_id)
+
         result_message = f"ID {recipe_id} as Recipe is updated successfully"
 
         return {"detail": result_message, "recipe": recipe_update}
