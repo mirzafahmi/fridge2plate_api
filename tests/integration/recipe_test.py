@@ -3307,7 +3307,7 @@ def test_put_recipe_by_changing_recipe_category_id_with_invalid_id(client: TestC
     assert response_json["detail"] is not None
     assert len(response_json["detail"]) == 1
     
-    assert response_json["detail"][0]["loc"] == ["path", "recipe_category_id"]
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_category_id"]
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
@@ -3426,7 +3426,7 @@ def test_put_recipe_by_changing_recipe_origin_id_with_invalid_id(client: TestCli
     assert response_json["detail"] is not None
     assert len(response_json["detail"]) == 1
     
-    assert response_json["detail"][0]["loc"] == ["path", "recipe_category_id"]
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_origin_id"]
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
@@ -3446,7 +3446,7 @@ def test_put_recipe_without_recipe_origin_id(client: TestClient, token: str):
     assert response_json["detail"] is not None
     assert len(response_json["detail"]) == 1
     
-    assert response_json["detail"][0]["loc"] == ["body", "recipe_category_id"]
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_origin_id"]
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 
@@ -3544,7 +3544,7 @@ def test_put_recipe_by_changing_recipe_tags_with_invalid_id(client: TestClient, 
     assert response_json["detail"] is not None
     assert len(response_json["detail"]) == 1
     
-    assert response_json["detail"][0]["loc"] == ["path", "recipe_category_id"]
+    assert response_json["detail"][0]["loc"] == ["body", "recipe_tags", 0]
     assert response_json["detail"][0]["msg"] == "Input should be a valid UUID, invalid character: expected an optional prefix of `urn:uuid:` followed by [0-9a-fA-F-], found `z` at 36"
     assert response_json["detail"][0]["type"] == "uuid_parsing"
 

@@ -140,7 +140,6 @@ async def read_recipe_by_id(*, db: Session = Depends(get_db), current_user: dict
         "recipe": recipe_by_id
     }
 
-#remove unique name
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=RecipeLiteResponse)
 async def add_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe: RecipeCreate):
     recipe_category_by_id = get_recipe_category_by_id(db, recipe.recipe_category_id)
@@ -198,10 +197,10 @@ async def add_recipe(*, db: Session = Depends(get_db), current_user: dict = Depe
 
     return {"detail": result_message,"recipe": recipe_create}
 
-@router.post("/{recipe_id}/toggle", status_code=status.HTTP_200_OK, response_model=RecipeUserAssociationResponse)
+@router.post("/{recipe_id}/toggle", status_code=status.HTTP_200_OK, response_model=RecipeResponse)
 async def toggle_recipe_action(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID, action: ActionSchema):
     user_id = UUID(current_user['sub'])
-    action_value = action.action
+    action_value = action.action.value
     
     recipe_by_id = get_recipe_by_id(db, recipe_id)
 
@@ -222,11 +221,12 @@ async def toggle_recipe_action(*, db: Session = Depends(get_db), current_user: d
     updated_association.recipe.bookmarked_count = counts.get("bookmarked_count", 0)
     updated_association.recipe.liked_count = counts.get("liked_count", 0)
     
-    result_message = f"ID{recipe_id} as Recipe is {action_value} successfully"
+    recipe_by_id.user_interactions = association
 
-    return {"detail": result_message, "recipe_user_association": updated_association}
+    action_status = "enabled" if getattr(updated_association, action_value) else "disabled"
+    result_message = f"ID {recipe_id} as Recipe has the {action_value} action {action_status} successfully"
 
-#TODO endpoint to retrieved liked, bookmarked and cooked
+    return {"detail": result_message, "recipe": recipe_by_id}
 
 @router.put("/{recipe_id}", status_code=status.HTTP_202_ACCEPTED, response_model=RecipeLiteResponse)
 async def change_recipe(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID, recipe: RecipeUpdate):
