@@ -25,7 +25,6 @@ oauth_bearer = OAuth2PasswordBearer(tokenUrl='auth/login')
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserMessageResponse)
 async def add_user(*, db: Session = Depends(get_db), user: UserCreate):
-
     user_by_email = get_user_by_email(db, user.email)
 
     if user_by_email:

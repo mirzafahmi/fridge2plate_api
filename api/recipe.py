@@ -1,9 +1,11 @@
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from uuid import UUID
+import json
+import asyncio
 
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user, get_current_user, get_token_from_ws
 from utils.recipe import *
 from utils.ingredient import get_ingredient_by_id
 from utils.ingredient_recipe_association import *
@@ -15,7 +17,7 @@ from utils.recipe_user_association import get_or_create_recipe_user_association,
 
 from db.db_setup import get_db
 from pydantic_schemas.recipe import Recipe, RecipeCreate, RecipeUpdate, RecipeResponse, RecipesResponse, RecipeLiteResponse, RecipesLiteResponse
-from pydantic_schemas.recipe_user_association import ActionSchema, RecipeUserAssociation, RecipeUserAssociationResponse, RecipeUserAssociationsResponse
+from pydantic_schemas.recipe_user_association import ActionSchema, RecipeUserAssociationV2, RecipeUserAssociationResponse, RecipeUserAssociationsResponse
 
 
 router = APIRouter(
@@ -200,6 +202,7 @@ async def add_recipe(*, db: Session = Depends(get_db), current_user: dict = Depe
 @router.post("/{recipe_id}/toggle", status_code=status.HTTP_200_OK, response_model=RecipeResponse)
 async def toggle_recipe_action(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID, action: ActionSchema):
     user_id = UUID(current_user['sub'])
+    print(action)
     action_value = action.action.value
     
     recipe_by_id = get_recipe_by_id(db, recipe_id)
@@ -333,3 +336,46 @@ async def read_recipe_by_name(*, db: Session = Depends(get_db), current_user: di
         )
 
     return recipe_by_name
+
+clients = []
+
+@router.websocket("/ws/{recipe_id}/user_interaction")
+async def websocket_user_interaction(*, db: Session = Depends(get_db), websocket: WebSocket, recipe_id: UUID):
+    token = await get_token_from_ws(websocket)
+    
+    if token is None:
+        await websocket.close()
+        return
+    
+    try:
+        current_user = get_current_user(token)
+
+    except HTTPException as e:
+        await websocket.close()
+        raise e
+
+    await websocket.accept()
+
+    clients.append(websocket)
+
+    try:
+        while True:
+            interaction_counts = get_recipe_interaction_counts(db, [recipe_id])
+            print(interaction_counts[recipe_id])
+
+            response_data = {
+                "recipe_data": {
+                    str(recipe_id): {
+                        **interaction_counts[recipe_id],
+                        'recipe_id': str(interaction_counts[recipe_id]['recipe_id'])
+                    }
+                }
+            }
+
+            await websocket.send_text(json.dumps(response_data))
+
+            await asyncio.sleep(5)
+
+    except WebSocketDisconnect:
+        clients.remove(websocket)
+        print(f"Client disconnected. {len(clients)} clients remain.")

@@ -21,7 +21,6 @@ class RecipeUserAssociation(LowercaseBaseModel):
     id: UUID
     user_id: UUID
     recipe_id: UUID
-    #recipe: RecipeLite
     cooked: bool
     cooked_date: Optional[datetime]
     bookmarked: bool

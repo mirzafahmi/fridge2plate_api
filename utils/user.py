@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 from typing import Annotated
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from fastapi import Depends
+from fastapi import Depends, WebSocket
 from jose import jwt, JWTError
 from fastapi import HTTPException, status
 
@@ -150,3 +150,10 @@ def decode_jwt_token(token: str):
 
 def get_current_user(token: str = Depends(oauth_bearer)):
     return decode_jwt_token(token)
+
+async def get_token_from_ws(websocket: WebSocket):
+    token = websocket.headers.get("Authorization")
+
+    if token:
+        return token.split(" ")[1] if " " in token else token
+    return None
