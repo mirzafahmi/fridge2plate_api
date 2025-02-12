@@ -151,3 +151,13 @@ class RecipesLiteResponse(LowercaseBaseModel):
     detail: str
     recipes: List[RecipeLite]
     
+class RecipeFormFields(LowercaseBaseModel):
+    recipe_categories: List[RecipeCategory]
+    recipe_origins: List[RecipeOrigin]
+    recipe_tags: List[RecipeTag]
+    ingredients: List[Ingredient]
+    uoms: List[UOM]
+
+class RecipeFormFieldsResponse(LowercaseBaseModel):
+    detail: str
+    recipe_form_fields: RecipeFormFields

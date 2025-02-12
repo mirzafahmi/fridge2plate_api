@@ -53,7 +53,7 @@ async def add_recipe_category(*, db: Session = Depends(get_db), current_user: di
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail=f"{recipe_category.name} as Recipe Category is already registered"
         )
-
+    print(recipe_category)
     check_valid_user(db, recipe_category)
 
     recipe_category_create = post_recipe_category(db, recipe_category)

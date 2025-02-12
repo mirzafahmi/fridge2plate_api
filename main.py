@@ -2,7 +2,7 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from scalar_fastapi import get_scalar_api_reference
-from api import user, badge, ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe, ingredient_recipe_association, recipe_tag_recipe_association, recipe_instruction, recipe_image, recipe_tip
+from api import user, badge, ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe, ingredient_recipe_association, recipe_tag_recipe_association, recipe_instruction, recipe_image, recipe_tip, recipe_form
 
 
 app = FastAPI(
@@ -40,6 +40,7 @@ app.include_router(recipe_tag_recipe_association.router)
 app.include_router(recipe_instruction.router)
 app.include_router(recipe_image.router)
 app.include_router(recipe_tip.router)
+app.include_router(recipe_form.router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.router.get("/", status_code=status.HTTP_200_OK, tags=["Health Check"])

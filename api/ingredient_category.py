@@ -47,7 +47,7 @@ async def read_ingredient_category_by_id(*, db: Session = Depends(get_db), curre
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=IngredientCategoryResponse)
 async def add_ingredient_category(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), ingredient_category: IngredientCategoryCreate):
     ingredient_category_by_name = get_ingredient_category_by_name(db, ingredient_category.name)
-
+    
     if ingredient_category_by_name:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
