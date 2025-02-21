@@ -7,11 +7,13 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy import inspect , func
 import uuid
 from passlib.context import CryptContext
+from datetime import datetime
 
 from main import app
 from db.db_setup import get_db  
-from db.models.user import User, Badge
+from db.models.user import User, Badge, Follower
 from db.models.recipe import IngredientCategory, Ingredient, UOM, RecipeCategory, RecipeOrigin, RecipeTag, RecipeUserAssociation
+from db.models.timestamp_mixin import TimestampMixin
 from db.db_setup import Base
 from utils.recipe import post_recipe
 from tests.integration.recipe_data import recipes
@@ -52,6 +54,12 @@ def setup_and_teardown():
             id=uuid.UUID("0c619092-817e-4f73-b25f-8e187e69dded"), 
             username="second_user", 
             email="test1@example.com", 
+            password=bcrypt_context.hash("test123")
+        ),
+        User(
+            id=uuid.UUID("799bb766-8ebe-4f51-a153-6e3c5530c3c2"), 
+            username="third_user", 
+            email="test2@example.com", 
             password=bcrypt_context.hash("test123")
         )
     ]
@@ -192,12 +200,22 @@ def setup_and_teardown():
         )
     ]
 
+    fixed_timestamp = datetime(2024, 2, 12, 12, 0, 0)
+
+
+    dummy_follow = [
+        Follower(user_id= uuid.UUID("799bb766-8ebe-4f51-a153-6e3c5530c3c2"), follower_id=test_admin_id, created_date=fixed_timestamp),
+        Follower(user_id= test_admin_id, follower_id=uuid.UUID("799bb766-8ebe-4f51-a153-6e3c5530c3c2"), created_date=fixed_timestamp)
+    ]
+
+    TimestampMixin.override_timestamps(dummy_follow, created=fixed_timestamp, updated=fixed_timestamp)
+    print(dummy_follow[0].created_date)
     for recipe in recipes:
         recipe_data = RecipeCreateSeeder(**recipe)
         
         post_recipe(session, recipe_data)
 
-    session.add_all(dummy_users + dummy_badges + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms + dummy_user_recipe_assoc)
+    session.add_all(dummy_users + dummy_badges + dummy_ingredient_categories + dummy_ingredients + dummy_recipe_categories + dummy_recipe_origins + dummy_recipe_tags + dummy_uoms + dummy_user_recipe_assoc + dummy_follow)
     session.commit()
     session.close()
 

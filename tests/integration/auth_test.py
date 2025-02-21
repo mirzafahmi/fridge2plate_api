@@ -17,11 +17,11 @@ def test_register_user(client: TestClient):
     response = client.post("/auth/register", 
         json={
             "username": "Test User 2",
-            "email": "test2@example.com",
+            "email": "test7@example.com",
             "password": "test123"
         }
     )
-
+    print(response.json())
     user = response.json()["user"]
 
     assert response.status_code == 201
@@ -29,7 +29,7 @@ def test_register_user(client: TestClient):
 
     assert "id" in user
     assert user['username'] == "testuser2"
-    assert user['email'] == "test2@example.com"
+    assert user['email'] == "test7@example.com"
 
     assert user["cooked_count"] == 0
     assert user["bookmarked_count"] == 0
@@ -191,7 +191,7 @@ def test_register_empty_password(client: TestClient):
     )
 
     response_json = response.json()
-    print(response_json)
+    
     assert response.status_code == 422
 
     assert response_json["detail"] is not None

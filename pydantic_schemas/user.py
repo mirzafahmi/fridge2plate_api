@@ -63,3 +63,11 @@ class AuthResponse(LowercaseBaseModel):
     detail: str
     token_type: str
     access_token: str
+
+class UserFollowerListResponse(LowercaseBaseModel):
+    total_count: int
+    followers: List[UserResponse]
+
+class UserFollowingListResponse(LowercaseBaseModel):
+    total_count: int
+    followings: List[UserResponse]

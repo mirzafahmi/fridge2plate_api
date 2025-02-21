@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, Text, Float, Table
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, Text, Float, Table, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from email_validator import validate_email, EmailNotValidError
 from sqlalchemy.orm import relationship
@@ -82,3 +82,15 @@ class UserBadgeAssociation(TimestampMixin, Base):
 
     badge_id = Column(UUID(as_uuid=True), ForeignKey("badges.id"), nullable=False)
     badge = relationship("Badge", back_populates="user_badge_associations")
+
+
+class Follower(TimestampMixin, Base):
+    __tablename__ = 'followers'
+
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    follower_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+
+    __table_args__ = (UniqueConstraint('user_id', 'follower_id', name='uq_user_follower'),)
+
+    user = relationship("User", foreign_keys=[user_id], backref="user_followers")
+    follower = relationship("User", foreign_keys=[follower_id], backref="following_users")

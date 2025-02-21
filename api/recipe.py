@@ -202,7 +202,7 @@ async def add_recipe(*, db: Session = Depends(get_db), current_user: dict = Depe
 @router.post("/{recipe_id}/toggle", status_code=status.HTTP_200_OK, response_model=RecipeResponse)
 async def toggle_recipe_action(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), recipe_id: UUID, action: ActionSchema):
     user_id = UUID(current_user['sub'])
-    print(action)
+    
     action_value = action.action.value
     
     recipe_by_id = get_recipe_by_id(db, recipe_id)

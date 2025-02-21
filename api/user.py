@@ -4,11 +4,12 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from db.db_setup import get_db
-from pydantic_schemas.user import UserResponse, UserMessageResponse, UsersMessageResponse, UserCreate, UserUpdate, UserLogin, AuthResponse
+from pydantic_schemas.user import UserResponse, UserMessageResponse, UsersMessageResponse, UserCreate, UserUpdate, UserLogin, AuthResponse, UserFollowerListResponse, UserFollowingListResponse
 from pydantic_schemas.recipe_user_association import RecipeUserAssociationResponse, RecipeUserAssociationsResponse
 from db.models.user import User
 from utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, get_current_user, post_user, put_user, authenticate_user, create_jwt_token, decode_jwt_token
 from utils.recipe_user_association import get_cooked_recipes, get_bookmarked_recipes, get_liked_recipes, get_user_interactions, get_users_interactions
+from utils.follower import * 
 
 from datetime import timedelta, datetime
 from typing import Annotated
@@ -229,3 +230,28 @@ async def retrieve_user(db: Session = Depends(get_db), current_user: dict = Depe
             "detail": f"Users data retrieved successfully", 
             "users": users_db
         }
+
+
+@router.post("/follow/{following_id}")
+def follow_unfollow_user(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), following_id: UUID):
+    user_id = UUID(current_user['sub'])
+
+    return {"detail": f"ID {user_id} of user {toggle_follow(db, user_id, following_id)} ID {following_id}"}
+
+@router.get("/followers/", status_code=status.HTTP_200_OK, response_model=UserFollowerListResponse)
+@router.get("/followers/{user_id}", status_code=status.HTTP_200_OK, response_model=UserFollowerListResponse)
+def list_followers(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), user_id: UUID = None, limit: int = 10, offset: int = 0):
+    target_user_id = user_id if user_id else UUID(current_user['sub'])
+    followers = get_followers(db, target_user_id, limit, offset)
+    total_count = get_followers_count(db, target_user_id)
+
+    return {"total_count": total_count, "followers": followers}
+
+@router.get("/following/", status_code=status.HTTP_200_OK, response_model=UserFollowingListResponse)
+@router.get("/following/{user_id}", status_code=status.HTTP_200_OK, response_model=UserFollowingListResponse)
+def list_following(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), user_id: UUID = None, limit: int = 10, offset: int = 0):
+    target_user_id = user_id if user_id else UUID(current_user['sub'])
+    following = get_following(db, target_user_id, limit, offset)
+    total_count = get_following_count(db, target_user_id)
+
+    return {"total_count": total_count, "followings": following}
