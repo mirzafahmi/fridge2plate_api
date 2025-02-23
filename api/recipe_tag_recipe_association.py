@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.recipe_tag_recipe_association import *
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from utils.recipe import get_recipe_by_id
 from utils.recipe_tag import get_recipe_tag_by_id
 from db.db_setup import get_db

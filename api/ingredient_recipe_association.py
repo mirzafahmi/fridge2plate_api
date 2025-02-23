@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.ingredient_recipe_association import *
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from utils.ingredient import get_ingredient_by_id
 from utils.uom import get_uom_by_id
 from utils.recipe import get_recipe_by_id

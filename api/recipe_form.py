@@ -4,7 +4,8 @@ from uuid import UUID
 
 from db.db_setup import get_db
 
-from utils.user import get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from utils.ingredient import get_ingredients
 from utils.recipe_category import get_recipe_categories
 from utils.recipe_tag import get_recipe_tags

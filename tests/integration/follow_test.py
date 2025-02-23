@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-url_prefix = '/auth'
+url_prefix = '/users'
 ADMIN_ID = "db67b3f4-0e04-47bb-bc46-94826847ee4f"
 
 def test_post_follow_action(client: TestClient, token: str):
@@ -11,10 +11,10 @@ def test_post_follow_action(client: TestClient, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {ADMIN_ID} of user followed ID 0c619092-817e-4f73-b25f-8e187e69dded"
 
-    user_following_list = client.get(f"{url_prefix}/following",
+    user_following_list = client.get(f"{url_prefix}/followings/",
         headers={"Authorization": f"Bearer {token}"}
     )
-
+    print(user_following_list.json())
     assert user_following_list.status_code == 200
 
     following_list = user_following_list.json()["followings"]
@@ -67,7 +67,7 @@ def test_post_unfollow_action(client: TestClient, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {ADMIN_ID} of user unfollowed ID 799bb766-8ebe-4f51-a153-6e3c5530c3c2"
 
-    user_following_list = client.get(f"{url_prefix}/following",
+    user_following_list = client.get(f"{url_prefix}/followings/",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -93,7 +93,7 @@ def test_post_toggle_follow_action_to_origin(client: TestClient, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {ADMIN_ID} of user followed ID 0c619092-817e-4f73-b25f-8e187e69dded"
 
-    user_following_list = client.get(f"{url_prefix}/following",
+    user_following_list = client.get(f"{url_prefix}/followings/",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -148,7 +148,7 @@ def test_post_toggle_follow_action_to_origin(client: TestClient, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {ADMIN_ID} of user unfollowed ID 0c619092-817e-4f73-b25f-8e187e69dded"
 
-    user_following_list = client.get(f"{url_prefix}/following",
+    user_following_list = client.get(f"{url_prefix}/followings/",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -184,7 +184,7 @@ def test_post_toggle_unfollow_action_to_origin(client: TestClient, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {ADMIN_ID} of user unfollowed ID 799bb766-8ebe-4f51-a153-6e3c5530c3c2"
 
-    user_following_list = client.get(f"{url_prefix}/following",
+    user_following_list = client.get(f"{url_prefix}/followings/",
         headers={"Authorization": f"Bearer {token}"}
     )
 
@@ -209,7 +209,7 @@ def test_post_toggle_unfollow_action_to_origin(client: TestClient, token: str):
     assert response.status_code == 200
     assert response.json()["detail"] == f"ID {ADMIN_ID} of user followed ID 799bb766-8ebe-4f51-a153-6e3c5530c3c2"
 
-    user_following_list = client.get(f"{url_prefix}/following",
+    user_following_list = client.get(f"{url_prefix}/followings/",
         headers={"Authorization": f"Bearer {token}"}
     )
 

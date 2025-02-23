@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 import os
 
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from utils.recipe_image import get_recipe_images, get_recipe_image_by_id, get_recipe_images_by_recipe_id, post_recipe_image, put_recipe_image, delete_recipe_image
 from utils.recipe import get_recipe_by_id
 from pydantic_schemas.recipe_image import RecipeImageCreate, RecipeImageUpdate, RecipeImageResponse, RecipeImagesResponse

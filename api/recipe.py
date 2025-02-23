@@ -5,7 +5,8 @@ from uuid import UUID
 import json
 import asyncio
 
-from utils.user import check_valid_user, get_current_user, get_token_from_ws
+from utils.user import check_valid_user
+from utils.auth import get_current_user, get_token_from_ws
 from utils.recipe import *
 from utils.ingredient import get_ingredient_by_id, get_ingredients
 from utils.ingredient_recipe_association import *

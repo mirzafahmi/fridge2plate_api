@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from utils.instruction import get_instructions, get_instruction_by_id, get_instructions_by_recipe_id, check_instruction_by_step_number_duplication, validate_step_number, post_instruction, put_instruction, delete_instruction
 from utils.recipe import get_recipe_by_id
 from db.db_setup import get_db

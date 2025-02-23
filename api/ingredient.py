@@ -5,7 +5,8 @@ from uuid import UUID
 
 from utils.ingredient import *
 from utils.ingredient_category import get_ingredient_category_by_id
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from db.db_setup import get_db
 from pydantic_schemas.ingredient import Ingredient, IngredientCreate, IngredientUpdate, IngredientResponse, IngredientsResponse
 

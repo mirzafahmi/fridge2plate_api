@@ -5,7 +5,8 @@ from uuid import UUID
 
 from db.db_setup import get_db
 from utils.recipe_tip import *
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from utils.recipe import get_recipe_by_id
 from pydantic_schemas.recipe_tip import RecipeTipResponse, RecipeTipsResponse
 

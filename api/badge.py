@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from utils.badge import *
-from utils.user import check_valid_user, get_current_user
+from utils.user import check_valid_user
+from utils.auth import get_current_user
 from db.db_setup import get_db
 from pydantic_schemas.badge import Badge, BadgeCreate, BadgeUpdate, BadgeResponse, BadgesResponse
 

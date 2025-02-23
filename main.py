@@ -2,7 +2,8 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from scalar_fastapi import get_scalar_api_reference
-from api import user, badge, ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe, ingredient_recipe_association, recipe_tag_recipe_association, recipe_instruction, recipe_image, recipe_tip, recipe_form
+from api import auth, user, badge, ingredient_category, ingredient, uom, recipe_category, recipe_tag, recipe_origin, recipe, ingredient_recipe_association, recipe_tag_recipe_association, recipe_instruction, recipe_image, recipe_tip, recipe_form
+from fastapi.routing import APIRouter
 
 
 app = FastAPI(
@@ -25,7 +26,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
 # Include routers
+app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(badge.router)
 app.include_router(ingredient_category.router)
@@ -53,3 +56,6 @@ async def scalar_html():
         openapi_url=app.openapi_url,
         title=app.title + " - Scalar",
     )
+
+for route in app.routes:
+    print(route.path)

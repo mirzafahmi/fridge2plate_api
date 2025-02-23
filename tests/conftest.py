@@ -209,7 +209,7 @@ def setup_and_teardown():
     ]
 
     TimestampMixin.override_timestamps(dummy_follow, created=fixed_timestamp, updated=fixed_timestamp)
-    print(dummy_follow[0].created_date)
+
     for recipe in recipes:
         recipe_data = RecipeCreateSeeder(**recipe)
         
