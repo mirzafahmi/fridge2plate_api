@@ -192,14 +192,24 @@ def list_followers(*, db: Session = Depends(get_db), current_user: dict = Depend
     target_user_id = user_id if user_id else UUID(current_user['sub'])
     followers = get_followers(db, target_user_id, limit, offset)
     total_count = get_followers_count(db, target_user_id)
+    
+    result = [
+        UserResponse(**user.__dict__, is_following=is_following)
+        for user, is_following in followers
+    ]
 
-    return {"total_count": total_count, "followers": followers}
+    return {"total_count": total_count, "followers": result}
 
 @router.get("/followings/", status_code=status.HTTP_200_OK, response_model=UserFollowingListResponse)
 @router.get("/followings/{user_id}", status_code=status.HTTP_200_OK, response_model=UserFollowingListResponse)
 def list_following(*, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), user_id: UUID = None, limit: int = 10, offset: int = 0):
     target_user_id = user_id if user_id else UUID(current_user['sub'])
-    following = get_following(db, target_user_id, limit, offset)
+    followings = get_following(db, target_user_id, limit, offset)
     total_count = get_following_count(db, target_user_id)
 
-    return {"total_count": total_count, "followings": following}
+    result = [
+        UserResponse(**user.__dict__, is_following=is_following)
+        for user, is_following in followings
+    ]
+
+    return {"total_count": total_count, "followings": result}

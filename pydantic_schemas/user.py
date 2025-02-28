@@ -34,6 +34,7 @@ class UserResponse(LowercaseBaseModel):
     cooked_count: Optional[int] = 0
     bookmarked_count: Optional[int] = 0
     liked_count: Optional[int] = 0
+    is_following: Optional[bool] = None
 
     created_date: datetime
     updated_date: datetime
