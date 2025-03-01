@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import exists
-from typing import Optional
+from sqlalchemy.sql import exists, case
+from typing import Optional, List
 from sqlalchemy import func, asc
 from uuid import UUID
 from fastapi import HTTPException, status
@@ -68,6 +68,44 @@ def get_followers_count(db: Session, user_id: UUID):
 
 def get_following_count(db: Session, user_id: UUID):
     return db.query(Follower).filter(Follower.follower_id == user_id).count()
+
+def get_follow_stats(db: Session, user_id: UUID):
+    counts = (
+        db.query(
+            func.count(case((Follower.user_id == user_id, 1))).label("followers_count"),
+            func.count(case((Follower.follower_id == user_id, 1))).label("followings_count"),
+        )
+        .one()
+    )
+
+    return {"followers_count": counts.followers_count, "followings_count": counts.followings_count}
+
+def get_follow_counts(db: Session, user_ids: List[UUID]):
+    counts = (
+        db.query(
+            User.id.label("user_id"),
+            func.coalesce(
+                db.query(func.count()).filter(Follower.user_id == User.id, Follower.user_id.in_(user_ids)).scalar_subquery(),
+                0
+            ).label("followers_count"),
+            func.coalesce(
+                db.query(func.count()).filter(Follower.follower_id == User.id, Follower.follower_id.in_(user_ids)).scalar_subquery(),
+                0
+            ).label("followings_count"),
+        )
+        .filter(User.id.in_(user_ids))
+        .all()
+    )
+
+    result = {
+        row.user_id: {
+            "followers_count": row.followers_count, 
+            "followings_count": row.followings_count
+        } 
+        for row in counts
+    }
+    return result
+
 
 def get_follow_status(db: Session, user_id: UUID):
     return db.query(Follower).filter_by()

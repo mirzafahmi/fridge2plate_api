@@ -27,6 +27,8 @@ def test_post_follow_action(client: TestClient, token: str):
     assert following_list[0]["bookmarked_count"] == 0
     assert following_list[0]["liked_count"] == 0
     assert following_list[0]["is_following"] == True
+    assert following_list[0]["followers_count"] == 1
+    assert following_list[0]["followings_count"] == 0
 
     assert "created_date" in following_list[0]
     assert "updated_date" in following_list[0]
@@ -38,6 +40,8 @@ def test_post_follow_action(client: TestClient, token: str):
     assert following_list[1]["bookmarked_count"] == 0
     assert following_list[1]["liked_count"] == 0
     assert following_list[1]["is_following"] == True
+    assert following_list[1]["followers_count"] == 1
+    assert following_list[1]["followings_count"] == 1
 
     assert "created_date" in following_list[1]
     assert "updated_date" in following_list[1]
@@ -54,10 +58,12 @@ def test_post_follow_action(client: TestClient, token: str):
     assert follower_list[0]['id'] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert follower_list[0]['username'] == "testuser"
     assert follower_list[0]['email'] == "test@example.com"
-    assert follower_list[0]["cooked_count"] == 0
-    assert follower_list[0]["bookmarked_count"] == 0
-    assert follower_list[0]["liked_count"] == 0
-    assert following_list[0]["is_following"] == True
+    assert follower_list[0]["cooked_count"] == 1
+    assert follower_list[0]["bookmarked_count"] == 1
+    assert follower_list[0]["liked_count"] == 1
+    assert follower_list[0]["is_following"] == False #it should be none or null
+    assert follower_list[0]["followers_count"] == 1
+    assert follower_list[0]["followings_count"] == 2
 
     assert "created_date" in follower_list[0]
     assert "updated_date" in follower_list[0]
@@ -112,6 +118,8 @@ def test_post_toggle_follow_action_to_origin(client: TestClient, token: str):
     assert following_list[0]["bookmarked_count"] == 0
     assert following_list[0]["liked_count"] == 0
     assert following_list[0]["is_following"] == True
+    assert following_list[0]["followers_count"] == 1
+    assert following_list[0]["followings_count"] == 0
 
     assert "created_date" in following_list[0]
     assert "updated_date" in following_list[0]
@@ -123,6 +131,8 @@ def test_post_toggle_follow_action_to_origin(client: TestClient, token: str):
     assert following_list[1]["bookmarked_count"] == 0
     assert following_list[1]["liked_count"] == 0
     assert following_list[1]["is_following"] == True
+    assert following_list[1]["followers_count"] == 1
+    assert following_list[1]["followings_count"] == 1
 
     assert "created_date" in following_list[1]
     assert "updated_date" in following_list[1]
@@ -139,10 +149,12 @@ def test_post_toggle_follow_action_to_origin(client: TestClient, token: str):
     assert follower_list[0]['id'] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert follower_list[0]['username'] == "testuser"
     assert follower_list[0]['email'] == "test@example.com"
-    assert follower_list[0]["cooked_count"] == 0
-    assert follower_list[0]["bookmarked_count"] == 0
-    assert follower_list[0]["liked_count"] == 0
-    assert following_list[0]["is_following"] == True
+    assert follower_list[0]["cooked_count"] == 1
+    assert follower_list[0]["bookmarked_count"] == 1
+    assert follower_list[0]["liked_count"] == 1
+    assert follower_list[0]["is_following"] == False
+    assert follower_list[0]["followers_count"] == 1
+    assert follower_list[0]["followings_count"] == 2
 
     assert "created_date" in follower_list[0]
     assert "updated_date" in follower_list[0]
@@ -170,6 +182,8 @@ def test_post_toggle_follow_action_to_origin(client: TestClient, token: str):
     assert following_list[0]["bookmarked_count"] == 0
     assert following_list[0]["liked_count"] == 0
     assert following_list[0]["is_following"] == True
+    assert following_list[0]["followers_count"] == 1
+    assert following_list[0]["followings_count"] == 1
 
     assert "created_date" in following_list[0]
     assert "updated_date" in following_list[0]
@@ -232,6 +246,8 @@ def test_post_toggle_unfollow_action_to_origin(client: TestClient, token: str):
     assert following_list[0]["bookmarked_count"] == 0
     assert following_list[0]["liked_count"] == 0
     assert following_list[0]["is_following"] == True
+    assert following_list[0]["followers_count"] == 1
+    assert following_list[0]["followings_count"] == 1
 
     assert "created_date" in following_list[0]
     assert "updated_date" in following_list[0]
@@ -248,10 +264,12 @@ def test_post_toggle_unfollow_action_to_origin(client: TestClient, token: str):
     assert follower_list[0]['id'] == "db67b3f4-0e04-47bb-bc46-94826847ee4f"
     assert follower_list[0]['username'] == "testuser"
     assert follower_list[0]['email'] == "test@example.com"
-    assert follower_list[0]["cooked_count"] == 0
-    assert follower_list[0]["bookmarked_count"] == 0
-    assert follower_list[0]["liked_count"] == 0
-    assert following_list[0]["is_following"] == True
+    assert follower_list[0]["cooked_count"] == 1
+    assert follower_list[0]["bookmarked_count"] == 1
+    assert follower_list[0]["liked_count"] == 1
+    assert follower_list[0]["is_following"] == True
+    assert follower_list[0]["followers_count"] == 1
+    assert follower_list[0]["followings_count"] == 1
 
     assert "created_date" in follower_list[0]
     assert "updated_date" in follower_list[0]

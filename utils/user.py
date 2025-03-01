@@ -5,13 +5,14 @@ from fastapi import Depends, WebSocket
 from jose import jwt, JWTError
 from fastapi import HTTPException, status
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, aliased
+from sqlalchemy.sql import exists
 from sqlalchemy import func
 from typing import Optional
 import base64
 from uuid import UUID
 
-from db.models.user import User
+from db.models.user import User, Follower
 from pydantic_schemas.user import UserCreate, UserUpdate, UserLogin
 
 
@@ -20,6 +21,44 @@ def get_user(db: Session):
 
 def get_user_by_id(db: Session, user_id: UUID):
     return db.query(User).filter(User.id == user_id).first()
+
+def get_users_with_is_following(db: Session, requester_id: UUID, limit: int = 20, offset: int = 0):
+    FollowerAlias = aliased(Follower)
+
+    users = (
+        db.query(
+            User,
+            exists()
+            .where(FollowerAlias.user_id == requester_id)
+            .where(FollowerAlias.follower_id == User.id)
+            .correlate(User)
+            .label("is_following")
+        )
+        .order_by(User.created_date.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+    return users
+
+def get_user_by_id_with_is_following(db: Session, user_id: UUID, requester_id: UUID):
+    FollowerAlias = aliased(Follower)
+
+    user_with_following = (
+        db.query(
+            User,
+            exists()
+            .where(FollowerAlias.user_id == requester_id)
+            .where(FollowerAlias.follower_id == user_id)
+            .correlate(User)
+            .label("is_following")
+        )
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    return user_with_following if user_with_following else (None, None)
 
 def get_user_by_username(db: Session, user_username: str):
     return db.query(User).filter(func.lower(User.username) == user_username).first()

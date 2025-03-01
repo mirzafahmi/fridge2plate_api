@@ -5,6 +5,7 @@ from uuid import UUID
 
 from db.db_setup import get_db
 from utils.user import get_user_by_email, get_user_by_username, post_user, get_user_by_id
+from utils.follower import get_follow_counts, get_follow_stats
 from utils.auth import authenticate_user, create_jwt_token, get_current_user
 from utils.recipe_user_association import get_user_interactions
 from pydantic_schemas.user import UserMessageResponse, UserCreate, AuthResponse
@@ -79,6 +80,11 @@ async def retrieve_current_user(current_user: dict = Depends(get_current_user), 
     user_db.cooked_count = user_interaction.get("cooked_count", 0)
     user_db.bookmarked_count = user_interaction.get("bookmarked_count", 0)
     user_db.liked_count = user_interaction.get("liked_count", 0)
+
+    user_follow_counts = get_follow_counts(db, [user_id])
+    count = user_follow_counts.get(user_id, {})
+    user_db.followers_count = count.get("followers_count", 0)
+    user_db.followings_count = count.get("followings_count", 0)
 
     return {
         "detail": "User data retrieved successfully", 

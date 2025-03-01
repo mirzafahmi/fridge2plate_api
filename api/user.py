@@ -7,7 +7,7 @@ from db.db_setup import get_db
 from pydantic_schemas.user import UserResponse, UserMessageResponse, UsersMessageResponse, UserUpdate, UserFollowerListResponse, UserFollowingListResponse
 from pydantic_schemas.recipe_user_association import RecipeUserAssociationResponse, RecipeUserAssociationsResponse
 from db.models.user import User
-from utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, put_user
+from utils.user import get_user, get_user_by_id, get_user_by_email, get_user_by_username, put_user, get_user_by_id_with_is_following, get_users_with_is_following
 from utils.auth import get_current_user
 from utils.recipe_user_association import get_cooked_recipes, get_bookmarked_recipes, get_liked_recipes, get_user_interactions, get_users_interactions
 from utils.follower import * 
@@ -23,29 +23,41 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=UsersMessageResponse)
-async def retrieve_user(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    users_db = get_user(db)
+async def retrieve_user(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user), limit: int = 10, offset: int = 0):
+    current_user_id = UUID(current_user["sub"])
+    users_with_follow_status = get_users_with_is_following(db, current_user_id, limit, offset)
 
-    if not users_db:
+    if not users_with_follow_status:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Users list are empty"
+            detail="Users list is empty"
         )
 
-    user_ids = [user.id for user in users_db]
+    user_ids = [user.id for user, _ in users_with_follow_status]
 
     users_interactions = get_users_interactions(db, user_ids)
+    user_follow_counts = get_follow_counts(db, user_ids)
     
-    for user_db in users_db:
+    users_result = []
+    for user_db, is_following in users_with_follow_status:
         counts = users_interactions.get(user_db.id, {})
         user_db.cooked_count = counts.get("cooked_count", 0)
         user_db.bookmarked_count = counts.get("bookmarked_count", 0)
         user_db.liked_count = counts.get("liked_count", 0)
 
+        count = user_follow_counts.get(user_db.id, {})
+        user_db.followers_count = count.get("followers_count", 0)
+        user_db.followings_count = count.get("followings_count", 0)
+
+        user_db.is_following = is_following  # Assign the follow status
+
+        users_result.append(user_db)
+
     return {
-            "detail": f"Users data retrieved successfully", 
-            "users": users_db
-        }
+        "detail": "Users data retrieved successfully",
+        "users": users_result
+    }
+
 
 @router.patch("/profile/update", response_model=UserMessageResponse)
 async def update_profile(user_update: UserUpdate, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -92,9 +104,8 @@ async def retrieve_user_by_email(email: str, db: Session = Depends(get_db), curr
 
 @router.get("/{user_id}", response_model=UserMessageResponse)
 async def retrieve_user_by_id(user_id: UUID, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    print(f"Searching for user with ID: {user_id}")
-    user_db = get_user_by_id(db, user_id)
-    print(f"Found user: {user_db}")
+    current_user_id = UUID(current_user["sub"])
+    user_db, is_following = get_user_by_id_with_is_following(db, user_id, current_user_id)
     if not user_db:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
@@ -105,6 +116,13 @@ async def retrieve_user_by_id(user_id: UUID, db: Session = Depends(get_db), curr
     user_db.cooked_count = user_interaction.get("cooked_count", 0)
     user_db.bookmarked_count = user_interaction.get("bookmarked_count", 0)
     user_db.liked_count = user_interaction.get("liked_count", 0)
+
+    user_follow_counts = get_follow_counts(db, [user_id])
+    count = user_follow_counts.get(user_id, {})
+    user_db.followers_count = count.get("followers_count", 0)
+    user_db.followings_count = count.get("followings_count", 0)
+
+    user_db.is_following = is_following
 
     return {
             "detail": f"ID {user_id} of user data retrieved successfully", 
@@ -193,6 +211,21 @@ def list_followers(*, db: Session = Depends(get_db), current_user: dict = Depend
     followers = get_followers(db, target_user_id, limit, offset)
     total_count = get_followers_count(db, target_user_id)
     
+    user_ids = [user.id for user, _ in followers]
+
+    users_interactions = get_users_interactions(db, user_ids)
+    user_follow_counts = get_follow_counts(db, user_ids)
+    
+    for follower, _ in followers:
+        counts = users_interactions.get(follower.id, {})
+        follower.cooked_count = counts.get("cooked_count", 0)
+        follower.bookmarked_count = counts.get("bookmarked_count", 0)
+        follower.liked_count = counts.get("liked_count", 0)
+
+        count = user_follow_counts.get(follower.id, {})
+        follower.followers_count = count.get("followers_count", 0)
+        follower.followings_count = count.get("followings_count", 0)
+
     result = [
         UserResponse(**user.__dict__, is_following=is_following)
         for user, is_following in followers
@@ -207,6 +240,21 @@ def list_following(*, db: Session = Depends(get_db), current_user: dict = Depend
     followings = get_following(db, target_user_id, limit, offset)
     total_count = get_following_count(db, target_user_id)
 
+    user_ids = [user.id for user, _ in followings]
+
+    users_interactions = get_users_interactions(db, user_ids)
+    user_follow_counts = get_follow_counts(db, user_ids)
+    
+    for following, _ in followings:
+        counts = users_interactions.get(following.id, {})
+        following.cooked_count = counts.get("cooked_count", 0)
+        following.bookmarked_count = counts.get("bookmarked_count", 0)
+        following.liked_count = counts.get("liked_count", 0)
+
+        count = user_follow_counts.get(following.id, {})
+        following.followers_count = count.get("followers_count", 0)
+        following.followings_count = count.get("followings_count", 0)
+    
     result = [
         UserResponse(**user.__dict__, is_following=is_following)
         for user, is_following in followings
